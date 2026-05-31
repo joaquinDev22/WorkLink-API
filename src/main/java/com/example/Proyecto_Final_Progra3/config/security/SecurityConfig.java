@@ -12,16 +12,15 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securitiFilterChain(HttpSecurity http) throws Exception {
         return http
-                .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth ->auth
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/empresas/**").hasRole("EMPRESA")
-                        .requestMatchers("/freelancers/**","/empleado/**").hasRole("EMPLOYEE")
-                        .requestMatchers("/recruiters/**").hasRole("RECRUITER")
-                        .requestMatchers("/instructors/**").hasRole("INSTRUCTOR")
-                        .requestMatchers("/clientes/**").hasRole("CLIENTE")
-                ).build();
-
+        .csrf(csrf -> csrf.disable())
+        .authorizeHttpRequests(auth ->auth
+                .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("/empresas/**").hasRole("EMPRESA")
+                .requestMatchers("/freelancers/**","/empleado/**").hasRole("EMPLOYEE")
+                .requestMatchers("/recruiters/**").hasRole("RECRUITER")
+                .requestMatchers("/instructors/**").hasRole("INSTRUCTOR")
+                .requestMatchers("/clientes/**").hasRole("CLIENTE")
+        ).build();
     }
     @Bean
     public PasswordEncoder passwordEncoder() {
