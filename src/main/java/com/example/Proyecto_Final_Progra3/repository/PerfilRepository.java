@@ -11,4 +11,6 @@ import java.util.Optional;
 @Repository
 public interface PerfilRepository extends JpaRepository<Perfil, Integer> {
     Optional<Perfil> findByUsuario(String nombreUsuario);
+
+    Integer id(int id);
 }
