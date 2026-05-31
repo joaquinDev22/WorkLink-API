@@ -17,4 +17,6 @@ public class Recruiter{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="recruiter_id")
     private int recruiterId;
+
+
 }
