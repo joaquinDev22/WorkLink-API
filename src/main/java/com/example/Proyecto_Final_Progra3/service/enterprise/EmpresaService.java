@@ -80,6 +80,14 @@ public class EmpresaService {
         return empresaRepository.findByPerfil(perfil);
     }
 
+
+    public void eliminarEmpresa(int idEmpresa){
+        Empresa empresa = empresaRepository.findById(idEmpresa)
+                .orElseThrow(() -> new RuntimeException("Ese empresa no existe"));
+
+        empresaRepository.delete(empresa);
+    }
+
     
 
 }
