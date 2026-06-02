@@ -1,4 +1,4 @@
-package com.example.Proyecto_Final_Progra3.model.freelancer;
+package com.example.Proyecto_Final_Progra3.model.freelance;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -12,9 +12,22 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class ClienteParticular {
+public class Client {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="cliente_particular_id")
     private int cliente_id;
+
+    @Column(name="nombre")
+    private String firstName;
+
+    @Column(name="apellido")
+    private String lastName;
+    private String email;
+
+    @Column(name="telefono")
+    private String phoneNumber;
+
+    @Column(name="pais")
+    private String country;
 }
