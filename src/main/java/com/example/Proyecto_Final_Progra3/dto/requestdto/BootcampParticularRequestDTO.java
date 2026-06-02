@@ -1,9 +1,15 @@
 package com.example.Proyecto_Final_Progra3.dto.requestdto;
 
 import com.example.Proyecto_Final_Progra3.model.enums.Modalidad;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 
+@AllArgsConstructor
+@Getter
+@Setter
 public class BootcampParticularRequestDTO {
     private String titulo;
     private String descripcion;
