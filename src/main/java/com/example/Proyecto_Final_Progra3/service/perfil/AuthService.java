@@ -49,11 +49,30 @@ public class AuthService {
         if(!passwordEncoder.matches(dto.getPassword(), perfil.getPassword())) {
             throw new RuntimeException("CONTRASEÑA INCORRECTA");
         }
+        if(!perfil.is_active()){
+            throw new RuntimeException("EL PERFIL ESTA DESACTIVADO");
+        }
 
         return new LogginResponseDTO(
                 "Login exitoso",
                 perfil.getUsuario(),
                 perfil.getRol()
         );
+    }
+
+    public void bajaPerfil(PerfilRequestDTO dto) {
+        Perfil perfil = perfilRepository.findByUsuario(dto.getUsuario())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        perfil.set_active(false);
+        perfilRepository.save(perfil);
+    }
+
+    public void altaPerfil(PerfilRequestDTO dto) {
+        Perfil perfil = perfilRepository.findByUsuario(dto.getUsuario())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        perfil.set_active(true);
+        perfilRepository.save(perfil);
     }
 }
