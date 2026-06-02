@@ -12,6 +12,7 @@ import lombok.Setter;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @AllArgsConstructor
 @Getter
@@ -39,6 +40,32 @@ public class BootcampParticularService {
         bootcamp.setInstructorParticular(instructor);
 
         return bootcampParticularRepository.save(bootcamp);
+    }
+
+    public BootcampParticular modificarBootcampParticular(Integer id, BootcampParticularRequestDTO dto) {
+
+        BootcampParticular bootcamp = bootcampParticularRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("No existe un bootcamp particular con ese ID"));
+
+        validarBootcampParticular(dto);
+
+        InstructorParticular instructor = instructorParticularRepository.findById(dto.getInstructorId())
+                .orElseThrow(() -> new RuntimeException("No existe un instructor particular con ese ID"));
+
+        bootcamp.setTitulo(dto.getTitulo());
+        bootcamp.setDescripcion(dto.getDescripcion());
+        bootcamp.setFechaInicio(dto.getFechaInicio());
+        bootcamp.setFechaFin(dto.getFechaFin());
+        bootcamp.setModalidad(dto.getModalidad());
+        bootcamp.setCupos(dto.getCupos());
+        bootcamp.setInstructorParticular(instructor);
+
+        return bootcampParticularRepository.save(bootcamp);
+    }
+
+    public List<BootcampParticular>listarBootcampsParticulares()
+    {
+        return bootcampParticularRepository.findAll();
     }
 
     //Metodo de validación del bootcampParticular

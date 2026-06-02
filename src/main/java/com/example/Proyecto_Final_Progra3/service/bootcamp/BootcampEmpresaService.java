@@ -49,43 +49,71 @@ public class BootcampEmpresaService {
         bootcampEmpresaRepository.delete(bootcamp);
     }
 
+    public BootcampEmpresa modificarBootcampEmpresa(Integer id, BootcampEmpresaRequestDTO dto) {
+
+        BootcampEmpresa bootcamp = bootcampEmpresaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("No existe un bootcamp empresarial con ese ID"));
+
+        validarBootcampEmpresa(dto);
+
+        Empresa empresa = empresaRepository.findById(dto.getEmpresaId())
+                .orElseThrow(() -> new RuntimeException("No existe una empresa con ese ID"));
+
+        InstructorEmpresa instructor = instructorEmpresaRepository.findById(dto.getInstructorId())
+                .orElseThrow(() -> new RuntimeException("No existe un instructor empresarial con ese ID"));
+
+        validarInstructorPerteneceAEmpresa(instructor, empresa);
+
+        bootcamp.setTitulo(dto.getTitulo());
+        bootcamp.setDescripcion(dto.getDescripcion());
+        bootcamp.setFechaInicio(dto.getFechaInicio());
+        bootcamp.setFechaFin(dto.getFechaFin());
+        bootcamp.setModalidad(dto.getModalidad());
+        bootcamp.setCupos(dto.getCupos());
+        bootcamp.setEmpresa(empresa);
+        bootcamp.setInstructorEmpresa(instructor);
+
+        return bootcampEmpresaRepository.save(bootcamp);
+    }
+
 
     //Metodo de validación de creación de bootcampEmpresa
     private void validarBootcampEmpresa(BootcampEmpresaRequestDTO dto) {
         if (dto.getTitulo() == null || dto.getTitulo().isBlank()) {
             throw new BootcampInvalidoException("El título es obligatorio");
         }
-
         if (dto.getDescripcion() == null || dto.getDescripcion().isBlank()) {
             throw new BootcampInvalidoException("La descripción es obligatoria");
         }
-
         if (dto.getFechaInicio() == null) {
             throw new BootcampInvalidoException("La fecha de inicio es obligatoria");
         }
-
         if (dto.getFechaFin() == null) {
             throw new BootcampInvalidoException("La fecha de fin es obligatoria");
         }
-
         if (!dto.getFechaFin().isAfter(dto.getFechaInicio())) {
             throw new BootcampInvalidoException("La fecha de fin debe ser posterior a la fecha de inicio");
         }
-
         if (dto.getCupos() == null || dto.getCupos() <= 0) {
             throw new BootcampInvalidoException("Los cupos deben ser mayores a cero");
         }
-
         if (dto.getModalidad() == null) {
             throw new BootcampInvalidoException("La modalidad es obligatoria");
         }
-
         if (dto.getEmpresaId() == null) {
             throw new BootcampInvalidoException("La empresa es obligatoria");
         }
-
         if (dto.getInstructorId() == null) {
             throw new BootcampInvalidoException("El instructor es obligatorio");
+        }
+    }
+
+    private void validarInstructorPerteneceAEmpresa(InstructorEmpresa instructor, Empresa empresa) {
+        if (instructor.getEmpresa() == null) {
+            throw new RuntimeException("El instructor no tiene una empresa asociada");
+        }
+        if (instructor.getEmpresa().getId() != empresa.getId()) {
+            throw new RuntimeException("El instructor no pertenece a la empresa indicada");
         }
     }
 }
