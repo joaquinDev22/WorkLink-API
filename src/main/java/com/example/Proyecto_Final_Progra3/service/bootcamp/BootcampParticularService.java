@@ -43,6 +43,14 @@ public class BootcampParticularService {
         return bootcampParticularRepository.save(bootcamp);
     }
 
+    public void eliminarBootcampEmpresa(Integer id) {
+
+        BootcampParticular bootcamp = bootcampParticularRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("No existe un bootcamp empresarial con ese ID"));
+
+        bootcampParticularRepository.delete(bootcamp);
+    }
+
     public BootcampParticular modificarBootcampParticular(Integer id, BootcampParticularRequestDTO dto) {
 
         BootcampParticular bootcamp = bootcampParticularRepository.findById(id)
