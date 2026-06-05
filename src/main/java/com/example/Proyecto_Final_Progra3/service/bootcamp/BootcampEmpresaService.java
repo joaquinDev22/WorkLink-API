@@ -135,4 +135,11 @@ public class BootcampEmpresaService {
                 new RuntimeException("No existe una empresa con este Id"));
         return bootcampEmpresaRepository.findByEmpresa_Id(idEmpresa);
     }
+
+    public List<BootcampEmpresa> listarPorModalidad(String modalidad) {
+        if (modalidad == null) {
+            throw new BootcampInvalidoException("La modalidad es obligatoria!");
+        }
+        return bootcampEmpresaRepository.findByModalidad(modalidad);
+    }
 }

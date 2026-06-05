@@ -11,8 +11,9 @@ import java.util.List;
 public interface BootcampEmpresaRepository extends JpaRepository<BootcampEmpresa, Integer> {
     List<BootcampEmpresa> findByCuposGreaterThan(Integer cupos);
 
-    List<BootcampEmpresa> findByCuposGreaterThanAndFechaInicioGreaterThanEqual(Integer cupos, LocalDate fechaInicio
-    );
+    List<BootcampEmpresa> findByCuposGreaterThanAndFechaInicioGreaterThanEqual(Integer cupos, LocalDate fechaInicio);
 
     List<BootcampEmpresa> findByEmpresa_Id(int empresaId);
+
+    List<BootcampEmpresa> findByModalidad(String modalidad);
 }
