@@ -7,6 +7,10 @@ import com.example.Proyecto_Final_Progra3.DTO.responsedto.PerfilResponseDTO;
 import com.example.Proyecto_Final_Progra3.model.Perfil;
 import com.example.Proyecto_Final_Progra3.repository.PerfilRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -15,9 +19,15 @@ import org.springframework.stereotype.Service;
 public class AuthService {
 
     private final PerfilRepository perfilRepository;
-    private  PasswordEncoder passwordEncoder;
+    private final  PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
     public PerfilResponseDTO register(PerfilRequestDTO dto) {
+
+        if (perfilRepository.findByUsuario(dto.getUsuario()).isPresent()) {
+            throw new RuntimeException("El usuario ya existe");
+        }
 
         Perfil perfil = new Perfil();
 
@@ -30,9 +40,7 @@ public class AuthService {
         perfil.setRol(dto.getRol());
 
 
-        if (perfilRepository.findByUsuario(dto.getUsuario()).isPresent()) {
-            throw new RuntimeException("El usuario ya existe");
-        }
+
         Perfil perfilGuardado = perfilRepository.save(perfil);
 
         return new PerfilResponseDTO(
@@ -43,20 +51,26 @@ public class AuthService {
     }
 
     public LogginResponseDTO loggin(LogginRequestDTO dto) {
-        Perfil perfil = perfilRepository.findByUsuario(dto.getUsuario())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        dto.getUsuario(),
+                        dto.getPassword()
+                )
+        );
 
-        if(!passwordEncoder.matches(dto.getPassword(), perfil.getPassword())) {
-            throw new RuntimeException("CONTRASEÑA INCORRECTA");
-        }
+        Perfil perfil = (Perfil) authentication.getPrincipal();
+
+
         if(!perfil.is_active()){
             throw new RuntimeException("EL PERFIL ESTA DESACTIVADO");
         }
+        String token = jwtService.generateToken(perfil);
 
         return new LogginResponseDTO(
                 "Login exitoso",
                 perfil.getUsuario(),
-                perfil.getRol()
+                perfil.getRol(),
+                token
         );
     }
 

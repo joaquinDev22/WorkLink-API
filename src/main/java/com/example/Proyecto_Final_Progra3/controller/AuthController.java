@@ -10,10 +10,7 @@ import com.example.Proyecto_Final_Progra3.service.perfil.AuthService;
 import com.example.Proyecto_Final_Progra3.service.perfil.PerfilDetailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -33,5 +30,7 @@ public class AuthController {
     public LogginResponseDTO login(@RequestBody LogginRequestDTO dto) {
         return authService.loggin(dto);
     }
+
+
 
 }
