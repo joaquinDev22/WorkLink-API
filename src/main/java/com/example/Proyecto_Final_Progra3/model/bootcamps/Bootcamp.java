@@ -1,5 +1,7 @@
 package com.example.Proyecto_Final_Progra3.model.bootcamps;
 
+import com.example.Proyecto_Final_Progra3.model.Instructor.Instructor;
+import com.example.Proyecto_Final_Progra3.model.enums.Modalidad;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Generated;
@@ -23,9 +25,8 @@ public abstract class Bootcamp {
     private LocalDate fechaInicio;
     @Column(name = "fecha_fin")
     private LocalDate fechaFin;
-    private String modalidad;
+    @Enumerated
+    private Modalidad modalidad;
     private Integer cupos;
-    @Column(name = "instructor_id")
-    private Integer instructorId;
 
 }

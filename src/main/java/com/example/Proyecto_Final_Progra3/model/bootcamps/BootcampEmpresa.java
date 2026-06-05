@@ -5,8 +5,10 @@ import com.example.Proyecto_Final_Progra3.model.enterprise.Empresa;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Getter
