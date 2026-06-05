@@ -9,6 +9,8 @@ import com.example.Proyecto_Final_Progra3.repository.instructor.InstructorEmpres
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @AllArgsConstructor
 @Service
 public class InstructorEmpresaService {
@@ -49,6 +51,10 @@ public class InstructorEmpresaService {
         instructorEmpresa.setEmpresa(empresa);
 
         return instructorEmpresaRepository.save(instructorEmpresa);
+    }
+
+    public List<InstructorEmpresa> listarInstuctoresEmpresa() {
+        return instructorEmpresaRepository.findAll();
     }
 
     private void validarInstructorEmpresa(InstructorEmpresaRequestDTO dto) {
