@@ -12,6 +12,9 @@ import com.example.Proyecto_Final_Progra3.repository.instructor.InstructorEmpres
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.List;
+
 @AllArgsConstructor
 @Service
 public class BootcampEmpresaService {
@@ -115,5 +118,28 @@ public class BootcampEmpresaService {
         if (instructor.getEmpresa().getId() != empresa.getId()) {
             throw new RuntimeException("El instructor no pertenece a la empresa indicada");
         }
+    }
+
+    public BootcampEmpresa buscarPorId(int bootcampId) {
+
+        return bootcampEmpresaRepository.findById(bootcampId).orElseThrow(() ->
+                new BootcampInvalidoException("No existe un Bootcamp con ese ID"));
+    }
+
+    public List<BootcampEmpresa> listarDisponibles() {
+        return bootcampEmpresaRepository.findByCuposGreaterThanAndFechaInicioGreaterThanEqual(0, LocalDate.now());
+    }
+
+    public List<BootcampEmpresa> listarPorEmpresa(int idEmpresa) {
+        Empresa empresa = empresaRepository.findById(idEmpresa).orElseThrow(() ->
+                new RuntimeException("No existe una empresa con este Id"));
+        return bootcampEmpresaRepository.findByEmpresa_Id(idEmpresa);
+    }
+
+    public List<BootcampEmpresa> listarPorModalidad(String modalidad) {
+        if (modalidad == null) {
+            throw new BootcampInvalidoException("La modalidad es obligatoria!");
+        }
+        return bootcampEmpresaRepository.findByModalidad(modalidad);
     }
 }

@@ -3,6 +3,7 @@ package com.example.Proyecto_Final_Progra3.service.bootcamp;
 import com.example.Proyecto_Final_Progra3.dto.requestdto.BootcampParticularRequestDTO;
 import com.example.Proyecto_Final_Progra3.exceptions.BootcampInvalidoException;
 import com.example.Proyecto_Final_Progra3.model.Instructor.InstructorParticular;
+import com.example.Proyecto_Final_Progra3.model.bootcamps.BootcampEmpresa;
 import com.example.Proyecto_Final_Progra3.model.bootcamps.BootcampParticular;
 import com.example.Proyecto_Final_Progra3.repository.bootcamp.BootcampParticularRepository;
 import com.example.Proyecto_Final_Progra3.repository.instructor.InstructorParticularRepository;
@@ -63,8 +64,7 @@ public class BootcampParticularService {
         return bootcampParticularRepository.save(bootcamp);
     }
 
-    public List<BootcampParticular>listarBootcampsParticulares()
-    {
+    public List<BootcampParticular> listarBootcampsParticulares() {
         return bootcampParticularRepository.findAll();
     }
 
@@ -103,5 +103,21 @@ public class BootcampParticularService {
         if (dto.getInstructorId() == null) {
             throw new BootcampInvalidoException("El instructor particular es obligatorio");
         }
+    }
+
+    public BootcampParticular buscarPorId(int bootcampId) {
+        return bootcampParticularRepository.findById(bootcampId).orElseThrow(() ->
+                new BootcampInvalidoException("No existe un Bootcamp con ese ID"));
+    }
+
+    public List<BootcampParticular> listarDisponibles() {
+        return bootcampParticularRepository.findByCuposGreaterThanAndFechaInicioGreaterThanEqual(0, LocalDate.now());
+    }
+
+    public List<BootcampParticular> listarPorModalidad(String modalidad) {
+        if (modalidad == null) {
+            throw new BootcampInvalidoException("La modalidad es obligatoria!");
+        }
+        return bootcampParticularRepository.findByModalidad(modalidad);
     }
 }
