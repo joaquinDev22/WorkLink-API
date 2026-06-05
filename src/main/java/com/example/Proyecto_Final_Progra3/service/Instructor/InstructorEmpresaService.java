@@ -33,7 +33,23 @@ public class InstructorEmpresaService {
                 .orElseThrow(() -> new InstructorInvalidoException("No existe un instructor con ese id"));
         instructorEmpresaRepository.delete(instructorEmpresa);
     }
-    
+
+    public InstructorEmpresa modificarInstructorEmpresa(Integer idInstuctor, InstructorEmpresaRequestDTO dto) {
+        InstructorEmpresa instructorEmpresa = instructorEmpresaRepository.findById(idInstuctor)
+                .orElseThrow(() -> new InstructorInvalidoException("No existe ningún instructor con ese id"));
+
+        validarInstructorEmpresa(dto);
+
+        Empresa empresa = empresaRepository.findById(dto.getEmpresaId())
+                .orElseThrow(() -> new RuntimeException("No existe una empresa con ese ID"));
+
+        instructorEmpresa.setNombre(dto.getNombre());
+        instructorEmpresa.setTitulo(dto.getTitulo());
+        instructorEmpresa.setDescripcion(dto.getDescripcion());
+        instructorEmpresa.setEmpresa(empresa);
+
+        return instructorEmpresaRepository.save(instructorEmpresa);
+    }
 
     private void validarInstructorEmpresa(InstructorEmpresaRequestDTO dto) {
 
