@@ -5,5 +5,5 @@ spring:
     password: ${DB_PASSWORD}
 
 jwt:
-  secret: ${JWT_SECRET}
-  expiration: ${JWT_EXPIRATION}
+  secret: ${JWT_SECRET:MiClaveSuperSecretaDeMasDe32Caracteres123}
+  expiration: ${JWT_EXPIRATION:86400000}

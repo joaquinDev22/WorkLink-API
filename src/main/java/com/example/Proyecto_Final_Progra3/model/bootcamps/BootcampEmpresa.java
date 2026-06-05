@@ -20,7 +20,7 @@ public class BootcampEmpresa extends Bootcamp {
     @JoinColumn(name = "empresa_id")
     private Empresa empresa;
 
-    @ManyToMany
+    @ManyToOne
     @JoinColumn(name = "instructor_id")
     private InstructorEmpresa instructorEmpresa;
 
