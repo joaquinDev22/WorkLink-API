@@ -1,6 +1,7 @@
 package com.example.Proyecto_Final_Progra3.model.bootcamps.inscripciones;
 
 import com.example.Proyecto_Final_Progra3.model.bootcamps.BootcampParticular;
+import com.example.Proyecto_Final_Progra3.model.employee.Employee;
 import com.example.Proyecto_Final_Progra3.model.enums.EstadoInscripcion;
 import jakarta.persistence.*;
 
