@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -55,11 +54,12 @@ public class AuthService {
                 new UsernamePasswordAuthenticationToken(
                         dto.getUsuario(),
                         dto.getPassword()
-                )
-        );
+                ));
 
         Perfil perfil = (Perfil) authentication.getPrincipal();
 
+
+        assert perfil != null;
 
         if(!perfil.is_active()){
             throw new RuntimeException("EL PERFIL ESTA DESACTIVADO");
