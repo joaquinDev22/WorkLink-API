@@ -1,9 +1,9 @@
 package com.example.Proyecto_Final_Progra3.controller;
 
-import com.example.Proyecto_Final_Progra3.DTO.requestdto.LogginRequestDTO;
-import com.example.Proyecto_Final_Progra3.DTO.requestdto.PerfilRequestDTO;
-import com.example.Proyecto_Final_Progra3.DTO.responsedto.LogginResponseDTO;
-import com.example.Proyecto_Final_Progra3.DTO.responsedto.PerfilResponseDTO;
+import com.example.Proyecto_Final_Progra3.dto.requestdto.LogginRequestDTO;
+import com.example.Proyecto_Final_Progra3.dto.requestdto.PerfilRequestDTO;
+import com.example.Proyecto_Final_Progra3.dto.responsedto.LogginResponseDTO;
+import com.example.Proyecto_Final_Progra3.dto.responsedto.PerfilResponseDTO;
 import com.example.Proyecto_Final_Progra3.repository.PerfilRepository;
 import com.example.Proyecto_Final_Progra3.service.perfil.AuthService;
 import lombok.RequiredArgsConstructor;

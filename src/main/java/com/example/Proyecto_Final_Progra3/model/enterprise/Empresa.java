@@ -13,10 +13,9 @@ import lombok.experimental.Accessors;
 @Entity
 @Table(name="Empresa")
 public class Empresa {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="id")
-    private int id;
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="empresa_id")
+    private Integer id;
 
     private String nombre;
     private String descripcion;

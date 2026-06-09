@@ -1,6 +1,5 @@
-package com.example.Proyecto_Final_Progra3.DTO.responsedto;
+package com.example.Proyecto_Final_Progra3.dto.responsedto;
 
-import com.example.Proyecto_Final_Progra3.model.enums.Rol;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,6 +15,7 @@ public class LogginResponseDTO {
 
     private String nombreUsuario;
 
-    private Rol rol;
+    private String rol;
+
     private String token;
 }

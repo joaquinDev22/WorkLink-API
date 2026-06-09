@@ -1,6 +1,5 @@
 package com.example.Proyecto_Final_Progra3.config.security;
 
-import com.example.Proyecto_Final_Progra3.repository.PerfilRepository;
 import com.example.Proyecto_Final_Progra3.service.perfil.JwtService;
 import com.example.Proyecto_Final_Progra3.service.perfil.PerfilDetailService;
 import jakarta.servlet.FilterChain;
@@ -25,7 +24,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws IOException, ServletException {
         String authHeader = req.getHeader("Authorization");
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             chain.doFilter(req, res);
             return;
         }

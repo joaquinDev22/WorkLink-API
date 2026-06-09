@@ -1,4 +1,4 @@
-package com.example.Proyecto_Final_Progra3.DTO.responsedto;
+package com.example.Proyecto_Final_Progra3.dto.responsedto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,10 +10,10 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EmpresaResponseDTO {
-    private int id;
+    private Integer id;
     private String nombre;
     private String direccion;
     private String sitio_web;
     private String ubicacion;
-    private int perfil_id;
+    private Integer perfil_id;
 }

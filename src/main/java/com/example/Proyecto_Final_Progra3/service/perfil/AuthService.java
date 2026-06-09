@@ -1,12 +1,12 @@
 package com.example.Proyecto_Final_Progra3.service.perfil;
 
-import com.example.Proyecto_Final_Progra3.DTO.requestdto.LogginRequestDTO;
-import com.example.Proyecto_Final_Progra3.DTO.requestdto.PerfilRequestDTO;
-import com.example.Proyecto_Final_Progra3.DTO.responsedto.LogginResponseDTO;
-import com.example.Proyecto_Final_Progra3.DTO.responsedto.PerfilResponseDTO;
+import com.example.Proyecto_Final_Progra3.dto.requestdto.LogginRequestDTO;
+import com.example.Proyecto_Final_Progra3.dto.requestdto.PerfilRequestDTO;
+import com.example.Proyecto_Final_Progra3.dto.responsedto.LogginResponseDTO;
+import com.example.Proyecto_Final_Progra3.dto.responsedto.PerfilResponseDTO;
 import com.example.Proyecto_Final_Progra3.model.Perfil;
 import com.example.Proyecto_Final_Progra3.repository.PerfilRepository;
-import lombok.RequiredArgsConstructor;
+import com.example.Proyecto_Final_Progra3.repository.RolRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -14,13 +14,21 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
 public class AuthService {
 
     private final PerfilRepository perfilRepository;
     private final  PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final RolRepository rolRepository;
     private final JwtService jwtService;
+
+    public AuthService(PerfilRepository perfilRepository, PasswordEncoder passwordEncoder, RolRepository rolRepository, JwtService jwtService,  AuthenticationManager authenticationManager) {
+        this.perfilRepository = perfilRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.rolRepository = rolRepository;
+        this.jwtService = jwtService;
+        this.authenticationManager = authenticationManager;
+    }
 
     public PerfilResponseDTO register(PerfilRequestDTO dto) {
 
@@ -36,7 +44,7 @@ public class AuthService {
                 passwordEncoder.encode(dto.getPassword())
         );
 
-        perfil.setRol(dto.getRol());
+        perfil.setRol(rolRepository.findByNombre(dto.getRol()));
 
 
 
@@ -45,7 +53,7 @@ public class AuthService {
         return new PerfilResponseDTO(
                 perfilGuardado.getId(),
                 perfilGuardado.getUsuario(),
-                perfilGuardado.getRol()
+                perfilGuardado.getRol().getNombre()
         );
     }
 
@@ -69,7 +77,7 @@ public class AuthService {
         return new LogginResponseDTO(
                 "Login exitoso",
                 perfil.getUsuario(),
-                perfil.getRol(),
+                perfil.getRol().getNombre(),
                 token
         );
     }

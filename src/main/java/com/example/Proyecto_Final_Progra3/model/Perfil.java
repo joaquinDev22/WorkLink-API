@@ -1,6 +1,5 @@
 package com.example.Proyecto_Final_Progra3.model;
 
-import com.example.Proyecto_Final_Progra3.model.enums.Rol;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -21,20 +20,19 @@ public class Perfil implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="perfil_id")
-    private int id;
+    private Integer id;
 
-    @Column(name ="nombre_usuario")
+    @Column(name ="usuario")
     private String usuario;
 
-    @Column(name="password_usuario")
+    @Column(name="password")
     private String password;
 
-    @Column(name="rol")
-    @Enumerated(EnumType.STRING)
-    private Rol rol;
-
-
     private boolean is_active = true;
+
+    @OneToOne
+    @JoinColumn(name="rol_id")
+    private Rol rol;
 
     @Override
     public String getUsername() {
@@ -48,7 +46,7 @@ public class Perfil implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + rol.name()));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + rol.getNombre()));
     }
 
 }

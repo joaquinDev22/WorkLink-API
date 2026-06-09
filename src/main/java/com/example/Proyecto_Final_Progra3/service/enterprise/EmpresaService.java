@@ -1,12 +1,11 @@
 package com.example.Proyecto_Final_Progra3.service.enterprise;
 
-import com.example.Proyecto_Final_Progra3.DTO.requestdto.EmpresaRequestDTO;
-import com.example.Proyecto_Final_Progra3.DTO.responsedto.EmpresaResponseDTO;
+import com.example.Proyecto_Final_Progra3.dto.requestdto.EmpresaRequestDTO;
+import com.example.Proyecto_Final_Progra3.dto.responsedto.EmpresaResponseDTO;
 import com.example.Proyecto_Final_Progra3.model.Perfil;
 import com.example.Proyecto_Final_Progra3.model.enterprise.Empresa;
 import com.example.Proyecto_Final_Progra3.repository.PerfilRepository;
 import com.example.Proyecto_Final_Progra3.repository.enterprise.EmpresaRepository;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -44,7 +43,7 @@ public class EmpresaService {
 
     }
 
-    public EmpresaResponseDTO editarEmpresa(int id, EmpresaRequestDTO dto) {
+    public EmpresaResponseDTO editarEmpresa(Integer id, EmpresaRequestDTO dto) {
         Empresa empresa = empresaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Esa empresa no existe"));
 
@@ -69,7 +68,7 @@ public class EmpresaService {
         return  empresaRepository.findAll();
     }
 
-    public Empresa buscarEmpresaXid(int id){
+    public Empresa buscarEmpresaXid(Integer id){
         return empresaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Ese empresa no existe"));
     }
@@ -81,7 +80,7 @@ public class EmpresaService {
     }
 
 
-    public void eliminarEmpresa(int idEmpresa){
+    public void eliminarEmpresa(Integer idEmpresa){
         Empresa empresa = empresaRepository.findById(idEmpresa)
                 .orElseThrow(() -> new RuntimeException("Ese empresa no existe"));
 
