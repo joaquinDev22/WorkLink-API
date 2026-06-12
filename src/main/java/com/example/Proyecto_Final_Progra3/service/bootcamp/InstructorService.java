@@ -21,6 +21,7 @@ public class InstructorService {
         this.repository = repository;
         this.empresaRepository = empresaRepository;
     }
+
     public Instructor crearInstructor(InstructorRequestDTO dto) {
         Empresa empresa = empresaRepository.findById(dto.getEmpresa_id())
                 .orElseThrow(() -> new RuntimeException("No existe la empresa"));
@@ -32,14 +33,14 @@ public class InstructorService {
         instructor.setTitulo(dto.getTitulo());
         instructor.setPresentacion(dto.getPresentacion());
 
-       if(dto.getTipo().equals(Tipo.EMPRESA)){
-           instructor.setEmpresa(empresa);
-       }
+        if (dto.getTipo().equals(Tipo.EMPRESA)) {
+            instructor.setEmpresa(empresa);
+        }
 
         return repository.save(instructor);
     }
 
-    public void eliminarInstructorEmpresa(Integer instructorId) {
+    public void eliminarInstructor(Integer instructorId) {
         Instructor instructorEmpresa = repository.findById(instructorId)
                 .orElseThrow(() -> new InstructorInvalidoException("No existe un instructor con ese id"));
         repository.delete(instructorEmpresa);
@@ -62,7 +63,7 @@ public class InstructorService {
         return repository.save(instructor);
     }
 
-    public List<Instructor> listarInstuctoresEmpresa() {
+    public List<Instructor> listarInstuctores() {
         return repository.findAll();
     }
 
