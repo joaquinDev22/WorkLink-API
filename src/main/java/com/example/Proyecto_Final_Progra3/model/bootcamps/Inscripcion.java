@@ -12,6 +12,7 @@ import java.time.LocalDate;
 @Entity
 @Table(name="inscripcion_bootcamp")
 public class Inscripcion {
+
     @Id @GeneratedValue(strategy= GenerationType.IDENTITY)
     @Column(name="inscripcion_id")
     private Integer id;
