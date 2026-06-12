@@ -14,12 +14,12 @@ import java.time.LocalDate;
 
 @Service
 public class InscripcionService {
-    private final InscripcionRepository repository;
+    private final InscripcionRepository inscripcionRepository;
     private final BootcampRepository bootcampRepository;
     private final EmployeeRepository employeeRepository;
 
-    public InscripcionService(InscripcionRepository repository,  BootcampRepository bootcampRepository, EmployeeRepository employeeRepository) {
-        this.repository = repository;
+    public InscripcionService(InscripcionRepository repository, BootcampRepository bootcampRepository, EmployeeRepository employeeRepository) {
+        this.inscripcionRepository = repository;
         this.bootcampRepository = bootcampRepository;
         this.employeeRepository = employeeRepository;
     }
@@ -32,7 +32,7 @@ public class InscripcionService {
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new RuntimeException("No existe un empleado con ese ID"));
 
-        validarInscripcionBootcampParticular(bootcamp, employee);
+        validarInscripcionBootcamp(bootcamp, employee);
 
         Inscripcion inscripcion = new Inscripcion();
         inscripcion.setBootcamp(bootcamp);
@@ -43,10 +43,31 @@ public class InscripcionService {
         bootcamp.setCupos(bootcamp.getCupos() - 1);
         bootcampRepository.save(bootcamp);
 
-        return repository.save(inscripcion);
+        return inscripcionRepository.save(inscripcion);
     }
 
-    private void validarInscripcionBootcampParticular(Bootcamp bootcamp, Employee employee) {
+    public Inscripcion cancelarInscripcion(Integer inscripcionId) {
+
+        Inscripcion inscripcion = inscripcionRepository.findById(inscripcionId)
+                .orElseThrow(() -> new RuntimeException("No existe una inscripción con ese ID"));
+
+        if (inscripcion.getEstado() == EstadoInscripcion.CANCELADO) {
+            throw new RuntimeException("La inscripción ya se encuentra cancelada");
+        }
+
+        Bootcamp bootcamp = inscripcion.getBootcamp();
+
+        inscripcion.setEstado(EstadoInscripcion.CANCELADO);
+
+        bootcamp.setCupos(bootcamp.getCupos() + 1);
+
+        bootcampRepository.save(bootcamp);
+
+        return inscripcionRepository.save(inscripcion);
+    }
+
+
+    private void validarInscripcionBootcamp(Bootcamp bootcamp, Employee employee) {
 
         if (bootcamp.getCupos() <= 0) {
             throw new RuntimeException("No hay cupos disponibles para este bootcamp");
@@ -56,7 +77,7 @@ public class InscripcionService {
             throw new RuntimeException("No se puede inscribir a un bootcamp que ya comenzó o comienza hoy");
         }
 
-        boolean yaInscripto = repository.existsByBootcampAndEmployee(bootcamp, employee);
+        boolean yaInscripto = inscripcionRepository.existsByBootcampAndEmployee(bootcamp, employee);
 
         if (yaInscripto) {
             throw new RuntimeException("El empleado ya está inscripto en este bootcamp");
