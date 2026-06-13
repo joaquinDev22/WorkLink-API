@@ -1,6 +1,6 @@
 package com.example.Proyecto_Final_Progra3.model.enterprise;
 
-import com.example.Proyecto_Final_Progra3.model.Employee;
+import com.example.Proyecto_Final_Progra3.model.employee.Employee;
 import jakarta.persistence.*;
 import lombok.*;
 

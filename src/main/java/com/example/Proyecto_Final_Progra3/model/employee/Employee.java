@@ -1,4 +1,4 @@
-package com.example.Proyecto_Final_Progra3.model;
+package com.example.Proyecto_Final_Progra3.model.employee;
 
 import jakarta.persistence.*;
 import lombok.Data;

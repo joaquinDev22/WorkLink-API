@@ -1,7 +1,7 @@
 package com.example.Proyecto_Final_Progra3.service.bootcamp;
 
 import com.example.Proyecto_Final_Progra3.dto.requestdto.CalificacionBootcampRequestDTO;
-import com.example.Proyecto_Final_Progra3.model.Employee;
+import com.example.Proyecto_Final_Progra3.model.employee.Employee;
 import com.example.Proyecto_Final_Progra3.model.bootcamps.Bootcamp;
 import com.example.Proyecto_Final_Progra3.model.bootcamps.CalificacionBootcamp;
 import com.example.Proyecto_Final_Progra3.model.bootcamps.Inscripcion;

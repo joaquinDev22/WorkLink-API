@@ -12,11 +12,8 @@ import java.util.Collection;
 import java.util.List;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Getter
-@Setter
 @Table(name="Perfil")
 public class Perfil implements UserDetails {
     @Id

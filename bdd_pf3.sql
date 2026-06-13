@@ -8,7 +8,7 @@ USE Bd_Proyecto_Final;
 CREATE TABLE Rol(
     rol_id INT AUTO_INCREMENT PRIMARY KEY,
     nombre_rol VARCHAR(50) UNIQUE NOT NULL
-);
+); -- Ya definida en una java.class por JoaquinDev22
 
 CREATE TABLE Perfil(
 	perfil_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -18,7 +18,7 @@ CREATE TABLE Perfil(
 	password VARCHAR(255) NOT NULL,
 	rol_id INT NOT NULL,
 	FOREIGN KEY(rol_id) REFERENCES Rol(rol_id)
-);
+); -- Ya definida en una java.class por Gabrielramirez2003
 
 CREATE TABLE Empresa(
 	empresa_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -28,7 +28,7 @@ CREATE TABLE Empresa(
 	ubicacion VARCHAR(100) NOT NULL,
 	perfil_id INT NOT NULL,
 	FOREIGN KEY(perfil_id)REFERENCES Perfil(perfil_id)
-);
+); -- Ya definida en una java.class por Gabrielramirez2003
 
 CREATE TABLE Recruiter(
 	recruiter_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -41,7 +41,7 @@ CREATE TABLE Recruiter(
 	perfil_id INT NOT NULL,
 	FOREIGN KEY(perfil_id)REFERENCES Perfil(perfil_id),
 	FOREIGN KEY(empresa_id)REFERENCES Empresa(empresa_id)
-);
+); -- Ya definida en una java.class por JoaquinDev22
 
 CREATE TABLE Employee(
 	employee_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -53,7 +53,7 @@ CREATE TABLE Employee(
     enterprise BOOLEAN,
 	perfil_id INT NOT NULL,
 	FOREIGN KEY(perfil_id)REFERENCES Perfil(perfil_id)
-);
+); -- Ya definida en una java.class por JoaquinDev22
 
 CREATE TABLE Cliente_Particular(
 	cliente_particular_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -65,7 +65,7 @@ CREATE TABLE Cliente_Particular(
 	pais VARCHAR(100) NOT NULL,
 	perfil_id INT NOT NULL,
 	FOREIGN KEY(perfil_id)REFERENCES Perfil(perfil_id)
-);
+); -- Ya definida en una java.class por JoaquinDev22
 
 CREATE TABLE Experiencia(
 	experiencia_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -75,7 +75,7 @@ CREATE TABLE Experiencia(
 	fecha_fin DATE,
 	employee_id INT NOT NULL,
 	FOREIGN KEY(employee_id) REFERENCES Employee(employee_id)
-);
+); -- Ya definida en una java.class por JoaquinDev22
 
 CREATE TABLE Proyecto(
 	proyecto_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -86,18 +86,37 @@ CREATE TABLE Proyecto(
     presupuesto_min DECIMAL(10,2),
 	cliente_id INT NOT NULL,
 	FOREIGN KEY(cliente_id)REFERENCES Cliente_Particular(cliente_particular_id)
-);
+); -- Ya definida en una java.class por JoaquinDev22
 
 CREATE TABLE Postulacion_Proyecto(
     post_proy_id INT AUTO_INCREMENT PRIMARY KEY,
     descripcion VARCHAR(255) NOT NULL,
     valor_propuesto DECIMAL(10,2),
+    fecha_postulacion DATE NOT NULL,
     employee_id INT NOT NULL,
     proyecto_id INT NOT NULL,
     FOREIGN KEY (employee_id) REFERENCES Employee(employee_id),
     FOREIGN KEY (proyecto_id) REFERENCES Proyecto(proyecto_id)
-);
+); -- Ya definida en una java.class por JoaquinDev22
 
+CREATE TABLE Calificacion_Proyecto(
+    calificacion_id INT AUTO_INCREMENT PRIMARY KEY,
+    puntaje INT NOT NULL,
+    comentario VARCHAR(255) NOT NULL,
+    fecha_comentario DATE NOT NULL,
+    proyecto_id INT NOT NULL,
+    FOREIGN KEY (proyecto_id) REFERENCES Proyecto(proyecto_id)
+);-- Ya definida en una java.class por JoaquinDev22
+
+CREATE TABLE Calificacion_Usuario(
+    calificacion_usuario_id INT AUTO_INCREMENT PRIMARY KEY,
+    calificacion_id INT,
+    calificacion_bootcamp_id INT,
+    perfil_id INT NOT NULL,
+    FOREIGN KEY (calificacion_id) REFERENCES Calificacion_Proyecto(calificacion_id),
+    FOREIGN KEY (calificacion_bootcamp_id) REFERENCES Calificacion_Bootcamp(calificacion_id),
+    FOREIGN KEY (perfil_id) REFERENCES Perfil(perfil_id)
+);
 CREATE TABLE Habilidad(
 	habilidad_id INT AUTO_INCREMENT PRIMARY KEY,
 	nombre_habilidad VARCHAR(50) UNIQUE NOT NULL
@@ -218,7 +237,7 @@ CREATE TABLE Instructor (
 	empresa_id INT,
     FOREIGN KEY(perfil_id)REFERENCES Perfil(perfil_id),
 	FOREIGN KEY(empresa_id) REFERENCES Empresa(empresa_id)
-);
+); -- Ya definida en una java.class por Yamils06
 
 CREATE TABLE Bootcamp(
     bootcamp_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -233,7 +252,7 @@ CREATE TABLE Bootcamp(
 	empresa_id INT,
     FOREIGN KEY(instructor_id) REFERENCES Instructor(instructor_id),
 	FOREIGN KEY(empresa_id) REFERENCES Empresa(empresa_id)
-);
+); -- Ya definida en una java.class por Yamils06
 
 CREATE TABLE Inscripcion_Bootcamp(
     inscripcion_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -243,7 +262,7 @@ CREATE TABLE Inscripcion_Bootcamp(
     employee_id INT NOT NULL,
     FOREIGN KEY(bootcamp_id)REFERENCES Bootcamp(bootcamp_id),
 	FOREIGN KEY(employee_id) REFERENCES Employee(employee_id)
-);
+); -- Ya definida en una java.class por Yamils06
 
 CREATE TABLE Calificacion_Bootcamp(
     calificacion_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -254,7 +273,7 @@ CREATE TABLE Calificacion_Bootcamp(
     employee_id INT NOT NULL,
     FOREIGN KEY(bootcamp_id) REFERENCES Bootcamp(bootcamp_id),
     FOREIGN KEY(employee_id) REFERENCES Employee(employee_id)
-);
+); -- Ya definida en una java.class por Yamils06
 
 CREATE TABLE Certificado_Bootcamp (
     certificado_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -264,20 +283,7 @@ CREATE TABLE Certificado_Bootcamp (
     employee_id INT NOT NULL,
     FOREIGN KEY (bootcamp_id) REFERENCES Bootcamp(bootcamp_id),
     FOREIGN KEY (employee_id) REFERENCES Employee(employee_id)
-);
-
-CREATE TABLE Calificacion_Proyecto( 
-    calificacion_id INT AUTO_INCREMENT PRIMARY KEY,
-    puntaje INT NOT NULL,
-    comentario VARCHAR(255) NOT NULL,
-    fecha_comentario DATE NOT NULL,
-    proyecto_id INT NOT NULL,
-    freelancer_id INT NOT NULL,
-    recruiter_id INT NOT NULL,
-    FOREIGN KEY(proyecto_id) REFERENCES Proyecto(proyecto_id),
-    FOREIGN KEY(freelancer_id) REFERENCES Employee(employee_id),
-    FOREIGN KEY(recruiter_id) REFERENCES Recruiter(recruiter_id)
-);
+); -- Ya definida en una java.class por Yamils06
 
 -- ===================== --
 --       AUDITORIA       --
@@ -469,5 +475,5 @@ INSERT INTO Calificacion_Bootcamp (puntaje,comentario,fecha_comentario,bootcamp_
 -- =====================
 -- CALIFICACION PROYECTO (proyecto_id=1, freelancer=1, recruiter=1)
 -- =====================
-INSERT INTO Calificacion_Proyecto (puntaje,comentario,fecha_comentario,proyecto_id,freelancer_id,recruiter_id) VALUES 
-(10,'Gran trabajo',CURDATE(),1,1,1);
+INSERT INTO Calificacion_Proyecto (puntaje,comentario,fecha_comentario,proyecto_id) VALUES
+(10,'Gran trabajo',CURDATE(),1);

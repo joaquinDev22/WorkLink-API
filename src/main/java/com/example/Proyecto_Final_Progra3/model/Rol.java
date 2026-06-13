@@ -4,11 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Getter
-@Setter
 @Table(name="rol")
 public class Rol {
     @Id @GeneratedValue(strategy= GenerationType.IDENTITY)
