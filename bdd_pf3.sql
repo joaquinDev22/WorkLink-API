@@ -236,6 +236,16 @@ CREATE TABLE Calificacion_Bootcamp(
     FOREIGN KEY(bootcamp_id) REFERENCES Bootcamp(bootcamp_id),
     FOREIGN KEY(employee_id) REFERENCES Employee(employee_id)
 );
+CREATE TABLE Certificado_Bootcamp (
+    certificado_id INT AUTO_INCREMENT PRIMARY KEY,
+    fecha_emision DATE NOT NULL,
+    codigo_certificado VARCHAR(100) NOT NULL UNIQUE,
+    bootcamp_id INT NOT NULL,
+    employee_id INT NOT NULL,
+
+    FOREIGN KEY (bootcamp_id) REFERENCES Bootcamp(bootcamp_id),
+    FOREIGN KEY (employee_id) REFERENCES Employee(employee_id)
+);
 
 CREATE TABLE Calificacion_Proyecto( 
     calificacion_id INT AUTO_INCREMENT PRIMARY KEY,
