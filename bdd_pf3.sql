@@ -106,7 +106,7 @@ CREATE TABLE Calificacion_Proyecto(
     fecha_comentario DATE NOT NULL,
     proyecto_id INT NOT NULL,
     FOREIGN KEY (proyecto_id) REFERENCES Proyecto(proyecto_id)
-);-- Ya definida en una java.class por JoaquinDev22
+); -- Ya definida en una java.class por JoaquinDev22
 
 CREATE TABLE Calificacion_Usuario(
     calificacion_usuario_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -116,11 +116,12 @@ CREATE TABLE Calificacion_Usuario(
     FOREIGN KEY (calificacion_id) REFERENCES Calificacion_Proyecto(calificacion_id),
     FOREIGN KEY (calificacion_bootcamp_id) REFERENCES Calificacion_Bootcamp(calificacion_id),
     FOREIGN KEY (perfil_id) REFERENCES Perfil(perfil_id)
-);
+); -- Ya definida en una java.class por JoaquinDev22
+
 CREATE TABLE Habilidad(
 	habilidad_id INT AUTO_INCREMENT PRIMARY KEY,
 	nombre_habilidad VARCHAR(50) UNIQUE NOT NULL
-);
+); -- Ya definida en una java.class por JoaquinDev22
 
 CREATE TABLE Employee_Habilidad(
 	employee_id INT NOT NULL,
@@ -129,7 +130,7 @@ CREATE TABLE Employee_Habilidad(
 	PRIMARY KEY(employee_id, habilidad_id),
 	FOREIGN KEY(employee_id) REFERENCES Employee(employee_id),
 	FOREIGN KEY(habilidad_id) REFERENCES Habilidad(habilidad_id)
-);
+); -- Ya definida en una java.class por JoaquinDev22
 
 CREATE TABLE Vacante(
 	vacante_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -270,9 +271,7 @@ CREATE TABLE Calificacion_Bootcamp(
     comentario VARCHAR(255) NOT NULL,
     fecha_comentario DATE NOT NULL,
     bootcamp_id INT NOT NULL,
-    employee_id INT NOT NULL,
-    FOREIGN KEY(bootcamp_id) REFERENCES Bootcamp(bootcamp_id),
-    FOREIGN KEY(employee_id) REFERENCES Employee(employee_id)
+    FOREIGN KEY(bootcamp_id) REFERENCES Bootcamp(bootcamp_id)
 ); -- Ya definida en una java.class por Yamils06
 
 CREATE TABLE Certificado_Bootcamp (
@@ -469,8 +468,8 @@ INSERT INTO Inscripcion_Bootcamp (fecha_inscripcion,estado,bootcamp_ID,employee_
 -- =====================
 -- CALIFICACION BOOTCAMP
 -- =====================
-INSERT INTO Calificacion_Bootcamp (puntaje,comentario,fecha_comentario,bootcamp_id,employee_id) VALUES
-(9,'Excelente material didactico',CURDATE(),1,1);
+INSERT INTO Calificacion_Bootcamp (puntaje,comentario,fecha_comentario,bootcamp_id) VALUES
+(9,'Excelente material didactico',CURDATE(),1);
 
 -- =====================
 -- CALIFICACION PROYECTO (proyecto_id=1, freelancer=1, recruiter=1)
