@@ -219,7 +219,7 @@ CREATE TABLE Bootcamp(
 CREATE TABLE Inscripcion_Bootcamp(
     inscripcion_id INT AUTO_INCREMENT PRIMARY KEY,
     fecha_inscripcion DATE  NOT NULL,
-    estado ENUM('INSCRIPTO','PENDIENTE','CANCELADO'),
+    estado ENUM('INSCRIPTO','PENDIENTE','CANCELADO', 'COMPLETADO'),
     bootcamp_id INT NOT NULL,
     employee_id INT NOT NULL,
     FOREIGN KEY(bootcamp_id)REFERENCES Bootcamp(bootcamp_id),
