@@ -8,19 +8,16 @@ import com.example.Proyecto_Final_Progra3.model.bootcamps.enums.Tipo;
 import com.example.Proyecto_Final_Progra3.model.enterprise.Empresa;
 import com.example.Proyecto_Final_Progra3.repository.bootcamp.InstructorRepository;
 import com.example.Proyecto_Final_Progra3.repository.enterprise.EmpresaRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@AllArgsConstructor
 @Service
 public class InstructorService {
     private final InstructorRepository repository;
     private final EmpresaRepository empresaRepository;
-
-    public InstructorService(InstructorRepository repository, EmpresaRepository empresaRepository) {
-        this.repository = repository;
-        this.empresaRepository = empresaRepository;
-    }
 
     public Instructor crearInstructor(InstructorRequestDTO dto) {
         Empresa empresa = empresaRepository.findById(dto.getEmpresa_id())

@@ -8,20 +8,16 @@ import com.example.Proyecto_Final_Progra3.model.bootcamps.Instructor;
 import com.example.Proyecto_Final_Progra3.model.bootcamps.enums.Tipo;
 import com.example.Proyecto_Final_Progra3.repository.bootcamp.BootcampRepository;
 import com.example.Proyecto_Final_Progra3.repository.bootcamp.InstructorRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
 import java.util.List;
 
+@AllArgsConstructor
 @Service
 public class BootcampService {
     private final BootcampRepository repository;
     private final InstructorRepository instructorRepository;
-
-    public BootcampService(BootcampRepository repository,  InstructorRepository instructorRepository){
-        this.repository = repository;
-        this.instructorRepository = instructorRepository;
-    }
 
     public Bootcamp crearBootcamp(BootcampRequestDTO dto) {
 

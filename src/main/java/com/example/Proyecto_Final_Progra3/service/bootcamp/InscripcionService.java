@@ -8,21 +8,17 @@ import com.example.Proyecto_Final_Progra3.model.bootcamps.enums.EstadoInscripcio
 import com.example.Proyecto_Final_Progra3.repository.EmployeeRepository;
 import com.example.Proyecto_Final_Progra3.repository.bootcamp.BootcampRepository;
 import com.example.Proyecto_Final_Progra3.repository.bootcamp.InscripcionRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 
+@AllArgsConstructor
 @Service
 public class InscripcionService {
     private final InscripcionRepository inscripcionRepository;
     private final BootcampRepository bootcampRepository;
     private final EmployeeRepository employeeRepository;
-
-    public InscripcionService(InscripcionRepository repository, BootcampRepository bootcampRepository, EmployeeRepository employeeRepository) {
-        this.inscripcionRepository = repository;
-        this.bootcampRepository = bootcampRepository;
-        this.employeeRepository = employeeRepository;
-    }
 
     public Inscripcion realizarInscripcion(Integer bootcampId, Integer employeeId) {
 

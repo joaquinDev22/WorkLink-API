@@ -7,6 +7,7 @@ import com.example.Proyecto_Final_Progra3.dto.responsedto.PerfilResponseDTO;
 import com.example.Proyecto_Final_Progra3.model.Perfil;
 import com.example.Proyecto_Final_Progra3.repository.PerfilRepository;
 import com.example.Proyecto_Final_Progra3.repository.RolRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -14,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
+@AllArgsConstructor
 public class AuthService {
 
     private final PerfilRepository perfilRepository;
@@ -21,14 +23,6 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final RolRepository rolRepository;
     private final JwtService jwtService;
-
-    public AuthService(PerfilRepository perfilRepository, PasswordEncoder passwordEncoder, RolRepository rolRepository, JwtService jwtService,  AuthenticationManager authenticationManager) {
-        this.perfilRepository = perfilRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.rolRepository = rolRepository;
-        this.jwtService = jwtService;
-        this.authenticationManager = authenticationManager;
-    }
 
     public PerfilResponseDTO register(PerfilRequestDTO dto) {
 

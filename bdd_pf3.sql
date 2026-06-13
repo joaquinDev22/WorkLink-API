@@ -9,6 +9,7 @@ CREATE TABLE Rol(
     rol_id INT AUTO_INCREMENT PRIMARY KEY,
     nombre_rol VARCHAR(50) UNIQUE NOT NULL
 );
+
 CREATE TABLE Perfil(
 	perfil_id INT AUTO_INCREMENT PRIMARY KEY,
     foto_perfil VARCHAR(150),
@@ -18,6 +19,7 @@ CREATE TABLE Perfil(
 	rol_id INT NOT NULL,
 	FOREIGN KEY(rol_id) REFERENCES Rol(rol_id)
 );
+
 CREATE TABLE Empresa(
 	empresa_id INT AUTO_INCREMENT PRIMARY KEY,
 	nombre VARCHAR(100) NOT NULL,
@@ -27,6 +29,7 @@ CREATE TABLE Empresa(
 	perfil_id INT NOT NULL,
 	FOREIGN KEY(perfil_id)REFERENCES Perfil(perfil_id)
 );
+
 CREATE TABLE Recruiter(
 	recruiter_id INT AUTO_INCREMENT PRIMARY KEY,
 	nombre VARCHAR(50) NOT NULL,
@@ -39,6 +42,7 @@ CREATE TABLE Recruiter(
 	FOREIGN KEY(perfil_id)REFERENCES Perfil(perfil_id),
 	FOREIGN KEY(empresa_id)REFERENCES Empresa(empresa_id)
 );
+
 CREATE TABLE Employee(
 	employee_id INT AUTO_INCREMENT PRIMARY KEY,
 	nombre VARCHAR(50) NOT NULL, 
@@ -50,6 +54,7 @@ CREATE TABLE Employee(
 	perfil_id INT NOT NULL,
 	FOREIGN KEY(perfil_id)REFERENCES Perfil(perfil_id)
 );
+
 CREATE TABLE Cliente_Particular(
 	cliente_particular_id INT AUTO_INCREMENT PRIMARY KEY,
 	nombre VARCHAR(50) NOT NULL,
@@ -61,22 +66,36 @@ CREATE TABLE Cliente_Particular(
 	perfil_id INT NOT NULL,
 	FOREIGN KEY(perfil_id)REFERENCES Perfil(perfil_id)
 );
+
 CREATE TABLE Experiencia(
 	experiencia_id INT AUTO_INCREMENT PRIMARY KEY,
 	titulo VARCHAR(100) NOT NULL,
 	descripcion VARCHAR(255) NOT NULL,
 	fecha_inicio DATE NOT NULL,
-	fecha_fin DATE NOT NULL,
+	fecha_fin DATE,
 	employee_id INT NOT NULL,
 	FOREIGN KEY(employee_id) REFERENCES Employee(employee_id)
 );
+
 CREATE TABLE Proyecto(
 	proyecto_id INT AUTO_INCREMENT PRIMARY KEY,
 	area_proyecto VARCHAR(50) NOT NULL,
 	descripcion VARCHAR(255) NOT NULL,
 	fecha_creacion DATE NOT NULL,
+    presupuesto_max DECIMAL(10,2),
+    presupuesto_min DECIMAL(10,2),
 	cliente_id INT NOT NULL,
 	FOREIGN KEY(cliente_id)REFERENCES Cliente_Particular(cliente_particular_id)
+);
+
+CREATE TABLE Postulacion_Proyecto(
+    post_proy_id INT AUTO_INCREMENT PRIMARY KEY,
+    descripcion VARCHAR(255) NOT NULL,
+    valor_propuesto DECIMAL(10,2),
+    employee_id INT NOT NULL,
+    proyecto_id INT NOT NULL,
+    FOREIGN KEY (employee_id) REFERENCES Employee(employee_id),
+    FOREIGN KEY (proyecto_id) REFERENCES Proyecto(proyecto_id)
 );
 
 CREATE TABLE Habilidad(
@@ -236,13 +255,13 @@ CREATE TABLE Calificacion_Bootcamp(
     FOREIGN KEY(bootcamp_id) REFERENCES Bootcamp(bootcamp_id),
     FOREIGN KEY(employee_id) REFERENCES Employee(employee_id)
 );
+
 CREATE TABLE Certificado_Bootcamp (
     certificado_id INT AUTO_INCREMENT PRIMARY KEY,
     fecha_emision DATE NOT NULL,
     codigo_certificado VARCHAR(100) NOT NULL UNIQUE,
     bootcamp_id INT NOT NULL,
     employee_id INT NOT NULL,
-
     FOREIGN KEY (bootcamp_id) REFERENCES Bootcamp(bootcamp_id),
     FOREIGN KEY (employee_id) REFERENCES Employee(employee_id)
 );
