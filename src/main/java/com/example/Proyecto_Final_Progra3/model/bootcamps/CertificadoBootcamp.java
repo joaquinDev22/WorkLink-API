@@ -4,10 +4,12 @@ import com.example.Proyecto_Final_Progra3.model.Employee;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
 
+@NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
