@@ -26,6 +26,7 @@ public class Pagos {
     @Column(name = "medio_de_pago", nullable = false)
     private MedioDePago medioDePago;
 
+    @OneToOne
     @JoinColumn(name = "proyecto_id")
     private Proyecto proyecto;
 }

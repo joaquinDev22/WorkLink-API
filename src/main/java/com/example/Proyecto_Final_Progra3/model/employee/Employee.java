@@ -19,8 +19,10 @@ public class Employee {
 
     @Column(nullable = false, length = 50)
     private String nombre;
+
     @Column(nullable = false, length = 50)
     private String apellido;
+
     @Column(nullable = false, unique = true, length = 100)
     private String email;
 

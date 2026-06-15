@@ -41,6 +41,7 @@ public class MetodosPagoCliente {
     @Column(name = "numero_tarjeta", nullable = false, unique = true, length = 50)
     private String numeroTarjeta;
 
+    @OneToOne
     @JoinColumn(name = "cliente_id")
     private Client client;
 }

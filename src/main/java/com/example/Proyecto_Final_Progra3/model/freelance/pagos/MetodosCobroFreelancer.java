@@ -28,6 +28,7 @@ public class MetodosCobroFreelancer {
     @Column(name = "numero_cuenta",nullable = false, length = 100)
     private String numeroDeCuenta;
 
+    @OneToOne
     @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
 }

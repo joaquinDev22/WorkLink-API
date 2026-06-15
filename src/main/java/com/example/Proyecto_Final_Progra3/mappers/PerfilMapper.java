@@ -10,7 +10,7 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring")
 public interface PerfilMapper {
 
-    @Mapping(target = "rol.nombre", source = "rol")
+    @Mapping(target = "rol", ignore = true)
     Perfil toEntity(PerfilRequestDTO dto);
 
     @Mapping(target = "rol", source = "rol.nombre")
@@ -18,5 +18,6 @@ public interface PerfilMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "password", ignore = true) // Passwords are handled specially
+    @Mapping(target = "rol", ignore = true)
     void updateEntityFromDto(PerfilRequestDTO dto, @MappingTarget Perfil entity);
 }
