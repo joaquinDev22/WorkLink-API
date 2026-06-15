@@ -182,17 +182,17 @@ CREATE TABLE Pagos(
 	medio_de_pago ENUM('TARJETA', 'BILLETERA_VIRTUAL'),
 	proyecto_id INT NOT NULL,
 	FOREIGN KEY(proyecto_id) REFERENCES Proyecto(proyecto_id)
-);
+); -- Ya definida en una java.class por JoaquinDev22
 
 CREATE TABLE Metodos_Cobro_Freelancer(
 	metodos_cobro_freelancer_id INT AUTO_INCREMENT PRIMARY KEY,
 	titular VARCHAR(100) NOT NULL,
 	dni VARCHAR(50) UNIQUE NOT NULL,
 	entidad_bancaria ENUM('BANCO', 'BILLETERA_VIRTUAL'),
-	numero_cuenta VARCHAR(100) NOT NULL,
+	numero_cuenta VARCHAR(100) UNIQUE NOT NULL,
 	employee_id INT NOT NULL,
 	FOREIGN KEY(employee_id)REFERENCES Employee(employee_id)
-);
+); -- Ya definida en una java.class por JoaquinDev22
 
 CREATE TABLE Metodos_Pago_Cliente(
 	metodos_pago_cliente_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -201,11 +201,11 @@ CREATE TABLE Metodos_Pago_Cliente(
 	entidad_bancaria ENUM('BANCO', 'BILLETERA_VIRTUAL'),
 	cvu VARCHAR(50) UNIQUE NOT NULL,
 	tipo_tarjeta ENUM('DEBITO','CREDITO'),
-	empresa_tarjeta ENUM('VISA','MASTERCARD'),
+	empresa_tarjeta ENUM('VISA','MASTERCARD','CABAL'),
 	numero_tarjeta VARCHAR(50) UNIQUE NOT NULL,
 	cliente_id INT NOT NULL,
 	FOREIGN KEY(cliente_id)REFERENCES Cliente_Particular(cliente_particular_id)
-);
+); -- Ya definida en una java.class por JoaquinDev22
 
 CREATE TABLE Pagos_Cliente_Freelancer(
 	pagos_cliente_freelancer_id INT AUTO_INCREMENT PRIMARY KEY,
