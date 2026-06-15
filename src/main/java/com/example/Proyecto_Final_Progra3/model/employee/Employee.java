@@ -2,10 +2,12 @@ package com.example.Proyecto_Final_Progra3.model.employee;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
 @Data
+@NoArgsConstructor
 @Entity
 @Table(name="employee")
 public class Employee {
