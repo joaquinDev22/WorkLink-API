@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "pagos")
 public class Pagos {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "pagos_id")
+    @Column(name = "pago_id")
     private Integer pagosId;
 
     @Enumerated(EnumType.STRING)
