@@ -14,41 +14,35 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import org.springframework.transaction.annotation.Transactional;
+import com.example.Proyecto_Final_Progra3.mappers.PerfilMapper;
+
 @Service
 @AllArgsConstructor
+@Transactional(readOnly = true)
 public class AuthService {
 
     private final PerfilRepository perfilRepository;
-    private final  PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final RolRepository rolRepository;
     private final JwtService jwtService;
+    private final PerfilMapper mapper;
 
+    @Transactional
     public PerfilResponseDTO register(PerfilRequestDTO dto) {
 
         if (perfilRepository.findByUsuario(dto.getUsuario()).isPresent()) {
             throw new RuntimeException("El usuario ya existe");
         }
 
-        Perfil perfil = new Perfil();
-
-        perfil.setUsuario(dto.getUsuario());
-
-        perfil.setPassword(
-                passwordEncoder.encode(dto.getPassword())
-        );
-
+        Perfil perfil = mapper.toEntity(dto);
+        perfil.setPassword(passwordEncoder.encode(dto.getPassword()));
         perfil.setRol(rolRepository.findByNombre(dto.getRol()));
 
+        perfil = perfilRepository.save(perfil);
 
-
-        Perfil perfilGuardado = perfilRepository.save(perfil);
-
-        return new PerfilResponseDTO(
-                perfilGuardado.getId(),
-                perfilGuardado.getUsuario(),
-                perfilGuardado.getRol().getNombre()
-        );
+        return mapper.toDto(perfil);
     }
 
     public LogginResponseDTO loggin(LogginRequestDTO dto) {
@@ -59,7 +53,6 @@ public class AuthService {
                 ));
 
         Perfil perfil = (Perfil) authentication.getPrincipal();
-
 
         assert perfil != null;
 
@@ -76,6 +69,7 @@ public class AuthService {
         );
     }
 
+    @Transactional
     public void bajaPerfil(PerfilRequestDTO dto) {
         Perfil perfil = perfilRepository.findByUsuario(dto.getUsuario())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
@@ -84,6 +78,7 @@ public class AuthService {
         perfilRepository.save(perfil);
     }
 
+    @Transactional
     public void altaPerfil(PerfilRequestDTO dto) {
         Perfil perfil = perfilRepository.findByUsuario(dto.getUsuario())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
@@ -91,6 +86,4 @@ public class AuthService {
         perfil.set_active(true);
         perfilRepository.save(perfil);
     }
-
-
 }

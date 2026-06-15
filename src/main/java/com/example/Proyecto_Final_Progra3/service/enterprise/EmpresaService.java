@@ -7,87 +7,72 @@ import com.example.Proyecto_Final_Progra3.model.enterprise.Empresa;
 import com.example.Proyecto_Final_Progra3.repository.PerfilRepository;
 import com.example.Proyecto_Final_Progra3.repository.enterprise.EmpresaRepository;
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import org.springframework.transaction.annotation.Transactional;
+import com.example.Proyecto_Final_Progra3.mappers.EmpresaMapper;
+
 import java.util.List;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class EmpresaService {
     private final EmpresaRepository empresaRepository;
     private final PerfilRepository perfilRepository;
+    private final EmpresaMapper mapper;
 
-
-    //METODO PARA CREAR EL PREFIL DE UNA EMPRESA//
+    @Transactional
     public EmpresaResponseDTO crearEmpresa(EmpresaRequestDTO dto) {
         Perfil perfil = perfilRepository.findById(dto.getPrefil_id())
                 .orElseThrow(() -> new RuntimeException("Ese perfil no existe"));
 
-        Empresa empresa = new Empresa();
-        empresa.setNombre(dto.getNombre());
-        empresa.setDescripcion(dto.getDescripcion());
-        empresa.setSitio_web(dto.getSitio_web());
-        empresa.setUbicacion(dto.getUbicacion());
+        Empresa empresa = mapper.toEntity(dto);
         empresa.setPerfil(perfil);
 
-        empresaRepository.save(empresa);
+        empresa = empresaRepository.save(empresa);
 
-        return new EmpresaResponseDTO(
-                empresa.getId(),
-                empresa.getNombre(),
-                empresa.getDescripcion(),
-                empresa.getSitio_web(),
-                empresa.getUbicacion(),
-                empresa.getPerfil().getId()
-        );
-
+        return mapper.toDto(empresa);
     }
 
+    @Transactional
     public EmpresaResponseDTO editarEmpresa(Integer id, EmpresaRequestDTO dto) {
         Empresa empresa = empresaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Esa empresa no existe"));
 
-        empresa.setNombre(dto.getNombre());
-        empresa.setDescripcion(dto.getDescripcion());
-        empresa.setSitio_web(dto.getSitio_web());
-        empresa.setUbicacion(dto.getUbicacion());
+        mapper.updateEntityFromDto(dto, empresa);
 
-        empresaRepository.save(empresa);
+        empresa = empresaRepository.save(empresa);
 
-        return new EmpresaResponseDTO(
-                empresa.getId(),
-                empresa.getNombre(),
-                empresa.getDescripcion(),
-                empresa.getSitio_web(),
-                empresa.getUbicacion(),
-                empresa.getPerfil().getId()
-        );
+        return mapper.toDto(empresa);
     }
 
-    public List<Empresa> mostrarEmpresas() {
-        return  empresaRepository.findAll();
+    public List<EmpresaResponseDTO> mostrarEmpresas() {
+        return empresaRepository.findAll().stream()
+                .map(mapper::toDto)
+                .collect(Collectors.toList());
     }
 
-    public Empresa buscarEmpresaXid(Integer id){
-        return empresaRepository.findById(id)
+    public EmpresaResponseDTO buscarEmpresaXid(Integer id) {
+        Empresa empresa = empresaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Ese empresa no existe"));
+        return mapper.toDto(empresa);
     }
 
-    public List<Empresa> buscarEmpresasXidPerfil(int idPerfil){
+    public List<EmpresaResponseDTO> buscarEmpresasXidPerfil(int idPerfil) {
         Perfil perfil = perfilRepository.findById(idPerfil)
                 .orElseThrow(() -> new RuntimeException("Ese perfil no existe"));
-        return empresaRepository.findByPerfil(perfil);
+        return empresaRepository.findByPerfil(perfil).stream()
+                .map(mapper::toDto)
+                .collect(Collectors.toList());
     }
 
-
-    public void eliminarEmpresa(Integer idEmpresa){
+    @Transactional
+    public void eliminarEmpresa(Integer idEmpresa) {
         Empresa empresa = empresaRepository.findById(idEmpresa)
                 .orElseThrow(() -> new RuntimeException("Ese empresa no existe"));
 
         empresaRepository.delete(empresa);
     }
-
-
-
 }

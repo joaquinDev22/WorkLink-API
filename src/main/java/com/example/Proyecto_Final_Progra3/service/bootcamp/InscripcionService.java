@@ -13,14 +13,21 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 
+import org.springframework.transaction.annotation.Transactional;
+import com.example.Proyecto_Final_Progra3.dto.responsedto.InscripcionResponseDTO;
+import com.example.Proyecto_Final_Progra3.mappers.InscripcionMapper;
+
 @AllArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class InscripcionService {
     private final InscripcionRepository inscripcionRepository;
     private final BootcampRepository bootcampRepository;
     private final EmployeeRepository employeeRepository;
+    private final InscripcionMapper mapper;
 
-    public Inscripcion realizarInscripcion(Integer bootcampId, Integer employeeId) {
+    @Transactional
+    public InscripcionResponseDTO realizarInscripcion(Integer bootcampId, Integer employeeId) {
 
         Bootcamp bootcamp = bootcampRepository.findById(bootcampId)
                 .orElseThrow(() -> new RuntimeException("No existe un bootcamp particular con ese ID"));
@@ -39,10 +46,12 @@ public class InscripcionService {
         bootcamp.setCupos(bootcamp.getCupos() - 1);
         bootcampRepository.save(bootcamp);
 
-        return inscripcionRepository.save(inscripcion);
+        inscripcion = inscripcionRepository.save(inscripcion);
+        return mapper.toDto(inscripcion);
     }
 
-    public Inscripcion cancelarInscripcion(Integer inscripcionId) {
+    @Transactional
+    public InscripcionResponseDTO cancelarInscripcion(Integer inscripcionId) {
 
         Inscripcion inscripcion = inscripcionRepository.findById(inscripcionId)
                 .orElseThrow(() -> new RuntimeException("No existe una inscripción con ese ID"));
@@ -59,7 +68,8 @@ public class InscripcionService {
 
         bootcampRepository.save(bootcamp);
 
-        return inscripcionRepository.save(inscripcion);
+        inscripcion = inscripcionRepository.save(inscripcion);
+        return mapper.toDto(inscripcion);
     }
 
 

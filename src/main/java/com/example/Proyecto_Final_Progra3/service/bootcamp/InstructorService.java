@@ -13,55 +13,67 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import com.example.Proyecto_Final_Progra3.dto.responsedto.InstructorResponseDTO;
+import com.example.Proyecto_Final_Progra3.mappers.InstructorMapper;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.stream.Collectors;
+
 @AllArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class InstructorService {
     private final InstructorRepository repository;
     private final EmpresaRepository empresaRepository;
+    private final InstructorMapper mapper;
 
-    public Instructor crearInstructor(InstructorRequestDTO dto) {
-        Empresa empresa = empresaRepository.findById(dto.getEmpresa_id())
-                .orElseThrow(() -> new RuntimeException("No existe la empresa"));
-        Instructor instructor = new Instructor();
-
+    @Transactional
+    public InstructorResponseDTO crearInstructor(InstructorRequestDTO dto) {
         validarInstructor(dto);
+        
+        Instructor instructor = mapper.toEntity(dto);
 
-        instructor.setNombre(dto.getNombre());
-        instructor.setTitulo(dto.getTitulo());
-        instructor.setPresentacion(dto.getPresentacion());
-
-        if (dto.getTipo().equals(Tipo.EMPRESA)) {
+        if (dto.getTipo() != null && dto.getTipo().equals(Tipo.EMPRESA)) {
+            Empresa empresa = empresaRepository.findById(dto.getEmpresa_id())
+                    .orElseThrow(() -> new RuntimeException("No existe la empresa"));
             instructor.setEmpresa(empresa);
         }
 
-        return repository.save(instructor);
+        instructor = repository.save(instructor);
+        return mapper.toDto(instructor);
     }
 
+    @Transactional
     public void eliminarInstructor(Integer instructorId) {
-        Instructor instructorEmpresa = repository.findById(instructorId)
+        Instructor instructor = repository.findById(instructorId)
                 .orElseThrow(() -> new InstructorInvalidoException("No existe un instructor con ese id"));
-        repository.delete(instructorEmpresa);
+        repository.delete(instructor);
     }
 
-    public Instructor modificarInstructor(Integer instructorId, InstructorRequestDTO dto) {
+    @Transactional
+    public InstructorResponseDTO modificarInstructor(Integer instructorId, InstructorRequestDTO dto) {
         Instructor instructor = repository.findById(instructorId)
                 .orElseThrow(() -> new InstructorInvalidoException("No existe ningún instructor con ese id"));
 
         validarInstructor(dto);
 
-        Empresa empresa = empresaRepository.findById(dto.getEmpresa_id())
-                .orElseThrow(() -> new RuntimeException("No existe una empresa con ese ID"));
+        mapper.updateEntityFromDto(dto, instructor);
 
-        instructor.setNombre(dto.getNombre());
-        instructor.setTitulo(dto.getTitulo());
-        instructor.setPresentacion(dto.getPresentacion());
-        instructor.setEmpresa(empresa);
+        if (dto.getTipo() != null && dto.getTipo().equals(Tipo.EMPRESA)) {
+            Empresa empresa = empresaRepository.findById(dto.getEmpresa_id())
+                    .orElseThrow(() -> new RuntimeException("No existe una empresa con ese ID"));
+            instructor.setEmpresa(empresa);
+        } else {
+            instructor.setEmpresa(null);
+        }
 
-        return repository.save(instructor);
+        instructor = repository.save(instructor);
+        return mapper.toDto(instructor);
     }
 
-    public List<Instructor> listarInstuctores() {
-        return repository.findAll();
+    public List<InstructorResponseDTO> listarInstuctores() {
+        return repository.findAll().stream()
+                .map(mapper::toDto)
+                .collect(Collectors.toList());
     }
 
     private void validarInstructor(InstructorRequestDTO dto) {

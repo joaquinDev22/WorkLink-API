@@ -15,15 +15,22 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 
+import org.springframework.transaction.annotation.Transactional;
+import com.example.Proyecto_Final_Progra3.dto.responsedto.CalificacionBootcampResponseDTO;
+import com.example.Proyecto_Final_Progra3.mappers.CalificacionBootcampMapper;
+
 @AllArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class CalificacionBootcampService {
     private final CalificacionBootcampRepository calificacionBootcampRepository;
     private final BootcampRepository bootcampRepository;
     private final EmployeeRepository employeeRepository;
     private final InscripcionRepository inscripcionBootcampRepository;
+    private final CalificacionBootcampMapper mapper;
 
-    public CalificacionBootcamp calificarBootcamp(Integer bootcampId, CalificacionBootcampRequestDTO dto) {
+    @Transactional
+    public CalificacionBootcampResponseDTO calificarBootcamp(Integer bootcampId, CalificacionBootcampRequestDTO dto) {
 
         validarCalificacion(dto);
 
@@ -54,7 +61,8 @@ public class CalificacionBootcampService {
         calificacion.setComentario(dto.getComentario());
         calificacion.setFechaComentario(LocalDate.now());
 
-        return calificacionBootcampRepository.save(calificacion);
+        calificacion = calificacionBootcampRepository.save(calificacion);
+        return mapper.toDto(calificacion);
     }
 
     private void validarCalificacion(CalificacionBootcampRequestDTO dto) {

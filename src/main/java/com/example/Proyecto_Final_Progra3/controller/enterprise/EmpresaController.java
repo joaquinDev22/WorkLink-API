@@ -7,24 +7,32 @@ import com.example.Proyecto_Final_Progra3.service.enterprise.EmpresaService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
 @RestController
 @AllArgsConstructor
-@RequestMapping("/empresa")
+@RequestMapping("/api/v1/empresas")
 public class EmpresaController {
     private final EmpresaService empresaService;
 
-    @PostMapping("/create")
-    public EmpresaResponseDTO crearEmpresa(@RequestBody EmpresaRequestDTO dto){
-        return empresaService.crearEmpresa(dto);
+    @PostMapping
+    public ResponseEntity<EmpresaResponseDTO> crearEmpresa(@Valid @RequestBody EmpresaRequestDTO dto){
+        return new ResponseEntity<>(empresaService.crearEmpresa(dto), HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}/edit")
-    public EmpresaResponseDTO editarEmpresa(@PathVariable Integer id, @RequestBody EmpresaRequestDTO empresaRequestDTO){
-        return empresaService.editarEmpresa(id, empresaRequestDTO);
+    @PutMapping("/{id}")
+    public ResponseEntity<EmpresaResponseDTO> editarEmpresa(@PathVariable Integer id, @Valid @RequestBody EmpresaRequestDTO empresaRequestDTO){
+        return ResponseEntity.ok(empresaService.editarEmpresa(id, empresaRequestDTO));
     }
 
     @GetMapping("/{id}")
-    public Empresa mostrarEmpresa(@PathVariable Integer id){
-        return empresaService.buscarEmpresaXid(id);
+    public ResponseEntity<EmpresaResponseDTO> mostrarEmpresa(@PathVariable Integer id){
+        // Since we changed to return DTO, we need to adapt this, but for the scope of the plan, we assume the service does the mapping or we do it here.
+        // The service should be updated to return EmpresaResponseDTO in searching.
+        // Assuming the service is updated in task 8.
+        // Let's call the service and return what it returns, we'll update service next.
+        return ResponseEntity.ok(empresaService.buscarEmpresaXid(id));
     }
 }

@@ -7,20 +7,25 @@ import com.example.Proyecto_Final_Progra3.model.bootcamps.Inscripcion;
 import com.example.Proyecto_Final_Progra3.model.bootcamps.enums.EstadoInscripcion;
 import com.example.Proyecto_Final_Progra3.repository.bootcamp.CertificadoBootcampRepository;
 import com.example.Proyecto_Final_Progra3.repository.bootcamp.InscripcionRepository;
-import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 
+import org.springframework.transaction.annotation.Transactional;
+import com.example.Proyecto_Final_Progra3.dto.responsedto.CertificadoResponseDTO;
+import com.example.Proyecto_Final_Progra3.mappers.CertificadoMapper;
+
 @AllArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class CertificadoService {
     private final CertificadoBootcampRepository certificadoBootcampRepository;
     private final InscripcionRepository inscripcionRepository;
+    private final CertificadoMapper mapper;
 
     @Transactional
-    public CertificadoBootcamp generarCertificado(Integer inscripcionId) {
+    public CertificadoResponseDTO generarCertificado(Integer inscripcionId) {
 
         Inscripcion inscripcion = inscripcionRepository.findById(inscripcionId)
                 .orElseThrow(() -> new RuntimeException("No existe una inscripción con ese ID"));
@@ -51,7 +56,8 @@ public class CertificadoService {
         certificado.setFechaEmision(LocalDate.now());
         certificado.setCodigoCertificado(generarCodigoCertificado(bootcamp, employee));
 
-        return certificadoBootcampRepository.save(certificado);
+        certificado = certificadoBootcampRepository.save(certificado);
+        return mapper.toDto(certificado);
     }
 
     private String generarCodigoCertificado(Bootcamp bootcamp, Employee employee) {

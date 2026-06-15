@@ -13,27 +13,28 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.example.Proyecto_Final_Progra3.dto.responsedto.BootcampResponseDTO;
+import com.example.Proyecto_Final_Progra3.mappers.BootcampMapper;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.stream.Collectors;
+
 @AllArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class BootcampService {
     private final BootcampRepository repository;
     private final InstructorRepository instructorRepository;
+    private final BootcampMapper mapper;
 
-    public Bootcamp crearBootcamp(BootcampRequestDTO dto) {
+    @Transactional
+    public BootcampResponseDTO crearBootcamp(BootcampRequestDTO dto) {
 
         validarBootcamp(dto);
 
         Instructor instructor = instructorRepository.findById(dto.getInstructor_id())
                 .orElseThrow(() -> new RuntimeException("No existe un instructor particular con ese ID"));
 
-        Bootcamp bootcamp = new Bootcamp();
-
-        bootcamp.setTitulo(dto.getTitulo());
-        bootcamp.setDescripcion(dto.getDescripcion());
-        bootcamp.setInicio(dto.getInicio());
-        bootcamp.setFin(dto.getFin());
-        bootcamp.setModalidad(dto.getModalidad());
-        bootcamp.setCupos(dto.getCupos());
+        Bootcamp bootcamp = mapper.toEntity(dto);
         bootcamp.setInstructor(instructor);
         if(instructor.getTipo() == Tipo.PARTICULAR){
             bootcamp.setTipo(Tipo.PARTICULAR);
@@ -41,9 +42,11 @@ public class BootcampService {
             bootcamp.setTipo(Tipo.EMPRESA);
         }
 
-        return repository.save(bootcamp);
+        bootcamp = repository.save(bootcamp);
+        return mapper.toDto(bootcamp);
     }
 
+    @Transactional
     public void eliminarBootcamp(Integer id) {
 
         Bootcamp bootcamp = repository.findById(id)
@@ -52,29 +55,28 @@ public class BootcampService {
         repository.delete(bootcamp);
     }
 
-    public Bootcamp modificarBootcamp(Integer id, BootcampRequestDTO dto) {
+    @Transactional
+    public BootcampResponseDTO modificarBootcamp(Integer id, BootcampRequestDTO dto) {
 
         Bootcamp bootcamp = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("No existe un bootcamp particular con ese ID"));
 
         validarBootcamp(dto);
 
-        Instructor instructor = instructorRepository.findById(id)
+        Instructor instructor = instructorRepository.findById(dto.getInstructor_id())
                 .orElseThrow(() -> new RuntimeException("No existe un instructor particular con ese ID"));
 
-        bootcamp.setTitulo(dto.getTitulo());
-        bootcamp.setDescripcion(dto.getDescripcion());
-        bootcamp.setInicio(dto.getInicio());
-        bootcamp.setFin(dto.getFin());
-        bootcamp.setModalidad(dto.getModalidad());
-        bootcamp.setCupos(dto.getCupos());
+        mapper.updateEntityFromDto(dto, bootcamp);
         bootcamp.setInstructor(instructor);
 
-        return repository.save(bootcamp);
+        bootcamp = repository.save(bootcamp);
+        return mapper.toDto(bootcamp);
     }
 
-    public List<Bootcamp> listarBootcamps() {
-        return repository.findAll();
+    public List<BootcampResponseDTO> listarBootcamps() {
+        return repository.findAll().stream()
+                .map(mapper::toDto)
+                .collect(Collectors.toList());
     }
 
     //Metodo de validación del bootcampParticular
@@ -114,19 +116,24 @@ public class BootcampService {
         }
     }
 
-    public Bootcamp buscarPorId(Integer id) {
-        return repository.findById(id).orElseThrow(() ->
-                new BootcampInvalidoException("No existe un Bootcamp con ese ID"));
+    public BootcampResponseDTO buscarPorId(Integer id) {
+        return repository.findById(id)
+                .map(mapper::toDto)
+                .orElseThrow(() -> new BootcampInvalidoException("No existe un Bootcamp con ese ID"));
     }
 
-    public List<Bootcamp> listarDisponibles() {
-        return repository.findByCuposGreaterThanAndInicioGreaterThanEqual(0, LocalDate.now());
+    public List<BootcampResponseDTO> listarDisponibles() {
+        return repository.findByCuposGreaterThanAndInicioGreaterThanEqual(0, LocalDate.now()).stream()
+                .map(mapper::toDto)
+                .collect(Collectors.toList());
     }
 
-    public List<Bootcamp> listarPorModalidad(String modalidad) {
+    public List<BootcampResponseDTO> listarPorModalidad(String modalidad) {
         if (modalidad == null) {
             throw new BootcampInvalidoException("La modalidad es obligatoria!");
         }
-        return repository.findByModalidad(modalidad);
+        return repository.findByModalidad(modalidad).stream()
+                .map(mapper::toDto)
+                .collect(Collectors.toList());
     }
 }

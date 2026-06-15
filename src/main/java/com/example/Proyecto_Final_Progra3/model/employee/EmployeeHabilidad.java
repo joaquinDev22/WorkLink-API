@@ -10,9 +10,10 @@ import lombok.NoArgsConstructor;
 @Table(name="employee_habilidad")
 public class EmployeeHabilidad {
     @EmbeddedId
-    private EmployeeHabilidadId employeeHabilidadId = new EmployeeHabilidadId();
+    private EmployeeHabilidadId id = new EmployeeHabilidadId();
 
     private Integer nivel;
+
     @ManyToOne
     @MapsId("employeeId")
     @JoinColumn(name = "employee_id")

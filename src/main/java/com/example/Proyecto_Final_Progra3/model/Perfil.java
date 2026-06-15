@@ -21,10 +21,10 @@ public class Perfil implements UserDetails {
     @Column(name="perfil_id")
     private Integer id;
 
-    @Column(name ="usuario")
+    @Column(name ="usuario", nullable=false, unique=true)
     private String usuario;
 
-    @Column(name="password")
+    @Column(name="password",  nullable=false)
     private String password;
 
     private boolean is_active = true;

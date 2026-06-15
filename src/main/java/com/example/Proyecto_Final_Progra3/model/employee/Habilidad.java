@@ -12,6 +12,6 @@ public class Habilidad {
     @Column(name="habilidad_id")
     private Integer habilidadId;
 
-    @Column(name="nombre_habilidad")
+    @Column(name="nombre_habilidad", nullable = false, unique = true, length = 100)
     private String nombreHabilidad;
 }
