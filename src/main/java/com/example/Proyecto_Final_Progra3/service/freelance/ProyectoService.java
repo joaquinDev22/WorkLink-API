@@ -62,7 +62,7 @@ public class ProyectoService {
         
         dto.setDuracion(proyecto.getDuracion());
         dto.setTipoPago(proyecto.getTipoPago());
-        dto.setHabilidades(proyecto.getHabilidades());
+        dto.setHabilidades(proyecto.getHabilidades() != null ? new java.util.ArrayList<>(proyecto.getHabilidades()) : new java.util.ArrayList<>());
 
         return dto;
     }

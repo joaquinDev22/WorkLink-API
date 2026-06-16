@@ -24,4 +24,8 @@ public class Client {
 
     @Column(name="pais")
     private String country;
+
+    @OneToOne
+    @JoinColumn(name="perfil_id", unique = true)
+    private com.example.Proyecto_Final_Progra3.model.Perfil perfil;
 }

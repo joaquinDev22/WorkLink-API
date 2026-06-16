@@ -16,6 +16,12 @@ import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
 import com.example.Proyecto_Final_Progra3.mappers.PerfilMapper;
+import com.example.Proyecto_Final_Progra3.model.employee.Employee;
+import com.example.Proyecto_Final_Progra3.model.freelance.Client;
+import com.example.Proyecto_Final_Progra3.model.enterprise.Empresa;
+import com.example.Proyecto_Final_Progra3.repository.EmployeeRepository;
+import com.example.Proyecto_Final_Progra3.repository.enterprise.EmpresaRepository;
+import com.example.Proyecto_Final_Progra3.repository.freelance.ClientRepository;
 
 @Service
 @AllArgsConstructor
@@ -28,6 +34,10 @@ public class AuthService {
     private final RolRepository rolRepository;
     private final JwtService jwtService;
     private final PerfilMapper mapper;
+    
+    private final EmployeeRepository employeeRepository;
+    private final EmpresaRepository empresaRepository;
+    private final ClientRepository clientRepository;
 
     @Transactional
     public PerfilResponseDTO register(PerfilRequestDTO dto) {
@@ -41,6 +51,29 @@ public class AuthService {
         perfil.setRol(rolRepository.findByNombre(dto.getRol()));
 
         perfil = perfilRepository.save(perfil);
+
+        String rolName = perfil.getRol().getNombre().toUpperCase();
+        if ("EMPLOYEE".equals(rolName)) {
+            Employee employee = new Employee();
+            employee.setNombre(perfil.getUsuario());
+            employee.setApellido("");
+            employee.setEmail(perfil.getEmail() != null ? perfil.getEmail() : "");
+            employee.setFechaNacimiento(java.time.LocalDate.of(2000, 1, 1));
+            employee.setPerfil(perfil);
+            employeeRepository.save(employee);
+        } else if ("CLIENTE".equals(rolName)) {
+            Client client = new Client();
+            client.setFirstName(perfil.getUsuario());
+            client.setLastName("");
+            client.setEmail(perfil.getEmail() != null ? perfil.getEmail() : "");
+            client.setPerfil(perfil);
+            clientRepository.save(client);
+        } else if ("EMPRESA".equals(rolName)) {
+            Empresa empresa = new Empresa();
+            empresa.setNombre(perfil.getUsuario());
+            empresa.setPerfil(perfil);
+            empresaRepository.save(empresa);
+        }
 
         return mapper.toDto(perfil);
     }

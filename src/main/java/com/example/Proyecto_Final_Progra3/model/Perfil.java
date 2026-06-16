@@ -24,6 +24,9 @@ public class Perfil implements UserDetails {
     @Column(name ="usuario", nullable=false, unique=true)
     private String usuario;
 
+    @Column(nullable = false)
+    private String email;
+
     @Column(name="password",  nullable=false)
     private String password;
 

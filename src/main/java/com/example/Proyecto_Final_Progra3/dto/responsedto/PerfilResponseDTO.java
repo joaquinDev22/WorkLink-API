@@ -12,5 +12,6 @@ import lombok.Setter;
 public class PerfilResponseDTO {
     private Integer perfil_id;
     private String usuario;
+    private String email;
     private String rol;
 }

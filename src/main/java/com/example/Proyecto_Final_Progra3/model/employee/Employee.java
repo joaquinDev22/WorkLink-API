@@ -28,4 +28,8 @@ public class Employee {
 
     @Column(name = "fecha_nacimiento")
     private LocalDate fechaNacimiento;
+
+    @OneToOne
+    @JoinColumn(name="perfil_id", unique = true)
+    private com.example.Proyecto_Final_Progra3.model.Perfil perfil;
 }

@@ -117,16 +117,6 @@ CREATE TABLE Calificacion_Proyecto(
     FOREIGN KEY (proyecto_id) REFERENCES Proyecto(proyecto_id)
 ); -- Ya definida en una java.class por JoaquinDev22
 
-CREATE TABLE Calificacion_Usuario(
-    calificacion_usuario_id INT AUTO_INCREMENT PRIMARY KEY,
-    calificacion_id INT,
-    calificacion_bootcamp_id INT,
-    perfil_id INT NOT NULL,
-    FOREIGN KEY (calificacion_id) REFERENCES Calificacion_Proyecto(calificacion_id),
-    FOREIGN KEY (calificacion_bootcamp_id) REFERENCES Calificacion_Bootcamp(calificacion_id),
-    FOREIGN KEY (perfil_id) REFERENCES Perfil(perfil_id)
-); -- Ya definida en una java.class por JoaquinDev22
-
 CREATE TABLE Habilidad(
 	habilidad_id INT AUTO_INCREMENT PRIMARY KEY,
 	nombre_habilidad VARCHAR(50) UNIQUE NOT NULL
@@ -307,6 +297,15 @@ CREATE TABLE Certificado_Bootcamp (
     FOREIGN KEY (employee_id) REFERENCES Employee(employee_id)
 ); -- Ya definida en una java.class por Yamils06
 
+CREATE TABLE Calificacion_Usuario(
+    calificacion_usuario_id INT AUTO_INCREMENT PRIMARY KEY,
+    calificacion_id INT,
+    calificacion_bootcamp_id INT,
+    perfil_id INT NOT NULL,
+    FOREIGN KEY (calificacion_id) REFERENCES Calificacion_Proyecto(calificacion_id),
+    FOREIGN KEY (calificacion_bootcamp_id) REFERENCES Calificacion_Bootcamp(calificacion_id),
+    FOREIGN KEY (perfil_id) REFERENCES Perfil(perfil_id)
+); -- Ya definida en una java.class por JoaquinDev22
 -- ===================== --
 --       AUDITORIA       --
 -- ===================== --

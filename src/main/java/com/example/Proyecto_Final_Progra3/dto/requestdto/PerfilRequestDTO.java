@@ -7,6 +7,7 @@ import lombok.Setter;
 @Setter
 public class PerfilRequestDTO {
     private String usuario;
+    private String email;
     private String password;
     private String rol;
 }

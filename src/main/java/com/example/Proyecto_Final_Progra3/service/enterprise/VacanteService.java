@@ -66,7 +66,7 @@ public class VacanteService {
         dto.setTipoUbicacion(vacante.getTipoUbicacion());
         dto.setTipoVacante(vacante.getTipoVacante());
         dto.setSalario(vacante.getSalario());
-        dto.setEtiquetas(vacante.getEtiquetas());
+        dto.setEtiquetas(vacante.getEtiquetas() != null ? new java.util.ArrayList<>(vacante.getEtiquetas()) : new java.util.ArrayList<>());
 
         return dto;
     }
