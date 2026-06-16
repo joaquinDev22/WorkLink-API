@@ -2,6 +2,7 @@ package com.example.Proyecto_Final_Progra3.dto.requestdto;
 
 import com.example.Proyecto_Final_Progra3.model.bootcamps.enums.Modalidad;
 import com.example.Proyecto_Final_Progra3.model.bootcamps.enums.Tipo;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
