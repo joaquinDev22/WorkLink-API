@@ -20,6 +20,13 @@ public class VacanteRequestDTO {
     @Future(message = "La fecha de finalización debe ser futura")
     private LocalDate finalizacion;
 
-    @NotNull(message = "El ID de la empresa es obligatorio")
+    @NotNull(message = "El id de la empresa no puede ser nulo")
     private Integer empresaId;
+
+    private String logo;
+    private String ubicacion;
+    private String tipoUbicacion;
+    private String tipoVacante;
+    private String salario;
+    private java.util.List<String> etiquetas;
 }

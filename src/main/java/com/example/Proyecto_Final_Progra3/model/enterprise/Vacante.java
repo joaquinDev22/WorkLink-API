@@ -27,6 +27,22 @@ public class Vacante {
     @Column(name = "fecha_fin", nullable = false)
     private LocalDate finalizacion;
 
+    private String logo;
+    private String ubicacion;
+    
+    @Column(name = "tipo_ubicacion")
+    private String tipoUbicacion; // Remote, On-site, Hybrid
+    
+    @Column(name = "tipo_vacante")
+    private String tipoVacante; // Full-time, Part-time, Contract, Freelance
+    
+    private String salario;
+
+    @ElementCollection
+    @CollectionTable(name = "vacante_etiquetas", joinColumns = @JoinColumn(name = "vacante_id"))
+    @Column(name = "etiqueta")
+    private java.util.List<String> etiquetas;
+
     @ManyToOne
     @JoinColumn(name = "empresa_id",  nullable = false)
     private Empresa empresa;

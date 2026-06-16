@@ -14,4 +14,8 @@ public class ProyectoResponseDTO {
     private Integer presupuestoMin;
     private Integer clienteId;
     private String nombreCliente;
+    
+    private String duracion;
+    private String tipoPago;
+    private java.util.List<String> habilidades;
 }

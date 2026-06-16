@@ -36,12 +36,15 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/empresas/**").hasRole("EMPRESA")
-                        .requestMatchers("/freelancers/**", "/empleado/**").hasRole("EMPLOYEE")
+                        .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/bootcamps", "/api/v1/bootcamps/*", "/api/v1/bootcamps/disponibles", "/api/v1/bootcamps/modalidad/*").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/vacantes").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/freelance/proyectos").permitAll()
+                        .requestMatchers("/api/v1/empresas/**", "/api/vacantes/**").hasRole("EMPRESA")
+                        .requestMatchers("/freelancer/**", "/api/freelance/**", "/api/portfolio/**").hasRole("EMPLOYEE")
                         .requestMatchers("/recruiters/**").hasRole("RECRUITER")
-                        .requestMatchers("/instructors/**").hasRole("INSTRUCTOR")
-                        .requestMatchers("/clientes/**").hasRole("CLIENTE")
+                        .requestMatchers("/api/v1/instructores/**", "/api/v1/bootcamps/**", "/api/v1/calificaciones/**", "/api/v1/certificados/**", "/api/v1/inscripciones/**").hasRole("INSTRUCTOR")
+                        .requestMatchers("/client/**").hasRole("CLIENTE")
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class).build();
     }

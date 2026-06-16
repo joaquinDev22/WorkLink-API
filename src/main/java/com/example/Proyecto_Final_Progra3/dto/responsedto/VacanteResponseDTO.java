@@ -13,4 +13,11 @@ public class VacanteResponseDTO {
     private LocalDate finalizacion;
     private Integer empresaId;
     private String nombreEmpresa;
+    
+    private String logo;
+    private String ubicacion;
+    private String tipoUbicacion;
+    private String tipoVacante;
+    private String salario;
+    private java.util.List<String> etiquetas;
 }

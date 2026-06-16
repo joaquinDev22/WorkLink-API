@@ -37,6 +37,15 @@ public class Bootcamp {
 
     private int cupos;
 
+    private String logo;
+    private String precio;
+    private Double rating;
+
+    @ElementCollection
+    @CollectionTable(name = "bootcamp_etiquetas", joinColumns = @JoinColumn(name = "bootcamp_id"))
+    @Column(name = "etiqueta")
+    private java.util.List<String> etiquetas;
+
     @ManyToOne
     @JoinColumn(name = "instructor_id")
     private Instructor instructor;

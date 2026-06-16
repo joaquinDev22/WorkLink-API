@@ -16,4 +16,9 @@ public class BootcampResponseDTO {
     private Integer cupos;
     private Tipo tipo;
     private Integer instructor_id;
+    
+    private String logo;
+    private String precio;
+    private Double rating;
+    private java.util.List<String> etiquetas;
 }

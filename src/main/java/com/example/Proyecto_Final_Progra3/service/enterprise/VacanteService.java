@@ -32,6 +32,13 @@ public class VacanteService {
         vacante.setPublicacion(LocalDate.now());
         vacante.setFinalizacion(dto.getFinalizacion());
         vacante.setEmpresa(empresa);
+        
+        vacante.setLogo(dto.getLogo());
+        vacante.setUbicacion(dto.getUbicacion());
+        vacante.setTipoUbicacion(dto.getTipoUbicacion());
+        vacante.setTipoVacante(dto.getTipoVacante());
+        vacante.setSalario(dto.getSalario());
+        vacante.setEtiquetas(dto.getEtiquetas());
 
         Vacante guardada = vacanteRepository.save(vacante);
         return mapToDto(guardada);
@@ -53,6 +60,14 @@ public class VacanteService {
         dto.setFinalizacion(vacante.getFinalizacion());
         dto.setEmpresaId(vacante.getEmpresa().getId());
         dto.setNombreEmpresa(vacante.getEmpresa().getNombre());
+        
+        dto.setLogo(vacante.getLogo());
+        dto.setUbicacion(vacante.getUbicacion());
+        dto.setTipoUbicacion(vacante.getTipoUbicacion());
+        dto.setTipoVacante(vacante.getTipoVacante());
+        dto.setSalario(vacante.getSalario());
+        dto.setEtiquetas(vacante.getEtiquetas());
+
         return dto;
     }
 }

@@ -17,7 +17,15 @@ public class BootcampRequestDTO {
     private Modalidad modalidad;
     private Tipo tipo;
     private int cupos;
+    @NotNull(message = "El id del instructor no puede ser nulo")
     private Integer instructor_id;
+
+    @NotNull(message = "El id de la empresa no puede ser nulo")
     private Integer empresa_id;
+    
+    private String logo;
+    private String precio;
+    private Double rating;
+    private java.util.List<String> etiquetas;
 
 }

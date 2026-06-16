@@ -33,6 +33,10 @@ public class ProyectoService {
         proyecto.setPresupuestoMax(dto.getPresupuestoMax());
         proyecto.setPresupuestoMin(dto.getPresupuestoMin());
         proyecto.setClient(client);
+        
+        proyecto.setDuracion(dto.getDuracion());
+        proyecto.setTipoPago(dto.getTipoPago());
+        proyecto.setHabilidades(dto.getHabilidades());
 
         Proyecto guardado = proyectoRepository.save(proyecto);
         return mapToDto(guardado);
@@ -55,6 +59,11 @@ public class ProyectoService {
         dto.setPresupuestoMin(proyecto.getPresupuestoMin());
         dto.setClienteId(proyecto.getClient().getClienteId());
         dto.setNombreCliente(proyecto.getClient().getFirstName() + " " + proyecto.getClient().getLastName());
+        
+        dto.setDuracion(proyecto.getDuracion());
+        dto.setTipoPago(proyecto.getTipoPago());
+        dto.setHabilidades(proyecto.getHabilidades());
+
         return dto;
     }
 }

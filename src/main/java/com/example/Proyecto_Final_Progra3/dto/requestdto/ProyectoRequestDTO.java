@@ -19,6 +19,10 @@ public class ProyectoRequestDTO {
     @NotNull(message = "El presupuesto mínimo es obligatorio")
     private Integer presupuestoMin;
 
-    @NotNull(message = "El ID del cliente es obligatorio")
+    @NotNull(message = "El cliente ID no puede ser nulo")
     private Integer clienteId;
+    
+    private String duracion;
+    private String tipoPago;
+    private java.util.List<String> habilidades;
 }
