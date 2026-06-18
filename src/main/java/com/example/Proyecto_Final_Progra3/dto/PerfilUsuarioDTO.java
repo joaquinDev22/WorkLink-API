@@ -21,4 +21,30 @@ public class PerfilUsuarioDTO {
     private String ubicacion;
     private String sitioWeb;
     private String logo;
+
+    // Instructor specific
+    private String tipoInstructor;
+
+    // Common profile extensions
+    private byte[] fotoPerfil;
+    private byte[] bannerPerfil;
+    
+    private java.util.List<HabilidadDTO> habilidades;
+    private java.util.List<ProyectoDTO> proyectos;
+
+    @Data
+    public static class HabilidadDTO {
+        private Integer habilidadId;
+        private String nombre;
+        private Integer nivel; // 1: Básico, 2: Intermedio, 3: Avanzado, 4: Experto
+    }
+
+    @Data
+    public static class ProyectoDTO {
+        private Integer id;
+        private String nombre;
+        private String descripcion;
+        private String link;
+        private byte[] imagen;
+    }
 }

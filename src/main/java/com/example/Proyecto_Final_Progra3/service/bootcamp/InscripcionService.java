@@ -8,6 +8,7 @@ import com.example.Proyecto_Final_Progra3.model.bootcamps.enums.EstadoInscripcio
 import com.example.Proyecto_Final_Progra3.repository.EmployeeRepository;
 import com.example.Proyecto_Final_Progra3.repository.bootcamp.BootcampRepository;
 import com.example.Proyecto_Final_Progra3.repository.bootcamp.InscripcionRepository;
+import com.example.Proyecto_Final_Progra3.repository.PerfilRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +25,7 @@ public class InscripcionService {
     private final InscripcionRepository inscripcionRepository;
     private final BootcampRepository bootcampRepository;
     private final EmployeeRepository employeeRepository;
+    private final PerfilRepository perfilRepository;
     private final InscripcionMapper mapper;
 
     @Transactional
@@ -48,6 +50,31 @@ public class InscripcionService {
 
         inscripcion = inscripcionRepository.save(inscripcion);
         return mapper.toDto(inscripcion);
+    }
+
+    @Transactional
+    public InscripcionResponseDTO realizarMiInscripcion(String username, Integer bootcampId) {
+        com.example.Proyecto_Final_Progra3.model.Perfil perfil = perfilRepository
+                .findByUsuario(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                
+        Employee employee = employeeRepository.findByPerfil(perfil)
+                .orElseThrow(() -> new RuntimeException("Solo los empleados o freelancers pueden inscribirse en bootcamps"));
+                
+        return realizarInscripcion(bootcampId, employee.getEmployeeId());
+    }
+
+    public java.util.List<InscripcionResponseDTO> obtenerMisInscripciones(String username) {
+        com.example.Proyecto_Final_Progra3.model.Perfil perfil = perfilRepository
+                .findByUsuario(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                
+        Employee employee = employeeRepository.findByPerfil(perfil)
+                .orElseThrow(() -> new RuntimeException("Solo los empleados o freelancers pueden inscribirse en bootcamps"));
+                
+        return inscripcionRepository.findByEmployee(employee).stream()
+                .map(mapper::toDto)
+                .collect(java.util.stream.Collectors.toList());
     }
 
     @Transactional

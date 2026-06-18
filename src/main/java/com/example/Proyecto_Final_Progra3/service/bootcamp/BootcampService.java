@@ -1,11 +1,12 @@
 package com.example.Proyecto_Final_Progra3.service.bootcamp;
 
-
 import com.example.Proyecto_Final_Progra3.dto.requestdto.BootcampRequestDTO;
 import com.example.Proyecto_Final_Progra3.exceptions.bootcamps.BootcampInvalidoException;
+import com.example.Proyecto_Final_Progra3.model.Perfil;
 import com.example.Proyecto_Final_Progra3.model.bootcamps.Bootcamp;
 import com.example.Proyecto_Final_Progra3.model.bootcamps.Instructor;
 import com.example.Proyecto_Final_Progra3.model.bootcamps.enums.Tipo;
+import com.example.Proyecto_Final_Progra3.repository.PerfilRepository;
 import com.example.Proyecto_Final_Progra3.repository.bootcamp.BootcampRepository;
 import com.example.Proyecto_Final_Progra3.repository.bootcamp.InstructorRepository;
 import lombok.AllArgsConstructor;
@@ -25,6 +26,9 @@ public class BootcampService {
     private final BootcampRepository repository;
     private final InstructorRepository instructorRepository;
     private final BootcampMapper mapper;
+    private final PerfilRepository perfilRepository;
+
+
 
     @Transactional
     public BootcampResponseDTO crearBootcamp(BootcampRequestDTO dto) {
@@ -36,14 +40,29 @@ public class BootcampService {
 
         Bootcamp bootcamp = mapper.toEntity(dto);
         bootcamp.setInstructor(instructor);
-        if(instructor.getTipo() == Tipo.PARTICULAR){
+        if (instructor.getTipo() == Tipo.PARTICULAR) {
             bootcamp.setTipo(Tipo.PARTICULAR);
-        }else{
+        } else {
             bootcamp.setTipo(Tipo.EMPRESA);
         }
 
         bootcamp = repository.save(bootcamp);
         return mapper.toDto(bootcamp);
+    }
+
+    @Transactional
+    public BootcampResponseDTO crearMiBootcamp(String username, BootcampRequestDTO dto) {
+        Perfil perfil = perfilRepository
+                .findByUsuario(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        Instructor instructor = instructorRepository.findByPerfil(perfil)
+                .orElseThrow(() -> new RuntimeException("Solo los instructores pueden crear bootcamps"));
+
+        dto.setInstructor_id(instructor.getId());
+        dto.setEmpresa_id(1); // placeholder para evitar ConstraintViolation
+
+        return crearBootcamp(dto);
     }
 
     @Transactional
@@ -79,7 +98,17 @@ public class BootcampService {
                 .collect(Collectors.toList());
     }
 
-    //Metodo de validación del bootcampParticular
+    public List<BootcampResponseDTO> listarMisBootcamps(String username) {
+        Perfil perfil = perfilRepository.findByUsuario(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        Instructor instructor = instructorRepository.findByPerfil(perfil)
+                .orElseThrow(() -> new RuntimeException("Solo los instructores pueden listar sus bootcamps"));
+        return repository.findByInstructor(instructor).stream()
+                .map(mapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    // Metodo de validación del bootcampParticular
     private void validarBootcamp(BootcampRequestDTO dto) {
         if (dto.getTitulo() == null || dto.getTitulo().isBlank()) {
             throw new BootcampInvalidoException("El título es obligatorio");

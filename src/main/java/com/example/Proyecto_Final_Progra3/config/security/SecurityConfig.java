@@ -47,7 +47,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/empresas/**", "/api/v1/vacantes/**", "/api/v1/recruiter/**")
                         .hasRole("EMPRESA")
                         .requestMatchers("/api/v1/freelancer/**", "/api/v1/freelance/**", "/api/v1/portfolio/**")
-                        .hasRole("EMPLOYEE")
+                        .hasAnyRole("EMPLOYEE", "FREELANCER", "CLIENTE")
                         .requestMatchers("/api/v1/recruiter/**").hasRole("RECRUITER")
                         .requestMatchers("/api/v1/instructores/**", "/api/v1/bootcamps/**", "/api/v1/calificaciones/**",
                                 "/api/v1/certificados/**", "/api/v1/inscripciones/**")

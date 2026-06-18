@@ -17,18 +17,21 @@ public class PostulacionVacanteController {
     private final PostulacionVacanteService postulacionService;
 
     @PostMapping
-    public ResponseEntity<?> postularse(
+    public ResponseEntity<PostulacionResponseDTO> postularse(
             @PathVariable Integer vacanteId,
             @RequestParam("employeeId") Integer employeeId,
-            @RequestParam(value = "mensaje", required = false) String mensaje,
+            @RequestParam("mensaje") String mensaje,
             @RequestParam(value = "cv", required = false) MultipartFile cv) {
-        
-        try {
-            PostulacionResponseDTO response = postulacionService.postularse(vacanteId, employeeId, mensaje, cv);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error al postularse: " + e.getMessage());
-        }
+        return ResponseEntity.ok(postulacionService.postularse(vacanteId, employeeId, mensaje, cv));
+    }
+
+    @PostMapping("/me")
+    public ResponseEntity<PostulacionResponseDTO> postularseMe(
+            @PathVariable Integer vacanteId,
+            org.springframework.security.core.Authentication authentication,
+            @RequestParam("mensaje") String mensaje,
+            @RequestParam(value = "cv", required = false) MultipartFile cv) {
+        return ResponseEntity.ok(postulacionService.postularseMe(authentication.getName(), vacanteId, mensaje, cv));
     }
 
     @GetMapping

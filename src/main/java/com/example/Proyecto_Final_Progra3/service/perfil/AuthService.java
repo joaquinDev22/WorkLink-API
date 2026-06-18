@@ -48,12 +48,19 @@ public class AuthService {
 
         Perfil perfil = mapper.toEntity(dto);
         perfil.setPassword(passwordEncoder.encode(dto.getPassword()));
-        perfil.setRol(rolRepository.findByNombre(dto.getRol()));
+        
+        com.example.Proyecto_Final_Progra3.model.Rol rol = rolRepository.findByNombre(dto.getRol().toUpperCase());
+        if (rol == null) {
+            rol = new com.example.Proyecto_Final_Progra3.model.Rol();
+            rol.setNombre(dto.getRol().toUpperCase());
+            rolRepository.save(rol);
+        }
+        perfil.setRol(rol);
 
         perfil = perfilRepository.save(perfil);
 
         String rolName = perfil.getRol().getNombre().toUpperCase();
-        if ("EMPLOYEE".equals(rolName)) {
+        if ("EMPLOYEE".equals(rolName) || "FREELANCER".equals(rolName) || "POSTULANTE".equals(rolName)) {
             Employee employee = new Employee();
             employee.setNombre(perfil.getUsuario());
             employee.setApellido("");
@@ -66,13 +73,26 @@ public class AuthService {
             client.setFirstName(perfil.getUsuario());
             client.setLastName("");
             client.setEmail(perfil.getEmail() != null ? perfil.getEmail() : "");
+            client.setFechaNacimiento(java.time.LocalDate.of(2000, 1, 1));
             client.setPerfil(perfil);
             clientRepository.save(client);
         } else if ("EMPRESA".equals(rolName)) {
             Empresa empresa = new Empresa();
             empresa.setNombre(perfil.getUsuario());
+            empresa.setDescripcion("");
+            empresa.setSitio_web("");
+            empresa.setUbicacion("");
             empresa.setPerfil(perfil);
             empresaRepository.save(empresa);
+        } else if ("INSTRUCTOR".equals(rolName)) {
+            com.example.Proyecto_Final_Progra3.model.bootcamps.Instructor instructor = new com.example.Proyecto_Final_Progra3.model.bootcamps.Instructor();
+            instructor.setNombre(perfil.getUsuario());
+            instructor.setApellido("");
+            instructor.setPresentacion("");
+            instructor.setTitulo("");
+            instructor.setTipo(com.example.Proyecto_Final_Progra3.model.bootcamps.enums.Tipo.PARTICULAR);
+            instructor.setPerfil(perfil);
+            com.example.Proyecto_Final_Progra3.service.BeanUtil.getBean(com.example.Proyecto_Final_Progra3.repository.bootcamp.InstructorRepository.class).save(instructor);
         }
 
         return mapper.toDto(perfil);

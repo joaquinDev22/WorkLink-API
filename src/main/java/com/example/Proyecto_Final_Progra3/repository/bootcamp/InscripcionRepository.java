@@ -11,5 +11,7 @@ public interface InscripcionRepository extends JpaRepository<Inscripcion, Intege
     boolean existsByBootcampAndEmployee(Bootcamp bootcamp, Employee employee);
 
     Optional<Inscripcion> findByBootcampAndEmployee(Bootcamp bootcamp, Employee employee);
+    
+    java.util.List<Inscripcion> findByEmployee(Employee employee);
 
 }

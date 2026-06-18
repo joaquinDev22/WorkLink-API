@@ -24,6 +24,14 @@ public class PostulacionProyectoController {
         return ResponseEntity.ok(postulacionService.postularse(proyectoId, dto));
     }
 
+    @PostMapping("/me")
+    public ResponseEntity<PostulacionProyectoResponseDTO> enviarMiPropuesta(
+            @PathVariable Integer proyectoId,
+            org.springframework.security.core.Authentication authentication,
+            @Valid @RequestBody PostulacionProyectoRequestDTO dto) {
+        return ResponseEntity.ok(postulacionService.postularseMe(authentication.getName(), proyectoId, dto));
+    }
+
     @GetMapping
     public ResponseEntity<List<PostulacionProyectoResponseDTO>> listarPropuestas(@PathVariable Integer proyectoId) {
         return ResponseEntity.ok(postulacionService.listarPostulacionesPorProyecto(proyectoId));

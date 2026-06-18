@@ -6,34 +6,46 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name="Perfil")
+@Table(name = "Perfil")
 public class Perfil implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="perfil_id")
+    @Column(name = "perfil_id")
     private Integer id;
 
-    @Column(name ="usuario", nullable=false, unique=true)
+    @Column(name = "usuario", nullable = false, unique = true)
     private String usuario;
 
     @Column(nullable = false)
     private String email;
 
-    @Column(name="password",  nullable=false)
+    @Column(name = "password", nullable = false)
     private String password;
 
     private boolean is_active = true;
 
+    @Lob
+    @Column(name = "foto_perfil", columnDefinition = "LONGBLOB")
+    private byte[] fotoPerfil;
+
+    @Lob
+    @Column(name = "banner_perfil", columnDefinition = "LONGBLOB")
+    private byte[] bannerPerfil;
+
+    @Column(name = "ubicacion", length = 150)
+    private String ubicacion;
+
+    @Column(name = "descripcion", length = 500)
+    private String descripcion;
+
     @OneToOne
-    @JoinColumn(name="rol_id")
+    @JoinColumn(name = "rol_id")
     private Rol rol;
 
     @Override

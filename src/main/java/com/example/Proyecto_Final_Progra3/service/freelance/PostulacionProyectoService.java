@@ -23,6 +23,19 @@ public class PostulacionProyectoService {
     private final PostulacionProyectoRepository postulacionRepository;
     private final ProyectoRepository proyectoRepository;
     private final EmployeeRepository employeeRepository;
+    private final com.example.Proyecto_Final_Progra3.repository.PerfilRepository perfilRepository;
+
+    @Transactional
+    public PostulacionProyectoResponseDTO postularseMe(String username, Integer proyectoId, PostulacionProyectoRequestDTO dto) {
+        com.example.Proyecto_Final_Progra3.model.Perfil perfil = perfilRepository.findByUsuario(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                
+        Employee employee = employeeRepository.findByPerfil(perfil)
+                .orElseThrow(() -> new RuntimeException("Solo los freelancers/empleados pueden postularse"));
+                
+        dto.setEmployeeId(employee.getEmployeeId());
+        return postularse(proyectoId, dto);
+    }
 
     @Transactional
     public PostulacionProyectoResponseDTO postularse(Integer proyectoId, PostulacionProyectoRequestDTO dto) {

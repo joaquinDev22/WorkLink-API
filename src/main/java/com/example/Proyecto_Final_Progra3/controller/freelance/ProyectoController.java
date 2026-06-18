@@ -22,6 +22,18 @@ public class ProyectoController {
         return ResponseEntity.ok(proyectoService.crearProyecto(dto));
     }
 
+    @PostMapping("/me")
+    public ResponseEntity<ProyectoResponseDTO> crearMiProyecto(
+            org.springframework.security.core.Authentication authentication, 
+            @Valid @RequestBody ProyectoRequestDTO dto) {
+        return ResponseEntity.ok(proyectoService.crearMiProyecto(authentication.getName(), dto));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ProyectoResponseDTO> buscarPorId(@PathVariable Integer id) {
+        return ResponseEntity.ok(proyectoService.buscarPorId(id));
+    }
+
     @GetMapping
     public ResponseEntity<List<ProyectoResponseDTO>> listarProyectos() {
         return ResponseEntity.ok(proyectoService.listarTodos());

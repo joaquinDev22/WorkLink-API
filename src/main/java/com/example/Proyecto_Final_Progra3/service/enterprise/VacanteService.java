@@ -6,6 +6,7 @@ import com.example.Proyecto_Final_Progra3.model.enterprise.Empresa;
 import com.example.Proyecto_Final_Progra3.model.enterprise.Vacante;
 import com.example.Proyecto_Final_Progra3.repository.enterprise.EmpresaRepository;
 import com.example.Proyecto_Final_Progra3.repository.enterprise.VacanteRepository;
+import com.example.Proyecto_Final_Progra3.repository.PerfilRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,7 @@ public class VacanteService {
 
     private final VacanteRepository vacanteRepository;
     private final EmpresaRepository empresaRepository;
+    private final PerfilRepository perfilRepository;
 
     @Transactional
     public VacanteResponseDTO crearVacante(VacanteRequestDTO dto) {
@@ -42,6 +44,25 @@ public class VacanteService {
 
         Vacante guardada = vacanteRepository.save(vacante);
         return mapToDto(guardada);
+    }
+
+    @Transactional
+    public VacanteResponseDTO crearMiVacante(String username, VacanteRequestDTO dto) {
+        com.example.Proyecto_Final_Progra3.model.Perfil perfil = perfilRepository.findByUsuario(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                
+        Empresa empresa = empresaRepository.findByPerfil(perfil)
+                .orElseThrow(() -> new RuntimeException("Solo las empresas pueden crear vacantes"));
+                
+        dto.setEmpresaId(empresa.getId());
+        return crearVacante(dto);
+    }
+
+    @Transactional(readOnly = true)
+    public VacanteResponseDTO buscarPorId(Integer id) {
+        return vacanteRepository.findById(id)
+                .map(this::mapToDto)
+                .orElseThrow(() -> new RuntimeException("Vacante no encontrada"));
     }
 
     @Transactional(readOnly = true)

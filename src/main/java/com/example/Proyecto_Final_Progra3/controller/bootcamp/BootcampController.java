@@ -23,6 +23,13 @@ public class BootcampController {
         return new ResponseEntity<>(bootcampService.crearBootcamp(dto), HttpStatus.CREATED);
     }
 
+    @PostMapping("/me")
+    public ResponseEntity<BootcampResponseDTO> crearMiBootcamp(
+            org.springframework.security.core.Authentication authentication, 
+            @RequestBody BootcampRequestDTO dto) {
+        return new ResponseEntity<>(bootcampService.crearMiBootcamp(authentication.getName(), dto), HttpStatus.CREATED);
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<BootcampResponseDTO> modificarBootcamp(@PathVariable Integer id, @Valid @RequestBody BootcampRequestDTO dto) {
         return ResponseEntity.ok(bootcampService.modificarBootcamp(id, dto));
@@ -37,6 +44,11 @@ public class BootcampController {
     @GetMapping
     public ResponseEntity<List<BootcampResponseDTO>> listarBootcamps() {
         return ResponseEntity.ok(bootcampService.listarBootcamps());
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<List<BootcampResponseDTO>> listarMisBootcamps(org.springframework.security.core.Authentication authentication) {
+        return ResponseEntity.ok(bootcampService.listarMisBootcamps(authentication.getName()));
     }
 
     @GetMapping("/{id}")

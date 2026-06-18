@@ -22,6 +22,18 @@ public class VacanteController {
         return ResponseEntity.ok(vacanteService.crearVacante(dto));
     }
 
+    @PostMapping("/me")
+    public ResponseEntity<VacanteResponseDTO> crearMiVacante(
+            org.springframework.security.core.Authentication authentication, 
+            @Valid @RequestBody VacanteRequestDTO dto) {
+        return ResponseEntity.ok(vacanteService.crearMiVacante(authentication.getName(), dto));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<VacanteResponseDTO> buscarPorId(@PathVariable Integer id) {
+        return ResponseEntity.ok(vacanteService.buscarPorId(id));
+    }
+
     @GetMapping
     public ResponseEntity<List<VacanteResponseDTO>> listarVacantes() {
         return ResponseEntity.ok(vacanteService.listarTodas());

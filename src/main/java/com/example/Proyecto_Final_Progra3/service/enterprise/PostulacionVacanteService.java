@@ -25,6 +25,18 @@ public class PostulacionVacanteService {
     private final PostulacionVacanteRepository postulacionRepository;
     private final VacanteRepository vacanteRepository;
     private final EmployeeRepository employeeRepository;
+    private final com.example.Proyecto_Final_Progra3.repository.PerfilRepository perfilRepository;
+
+    @Transactional
+    public PostulacionResponseDTO postularseMe(String username, Integer vacanteId, String mensaje, MultipartFile cv) {
+        com.example.Proyecto_Final_Progra3.model.Perfil perfil = perfilRepository.findByUsuario(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                
+        Employee employee = employeeRepository.findByPerfil(perfil)
+                .orElseThrow(() -> new RuntimeException("Solo los empleados pueden postularse a vacantes"));
+                
+        return postularse(vacanteId, employee.getEmployeeId(), mensaje, cv);
+    }
 
     @Transactional
     public PostulacionResponseDTO postularse(Integer vacanteId, Integer employeeId, String mensaje, MultipartFile cv) {
