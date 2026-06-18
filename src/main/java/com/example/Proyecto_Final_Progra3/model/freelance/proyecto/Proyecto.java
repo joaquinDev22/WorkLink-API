@@ -13,6 +13,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Entity
 @Table(name="proyecto")
+@EntityListeners(com.example.Proyecto_Final_Progra3.config.auditoria.AuditoriaListener.class)
 public class Proyecto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

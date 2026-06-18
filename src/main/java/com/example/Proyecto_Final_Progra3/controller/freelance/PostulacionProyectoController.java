@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/freelance/proyectos/{proyectoId}/postulaciones")
+@RequestMapping("/api/v1/freelance/proyectos/{proyectoId}/postulaciones")
 @RequiredArgsConstructor
 public class PostulacionProyectoController {
 

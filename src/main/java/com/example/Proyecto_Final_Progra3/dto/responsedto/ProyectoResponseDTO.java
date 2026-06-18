@@ -2,6 +2,7 @@ package com.example.Proyecto_Final_Progra3.dto.responsedto;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
@@ -10,8 +11,8 @@ public class ProyectoResponseDTO {
     private String area;
     private String descripcion;
     private LocalDate fechaPublicacion;
-    private Integer presupuestoMax;
-    private Integer presupuestoMin;
+    private BigDecimal presupuestoMax;
+    private BigDecimal presupuestoMin;
     private Integer clienteId;
     private String nombreCliente;
     

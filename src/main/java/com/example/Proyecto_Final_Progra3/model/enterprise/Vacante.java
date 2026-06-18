@@ -10,6 +10,7 @@ import java.time.LocalDate;
 @Entity
 @NoArgsConstructor
 @Table(name = "vacante")
+@EntityListeners(com.example.Proyecto_Final_Progra3.config.auditoria.AuditoriaListener.class)
 public class Vacante {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "vacante_id")

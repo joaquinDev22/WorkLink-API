@@ -15,6 +15,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Entity
 @Table(name="bootcamp")
+@EntityListeners(com.example.Proyecto_Final_Progra3.config.auditoria.AuditoriaListener.class)
 public class Bootcamp {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="bootcamp_id")

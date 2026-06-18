@@ -20,8 +20,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
-import java.util.List;
-import java.util.List.*;
 
 @Configuration
 @EnableWebSecurity
@@ -37,14 +35,24 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/auth/**", "/error").permitAll()
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/bootcamps", "/api/v1/bootcamps/*", "/api/v1/bootcamps/disponibles", "/api/v1/bootcamps/modalidad/*").permitAll()
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/vacantes").permitAll()
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/freelance/proyectos").permitAll()
-                        .requestMatchers("/api/v1/empresas/**", "/api/vacantes/**").hasRole("EMPRESA")
-                        .requestMatchers("/freelancer/**", "/api/freelance/**", "/api/portfolio/**").hasRole("EMPLOYEE")
-                        .requestMatchers("/recruiters/**").hasRole("RECRUITER")
-                        .requestMatchers("/api/v1/instructores/**", "/api/v1/bootcamps/**", "/api/v1/calificaciones/**", "/api/v1/certificados/**", "/api/v1/inscripciones/**").hasRole("INSTRUCTOR")
-                        .requestMatchers("/client/**").hasRole("CLIENTE")
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/bootcamps",
+                                "/api/v1/bootcamps/*", "/api/v1/bootcamps/disponibles", "/api/v1/bootcamps/modalidad/*")
+                        .permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/vacantes",
+                                "/api/v1/vacantes/**")
+                        .permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/freelance/proyectos",
+                                "/api/v1/freelance/proyectos/**")
+                        .permitAll()
+                        .requestMatchers("/api/v1/empresas/**", "/api/v1/vacantes/**", "/api/v1/recruiter/**")
+                        .hasRole("EMPRESA")
+                        .requestMatchers("/api/v1/freelancer/**", "/api/v1/freelance/**", "/api/v1/portfolio/**")
+                        .hasRole("EMPLOYEE")
+                        .requestMatchers("/api/v1/recruiter/**").hasRole("RECRUITER")
+                        .requestMatchers("/api/v1/instructores/**", "/api/v1/bootcamps/**", "/api/v1/calificaciones/**",
+                                "/api/v1/certificados/**", "/api/v1/inscripciones/**")
+                        .hasRole("INSTRUCTOR")
+                        .requestMatchers("/api/v1/client/**").hasRole("CLIENTE")
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class).build();
     }

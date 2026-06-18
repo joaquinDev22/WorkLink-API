@@ -38,4 +38,11 @@ public class InstructorController {
     public ResponseEntity<List<InstructorResponseDTO>> listarInstructores() {
         return ResponseEntity.ok(instructorService.listarInstuctores());
     }
+
+    @GetMapping("/bootcamps")
+    public ResponseEntity<List<java.util.Map<String, Object>>> getInstructorBootcamps() {
+        return ResponseEntity.ok(List.of(
+            java.util.Map.of("id", 1, "title", "Bootcamp Java", "status", "Activo", "students", 20)
+        ));
+    }
 }

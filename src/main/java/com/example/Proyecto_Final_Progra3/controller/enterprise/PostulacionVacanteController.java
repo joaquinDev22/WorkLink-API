@@ -10,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/vacantes/{vacanteId}/postulaciones")
+@RequestMapping("/api/v1/vacantes/{vacanteId}/postulaciones")
 @RequiredArgsConstructor
 public class PostulacionVacanteController {
 

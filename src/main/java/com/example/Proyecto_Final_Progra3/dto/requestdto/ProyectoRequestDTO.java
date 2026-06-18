@@ -4,6 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Data
 public class ProyectoRequestDTO {
 
@@ -14,10 +16,10 @@ public class ProyectoRequestDTO {
     private String descripcion;
 
     @NotNull(message = "El presupuesto máximo es obligatorio")
-    private Integer presupuestoMax;
+    private BigDecimal presupuestoMax;
 
     @NotNull(message = "El presupuesto mínimo es obligatorio")
-    private Integer presupuestoMin;
+    private BigDecimal presupuestoMin;
 
     @NotNull(message = "El cliente ID no puede ser nulo")
     private Integer clienteId;
