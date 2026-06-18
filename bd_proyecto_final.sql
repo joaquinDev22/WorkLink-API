@@ -105,13 +105,13 @@ CREATE TABLE Hito_Proyecto(
     fecha_limite DATE,
     proyecto_id INT NOT NULL,
     FOREIGN KEY (proyecto_id) REFERENCES Proyecto(proyecto_id) ON DELETE CASCADE
-);
+);  -- Ya definida en una java.class por JoaquinDev22
 
 CREATE TABLE proyecto_habilidades(
     proyecto_id INT NOT NULL,
     habilidad VARCHAR(255) NOT NULL,
     FOREIGN KEY(proyecto_id) REFERENCES Proyecto(proyecto_id)
-);
+);  -- Ya definida en una java.class.List por JoaquinDev22
 
 CREATE TABLE Postulacion_Proyecto(
     post_proy_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -168,7 +168,7 @@ CREATE TABLE vacante_etiquetas(
     vacante_id INT NOT NULL,
     etiqueta VARCHAR(255) NOT NULL,
     FOREIGN KEY(vacante_id) REFERENCES Vacante(vacante_id)
-);
+); -- Ya definida en una java.class.List por JoaquinDev22
 
 CREATE TABLE Postulacion_Vacante(
 	postulacion_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -243,7 +243,7 @@ CREATE TABLE Pagos_Cliente_Freelancer(
 	FOREIGN KEY(pago_id) REFERENCES Pagos(pago_id),
 	FOREIGN KEY(metodos_cobro_freelancer_id) REFERENCES Metodos_Cobro_Freelancer(metodos_cobro_freelancer_id),
 	FOREIGN KEY(metodos_pago_cliente_id) REFERENCES Metodos_Pago_Cliente(metodos_pago_cliente_id)
-);
+); -- Ya definida en una java.class por JoaquinDev22
 
 -- =============================== --
 --       BOOTCAMP                  --
@@ -288,13 +288,13 @@ CREATE TABLE Modulo_Bootcamp (
     horario_clase VARCHAR(100),
     bootcamp_id INT NOT NULL,
     FOREIGN KEY (bootcamp_id) REFERENCES Bootcamp(bootcamp_id) ON DELETE CASCADE
-);
+); -- Ya definida en una java.class por JoaquinDev22
 
 CREATE TABLE bootcamp_etiquetas(
     bootcamp_id INT NOT NULL,
     etiqueta VARCHAR(255) NOT NULL,
     FOREIGN KEY(bootcamp_id) REFERENCES Bootcamp(bootcamp_id)
-);
+); -- Ya definida en una java.class.List por JoaquinDev22
 
 CREATE TABLE Inscripcion_Bootcamp(
     inscripcion_id INT AUTO_INCREMENT PRIMARY KEY,

@@ -1,6 +1,6 @@
 package com.example.Proyecto_Final_Progra3.model.freelance.pagos;
 
-import com.example.Proyecto_Final_Progra3.model.freelance.Proyecto;
+import com.example.Proyecto_Final_Progra3.model.freelance.proyecto.Proyecto;
 import com.example.Proyecto_Final_Progra3.model.freelance.enums.MedioDePago;
 import com.example.Proyecto_Final_Progra3.model.freelance.enums.Moneda;
 import jakarta.persistence.*;

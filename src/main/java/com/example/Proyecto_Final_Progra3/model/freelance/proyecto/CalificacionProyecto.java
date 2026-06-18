@@ -1,4 +1,4 @@
-package com.example.Proyecto_Final_Progra3.model.freelance;
+package com.example.Proyecto_Final_Progra3.model.freelance.proyecto;
 
 import jakarta.persistence.*;
 import lombok.*;

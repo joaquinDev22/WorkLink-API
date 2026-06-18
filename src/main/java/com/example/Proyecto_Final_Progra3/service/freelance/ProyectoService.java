@@ -3,7 +3,7 @@ package com.example.Proyecto_Final_Progra3.service.freelance;
 import com.example.Proyecto_Final_Progra3.dto.requestdto.ProyectoRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.ProyectoResponseDTO;
 import com.example.Proyecto_Final_Progra3.model.freelance.Client;
-import com.example.Proyecto_Final_Progra3.model.freelance.Proyecto;
+import com.example.Proyecto_Final_Progra3.model.freelance.proyecto.Proyecto;
 import com.example.Proyecto_Final_Progra3.repository.freelance.ClientRepository;
 import com.example.Proyecto_Final_Progra3.repository.freelance.ProyectoRepository;
 import lombok.RequiredArgsConstructor;
