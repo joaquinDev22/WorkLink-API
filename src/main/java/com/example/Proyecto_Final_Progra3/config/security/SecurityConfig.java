@@ -44,11 +44,11 @@ public class SecurityConfig {
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/freelance/proyectos",
                                 "/api/v1/freelance/proyectos/**")
                         .permitAll()
-                        .requestMatchers("/api/v1/empresas/**", "/api/v1/vacantes/**", "/api/v1/recruiter/**")
-                        .hasRole("EMPRESA")
+                        .requestMatchers("/api/v1/empresas/**").hasRole("EMPRESA")
+                        .requestMatchers("/api/v1/vacantes/**").hasAnyRole("EMPRESA", "RECRUITER", "POSTULANTE", "EMPLOYEE", "FREELANCER")
+                        .requestMatchers("/api/v1/recruiter/**").hasAnyRole("EMPRESA", "RECRUITER")
                         .requestMatchers("/api/v1/freelancer/**", "/api/v1/freelance/**", "/api/v1/portfolio/**")
                         .hasAnyRole("EMPLOYEE", "FREELANCER", "CLIENTE")
-                        .requestMatchers("/api/v1/recruiter/**").hasRole("RECRUITER")
                         .requestMatchers("/api/v1/instructores/**", "/api/v1/bootcamps/**", "/api/v1/calificaciones/**",
                                 "/api/v1/certificados/**", "/api/v1/inscripciones/**")
                         .hasRole("INSTRUCTOR")
