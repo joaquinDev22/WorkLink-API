@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface RecruiterRepository extends JpaRepository<Recruiter, Integer> {
     Long countByEmpresa_Id(Integer empresaId);
+    java.util.Optional<Recruiter> findByPerfil(com.example.Proyecto_Final_Progra3.model.Perfil perfil);
 }

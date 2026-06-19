@@ -95,6 +95,14 @@ public class PerfilUsuarioService {
                 dto.setApellido(inst.getApellido());
                 dto.setTipoInstructor(inst.getTipo() != null ? inst.getTipo().name() : null);
             }
+        } else if ("RECRUITER".equals(rol)) {
+            com.example.Proyecto_Final_Progra3.model.enterprise.Recruiter rec = 
+                com.example.Proyecto_Final_Progra3.service.BeanUtil.getBean(com.example.Proyecto_Final_Progra3.repository.enterprise.RecruiterRepository.class).findByPerfil(perfil).orElse(null);
+            if (rec != null) {
+                dto.setNombre(rec.getNombre());
+                dto.setApellido(rec.getApellido());
+                dto.setFechaNacimiento(rec.getFechaNacimiento() != null ? rec.getFechaNacimiento().toString() : null);
+            }
         }
         
         // Map projects (for all profiles)
@@ -160,9 +168,8 @@ public class PerfilUsuarioService {
             if (request.getSitioWeb() != null) emp.setSitio_web(request.getSitioWeb());
             empresaRepository.save(emp);
         } else if ("INSTRUCTOR".equals(rol)) {
-            com.example.Proyecto_Final_Progra3.repository.bootcamp.InstructorRepository instRepo = 
-                com.example.Proyecto_Final_Progra3.service.BeanUtil.getBean(com.example.Proyecto_Final_Progra3.repository.bootcamp.InstructorRepository.class);
-            com.example.Proyecto_Final_Progra3.model.bootcamps.Instructor inst = instRepo.findByPerfil(perfil).orElseGet(() -> {
+            com.example.Proyecto_Final_Progra3.model.bootcamps.Instructor inst = 
+                com.example.Proyecto_Final_Progra3.service.BeanUtil.getBean(com.example.Proyecto_Final_Progra3.repository.bootcamp.InstructorRepository.class).findByPerfil(perfil).orElseGet(() -> {
                 com.example.Proyecto_Final_Progra3.model.bootcamps.Instructor i = new com.example.Proyecto_Final_Progra3.model.bootcamps.Instructor();
                 i.setPerfil(perfil);
                 return i;
@@ -174,7 +181,21 @@ public class PerfilUsuarioService {
                     inst.setTipo(com.example.Proyecto_Final_Progra3.model.bootcamps.enums.Tipo.valueOf(request.getTipoInstructor().toUpperCase()));
                 } catch(Exception ignored){}
             }
-            instRepo.save(inst);
+            com.example.Proyecto_Final_Progra3.service.BeanUtil.getBean(com.example.Proyecto_Final_Progra3.repository.bootcamp.InstructorRepository.class).save(inst);
+        } else if ("RECRUITER".equals(rol)) {
+            com.example.Proyecto_Final_Progra3.model.enterprise.Recruiter rec = 
+                com.example.Proyecto_Final_Progra3.service.BeanUtil.getBean(com.example.Proyecto_Final_Progra3.repository.enterprise.RecruiterRepository.class).findByPerfil(perfil).orElseGet(() -> {
+                com.example.Proyecto_Final_Progra3.model.enterprise.Recruiter r = new com.example.Proyecto_Final_Progra3.model.enterprise.Recruiter();
+                r.setPerfil(perfil);
+                return r;
+            });
+            if (request.getNombre() != null) rec.setNombre(request.getNombre());
+            if (request.getApellido() != null) rec.setApellido(request.getApellido());
+            if (request.getEmail() != null) rec.setEmail(request.getEmail());
+            if (request.getFechaNacimiento() != null && !request.getFechaNacimiento().isEmpty()) {
+                rec.setFechaNacimiento(LocalDate.parse(request.getFechaNacimiento()));
+            }
+            com.example.Proyecto_Final_Progra3.service.BeanUtil.getBean(com.example.Proyecto_Final_Progra3.repository.enterprise.RecruiterRepository.class).save(rec);
         }
         
         return getMyProfile(username);
