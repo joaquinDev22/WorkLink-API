@@ -4,6 +4,7 @@ import com.example.Proyecto_Final_Progra3.dto.requestdto.VacanteRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.VacanteResponseDTO;
 import com.example.Proyecto_Final_Progra3.service.enterprise.VacanteService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,7 @@ public class VacanteController {
         return ResponseEntity.ok(vacanteService.crearMiVacante(authentication.getName(), dto));
     }
 
+    @Parameter(name = "id", description = "Identificador único de la vacante", example = "1")
     @Operation(summary = "Buscar vacante por ID", description = "Obtiene la información detallada de una vacante a partir de su identificador.")
     @GetMapping("/{id}")
     public ResponseEntity<VacanteResponseDTO> buscarPorId(@PathVariable Integer id) {

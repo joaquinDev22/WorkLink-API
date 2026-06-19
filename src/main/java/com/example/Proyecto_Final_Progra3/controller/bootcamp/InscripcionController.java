@@ -3,6 +3,7 @@ package com.example.Proyecto_Final_Progra3.controller.bootcamp;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.InscripcionResponseDTO;
 import com.example.Proyecto_Final_Progra3.service.bootcamp.InscripcionService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,8 @@ public class InscripcionController {
 
     private final InscripcionService inscripcionService;
 
+    @Parameter(name = "bootcampId", description = "Identificador del bootcamp", example = "1")
+    @Parameter(name = "employeeId", description = "Identificador del empleado a inscribir", example = "5")
     @Operation(summary = "Inscribir empleado a bootcamp", description = "Permite registrar la inscripción de un empleado en un bootcamp específico.")
     @PostMapping("/{bootcampId}/empleados/{employeeId}")
     public ResponseEntity<InscripcionResponseDTO> realizarInscripcion(
@@ -42,6 +45,7 @@ public class InscripcionController {
         return ResponseEntity.ok(inscripcionService.obtenerMisInscripciones(username));
     }
 
+    @Parameter(name = "inscripcionId", description = "Identificador de la inscripción a cancelar", example = "10")
     @Operation(summary = "Cancelar inscripción", description = "Permite cancelar una inscripción previamente realizada a un bootcamp.")
     @PutMapping("/{inscripcionId}/cancelar")
     public ResponseEntity<InscripcionResponseDTO> cancelarInscripcion(@PathVariable Integer inscripcionId) {

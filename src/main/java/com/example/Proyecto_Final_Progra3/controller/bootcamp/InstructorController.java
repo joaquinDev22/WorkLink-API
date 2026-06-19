@@ -4,6 +4,7 @@ import com.example.Proyecto_Final_Progra3.dto.requestdto.InstructorRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.InstructorResponseDTO;
 import com.example.Proyecto_Final_Progra3.service.bootcamp.InstructorService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -27,12 +28,14 @@ public class InstructorController {
         return new ResponseEntity<>(instructorService.crearInstructor(dto), HttpStatus.CREATED);
     }
 
+    @Parameter(name = "id", description = "Identificador único del instructor", example = "1")
     @Operation(summary = "Modificar instructor", description = "Actualiza la información de un instructor existente mediante su identificador.")
     @PutMapping("/{id}")
     public ResponseEntity<InstructorResponseDTO> modificarInstructor(@PathVariable Integer id, @Valid @RequestBody InstructorRequestDTO dto) {
         return ResponseEntity.ok(instructorService.modificarInstructor(id, dto));
     }
 
+    @Parameter(name = "id", description = "Identificador único del instructor", example = "1")
     @Operation(summary = "Eliminar instructor", description = "Elimina un instructor registrado en el sistema utilizando su identificador.")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarInstructor(@PathVariable Integer id) {

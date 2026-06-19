@@ -4,6 +4,7 @@ import com.example.Proyecto_Final_Progra3.dto.requestdto.EmpresaRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.EmpresaResponseDTO;
 import com.example.Proyecto_Final_Progra3.service.enterprise.EmpresaService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +26,7 @@ public class EmpresaController {
         return new ResponseEntity<>(empresaService.crearEmpresa(dto), HttpStatus.CREATED);
     }
 
+    @Parameter(name = "id", description = "Identificador único de la empresa", example = "1")
     @Operation(summary = "Editar empresa", description = "Actualiza la información de una empresa existente mediante su identificador.")
     @PutMapping("/{id}")
     public ResponseEntity<EmpresaResponseDTO> editarEmpresa(@PathVariable Integer id,
@@ -32,6 +34,7 @@ public class EmpresaController {
         return ResponseEntity.ok(empresaService.editarEmpresa(id, empresaRequestDTO));
     }
 
+    @Parameter(name = "id", description = "Identificador único de la empresa", example = "1")
     @Operation(summary = "Buscar empresa por ID", description = "Obtiene la información detallada de una empresa a partir de su identificador.")
     @GetMapping("/{id}")
     public ResponseEntity<EmpresaResponseDTO> mostrarEmpresa(@PathVariable Integer id) {

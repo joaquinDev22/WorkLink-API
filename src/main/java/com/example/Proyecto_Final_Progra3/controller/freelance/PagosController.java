@@ -4,6 +4,7 @@ import com.example.Proyecto_Final_Progra3.dto.requestdto.PagosRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.PagosResponseDTO;
 import com.example.Proyecto_Final_Progra3.service.freelance.PagosService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ public class PagosController {
 
     private final PagosService pagosService;
 
+    @Parameter(name = "proyectoId", description = "Identificador único del proyecto", example = "1")
     @Operation(summary = "Registrar pago", description = "Permite registrar un nuevo pago asociado a un proyecto específico.")
     @PostMapping
     public ResponseEntity<PagosResponseDTO> registrarPago(
@@ -28,6 +30,7 @@ public class PagosController {
         return ResponseEntity.ok(pagosService.registrarPago(proyectoId, dto));
     }
 
+    @Parameter(name = "proyectoId", description = "Identificador único del proyecto", example = "1")
     @Operation(summary = "Listar pagos de un proyecto", description = "Obtiene el historial completo de pagos registrados para un proyecto determinado.")
     @GetMapping
     public ResponseEntity<List<PagosResponseDTO>> listarPagos(@PathVariable Integer proyectoId) {

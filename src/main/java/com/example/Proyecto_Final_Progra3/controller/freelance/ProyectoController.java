@@ -4,6 +4,7 @@ import com.example.Proyecto_Final_Progra3.dto.requestdto.ProyectoRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.ProyectoResponseDTO;
 import com.example.Proyecto_Final_Progra3.service.freelance.ProyectoService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,7 @@ public class ProyectoController {
         return ResponseEntity.ok(proyectoService.crearMiProyecto(authentication.getName(), dto));
     }
 
+    @Parameter(name = "id", description = "Identificador único del proyecto freelance", example = "1")
     @Operation(summary = "Buscar proyecto por ID", description = "Obtiene la información detallada de un proyecto freelance a partir de su identificador.")
     @GetMapping("/{id}")
     public ResponseEntity<ProyectoResponseDTO> buscarPorId(@PathVariable Integer id) {
@@ -58,6 +60,7 @@ public class ProyectoController {
         return ResponseEntity.ok(proyectoService.listarMisProyectosAsignados(authentication.getName()));
     }
 
+    @Parameter(name = "id", description = "Identificador único del proyecto freelance", example = "1")
     @Operation(summary = "Cancelar proyecto", description = "Permite al propietario del proyecto cancelar un proyecto freelance publicado.")
     @PutMapping("/{id}/cancelar")
     public ResponseEntity<Void> cancelarMiProyecto(@PathVariable Integer id, org.springframework.security.core.Authentication authentication) {
