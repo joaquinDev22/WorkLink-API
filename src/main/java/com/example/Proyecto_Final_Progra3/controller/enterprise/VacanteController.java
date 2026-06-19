@@ -38,4 +38,9 @@ public class VacanteController {
     public ResponseEntity<List<VacanteResponseDTO>> listarVacantes() {
         return ResponseEntity.ok(vacanteService.listarTodas());
     }
+
+    @GetMapping("/me")
+    public ResponseEntity<List<VacanteResponseDTO>> listarMisVacantes(org.springframework.security.core.Authentication authentication) {
+        return ResponseEntity.ok(vacanteService.listarMisVacantes(authentication.getName()));
+    }
 }

@@ -80,6 +80,23 @@ public class VacanteService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public List<VacanteResponseDTO> listarMisVacantes(String username) {
+        com.example.Proyecto_Final_Progra3.model.Perfil perfil = perfilRepository.findByUsuario(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                
+        Empresa empresa = empresaRepository.findByPerfil(perfil).orElse(null);
+        if (empresa == null) {
+            com.example.Proyecto_Final_Progra3.model.enterprise.Recruiter recruiter = recruiterRepository.findByPerfil(perfil)
+                .orElseThrow(() -> new RuntimeException("Solo las empresas o recruiters tienen vacantes propias"));
+            empresa = recruiter.getEmpresa();
+        }
+        
+        return vacanteRepository.findByEmpresa_Id(empresa.getId()).stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+    }
+
     private VacanteResponseDTO mapToDto(Vacante vacante) {
         VacanteResponseDTO dto = new VacanteResponseDTO();
         dto.setVacanteId(vacante.getVacanteId());
