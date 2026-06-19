@@ -22,6 +22,7 @@ public class VacanteService {
     private final VacanteRepository vacanteRepository;
     private final EmpresaRepository empresaRepository;
     private final PerfilRepository perfilRepository;
+    private final com.example.Proyecto_Final_Progra3.repository.enterprise.RecruiterRepository recruiterRepository;
 
     @Transactional
     public VacanteResponseDTO crearVacante(VacanteRequestDTO dto) {
@@ -51,8 +52,15 @@ public class VacanteService {
         com.example.Proyecto_Final_Progra3.model.Perfil perfil = perfilRepository.findByUsuario(username)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
                 
-        Empresa empresa = empresaRepository.findByPerfil(perfil)
-                .orElseThrow(() -> new RuntimeException("Solo las empresas pueden crear vacantes"));
+        Empresa empresa = empresaRepository.findByPerfil(perfil).orElse(null);
+        if (empresa == null) {
+            com.example.Proyecto_Final_Progra3.model.enterprise.Recruiter recruiter = recruiterRepository.findByPerfil(perfil)
+                .orElseThrow(() -> new RuntimeException("Solo las empresas o recruiters pueden crear vacantes"));
+            empresa = recruiter.getEmpresa();
+            if (empresa == null) {
+                throw new RuntimeException("El recruiter no está asociado a ninguna empresa.");
+            }
+        }
                 
         dto.setEmpresaId(empresa.getId());
         return crearVacante(dto);
