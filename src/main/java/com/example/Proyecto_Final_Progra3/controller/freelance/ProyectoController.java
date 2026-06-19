@@ -48,4 +48,10 @@ public class ProyectoController {
     public ResponseEntity<List<ProyectoResponseDTO>> listarMisProyectosAsignados(org.springframework.security.core.Authentication authentication) {
         return ResponseEntity.ok(proyectoService.listarMisProyectosAsignados(authentication.getName()));
     }
+
+    @PutMapping("/{id}/cancelar")
+    public ResponseEntity<Void> cancelarMiProyecto(@PathVariable Integer id, org.springframework.security.core.Authentication authentication) {
+        proyectoService.cancelarMiProyecto(id, authentication.getName());
+        return ResponseEntity.noContent().build();
+    }
 }

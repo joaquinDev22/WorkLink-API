@@ -59,6 +59,23 @@ public class ProyectoService {
         return crearProyecto(dto);
     }
 
+    @Transactional
+    public void cancelarMiProyecto(Integer id, String username) {
+        Proyecto proyecto = proyectoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Proyecto no encontrado"));
+
+        if (!proyecto.getClient().getPerfil().getUsuario().equals(username)) {
+            throw new RuntimeException("No tienes permiso para cancelar este proyecto");
+        }
+
+        if (proyecto.getEstado() != com.example.Proyecto_Final_Progra3.model.freelance.enums.EstadoProyecto.BUSCANDO_TALENTO) {
+            throw new RuntimeException("Solo puedes cancelar proyectos que estén buscando talento");
+        }
+
+        proyecto.setEstado(com.example.Proyecto_Final_Progra3.model.freelance.enums.EstadoProyecto.CANCELADO);
+        proyectoRepository.save(proyecto);
+    }
+
     @Transactional(readOnly = true)
     public ProyectoResponseDTO buscarPorId(Integer id) {
         return proyectoRepository.findById(id)
