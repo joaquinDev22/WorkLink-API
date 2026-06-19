@@ -8,4 +8,5 @@ import com.example.Proyecto_Final_Progra3.model.Perfil;
 
 public interface InstructorRepository extends JpaRepository<Instructor,Integer> {
     Optional<Instructor> findByPerfil(Perfil perfil);
+    Long countByEmpresa_Id(Integer empresaId);
 }

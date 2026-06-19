@@ -13,7 +13,14 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.Proyecto_Final_Progra3.mappers.EmpresaMapper;
 
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.stream.Collectors;
+
+import com.example.Proyecto_Final_Progra3.repository.enterprise.RecruiterRepository;
+import com.example.Proyecto_Final_Progra3.repository.enterprise.VacanteRepository;
+import com.example.Proyecto_Final_Progra3.repository.bootcamp.InstructorRepository;
+import com.example.Proyecto_Final_Progra3.repository.bootcamp.BootcampRepository;
 
 @AllArgsConstructor
 @Service
@@ -22,6 +29,11 @@ public class EmpresaService {
     private final EmpresaRepository empresaRepository;
     private final PerfilRepository perfilRepository;
     private final EmpresaMapper mapper;
+    
+    private final RecruiterRepository recruiterRepository;
+    private final VacanteRepository vacanteRepository;
+    private final InstructorRepository instructorRepository;
+    private final BootcampRepository bootcampRepository;
 
     @Transactional
     public EmpresaResponseDTO crearEmpresa(EmpresaRequestDTO dto) {
@@ -74,5 +86,28 @@ public class EmpresaService {
                 .orElseThrow(() -> new RuntimeException("Ese empresa no existe"));
 
         empresaRepository.delete(empresa);
+    }
+
+    public Map<String, Long> getDashboardStats(String username) {
+        Perfil perfil = perfilRepository.findByUsuario(username)
+                .orElseThrow(() -> new RuntimeException("Ese perfil no existe"));
+
+        Empresa empresa = empresaRepository.findByPerfil(perfil)
+                .orElseThrow(() -> new RuntimeException("Esa empresa no existe"));
+
+        Integer empresaId = empresa.getId();
+
+        Long recruiters = recruiterRepository.countByEmpresa_Id(empresaId);
+        Long instructores = instructorRepository.countByEmpresa_Id(empresaId);
+        Long vacantes = vacanteRepository.countByEmpresa_Id(empresaId);
+        Long bootcamps = bootcampRepository.countByEmpresa_Id(empresaId);
+
+        Map<String, Long> stats = new HashMap<>();
+        stats.put("recruiters", recruiters);
+        stats.put("instructores", instructores);
+        stats.put("vacantes", vacantes);
+        stats.put("bootcamps", bootcamps);
+
+        return stats;
     }
 }

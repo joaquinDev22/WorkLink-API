@@ -35,4 +35,12 @@ public class EmpresaController {
         // Let's call the service and return what it returns, we'll update service next.
         return ResponseEntity.ok(empresaService.buscarEmpresaXid(id));
     }
+
+    @GetMapping("/dashboard")
+    public ResponseEntity<java.util.Map<String, Long>> getDashboardStats(org.springframework.security.core.Authentication authentication) {
+        if (authentication == null || authentication.getName() == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        return ResponseEntity.ok(empresaService.getDashboardStats(authentication.getName()));
+    }
 }

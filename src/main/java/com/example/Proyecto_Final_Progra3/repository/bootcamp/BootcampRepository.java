@@ -11,4 +11,5 @@ public interface BootcampRepository extends JpaRepository<Bootcamp, Integer> {
     List<Bootcamp> findByCuposGreaterThanAndInicioGreaterThanEqual(int cupos, LocalDate fecha);
     List<Bootcamp> findByModalidad(String modalidad);
     List<Bootcamp> findByInstructor(com.example.Proyecto_Final_Progra3.model.bootcamps.Instructor instructor);
+    Long countByEmpresa_Id(Integer empresaId);
 }
