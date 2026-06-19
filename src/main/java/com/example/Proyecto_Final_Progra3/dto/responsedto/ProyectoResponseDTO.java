@@ -19,4 +19,7 @@ public class ProyectoResponseDTO {
     private String duracion;
     private String tipoPago;
     private java.util.List<String> habilidades;
+    
+    private String estado;
+    private String nombreFreelancer;
 }

@@ -34,7 +34,7 @@ public class AuthService {
     private final RolRepository rolRepository;
     private final JwtService jwtService;
     private final PerfilMapper mapper;
-    
+
     private final EmployeeRepository employeeRepository;
     private final EmpresaRepository empresaRepository;
     private final ClientRepository clientRepository;
@@ -48,7 +48,7 @@ public class AuthService {
 
         Perfil perfil = mapper.toEntity(dto);
         perfil.setPassword(passwordEncoder.encode(dto.getPassword()));
-        
+
         com.example.Proyecto_Final_Progra3.model.Rol rol = rolRepository.findByNombre(dto.getRol().toUpperCase());
         if (rol == null) {
             rol = new com.example.Proyecto_Final_Progra3.model.Rol();
@@ -74,6 +74,8 @@ public class AuthService {
             client.setLastName("");
             client.setEmail(perfil.getEmail() != null ? perfil.getEmail() : "");
             client.setFechaNacimiento(java.time.LocalDate.of(2000, 1, 1));
+            client.setCountry("");
+            client.setPhoneNumber("");
             client.setPerfil(perfil);
             clientRepository.save(client);
         } else if ("EMPRESA".equals(rolName)) {
@@ -92,7 +94,9 @@ public class AuthService {
             instructor.setTitulo("");
             instructor.setTipo(com.example.Proyecto_Final_Progra3.model.bootcamps.enums.Tipo.PARTICULAR);
             instructor.setPerfil(perfil);
-            com.example.Proyecto_Final_Progra3.service.BeanUtil.getBean(com.example.Proyecto_Final_Progra3.repository.bootcamp.InstructorRepository.class).save(instructor);
+            com.example.Proyecto_Final_Progra3.service.BeanUtil
+                    .getBean(com.example.Proyecto_Final_Progra3.repository.bootcamp.InstructorRepository.class)
+                    .save(instructor);
         }
 
         return mapper.toDto(perfil);
@@ -102,14 +106,13 @@ public class AuthService {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         dto.getUsuario(),
-                        dto.getPassword()
-                ));
+                        dto.getPassword()));
 
         Perfil perfil = (Perfil) authentication.getPrincipal();
 
         assert perfil != null;
 
-        if(!perfil.is_active()){
+        if (!perfil.is_active()) {
             throw new RuntimeException("EL PERFIL ESTA DESACTIVADO");
         }
         String token = jwtService.generateToken(perfil);
@@ -118,8 +121,7 @@ public class AuthService {
                 "Login exitoso",
                 perfil.getUsuario(),
                 perfil.getRol().getNombre(),
-                token
-        );
+                token);
     }
 
     @Transactional

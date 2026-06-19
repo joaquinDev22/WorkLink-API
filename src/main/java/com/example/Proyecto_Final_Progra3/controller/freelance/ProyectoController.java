@@ -38,4 +38,14 @@ public class ProyectoController {
     public ResponseEntity<List<ProyectoResponseDTO>> listarProyectos() {
         return ResponseEntity.ok(proyectoService.listarTodos());
     }
+
+    @GetMapping("/me/publicados")
+    public ResponseEntity<List<ProyectoResponseDTO>> listarMisProyectosPublicados(org.springframework.security.core.Authentication authentication) {
+        return ResponseEntity.ok(proyectoService.listarMisProyectosPublicados(authentication.getName()));
+    }
+
+    @GetMapping("/me/asignados")
+    public ResponseEntity<List<ProyectoResponseDTO>> listarMisProyectosAsignados(org.springframework.security.core.Authentication authentication) {
+        return ResponseEntity.ok(proyectoService.listarMisProyectosAsignados(authentication.getName()));
+    }
 }

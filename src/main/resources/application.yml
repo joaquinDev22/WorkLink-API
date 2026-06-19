@@ -2,9 +2,9 @@ spring:
   application:
     name: Proyecto_Final_Progra3
   datasource:
-    url: jdbc:mysql://localhost:3306/bd_proyecto_final
+    url: jdbc:mysql://thomas.proxy.rlwy.net:19976/railway
     username: root
-    password: ${DB_PASSWORD:Pikachu_21}
+    password: ${DB_PASSWORD:hULcfGlheSVlMFLrIDYIjYswZbAGglKo}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:

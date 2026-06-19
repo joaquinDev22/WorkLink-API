@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface ProyectoRepository extends JpaRepository<Proyecto, Integer> {
     List<Proyecto> findByClient_ClienteId(Integer clientId);
+    List<Proyecto> findByFreelancer_EmployeeId(Integer employeeId);
 }

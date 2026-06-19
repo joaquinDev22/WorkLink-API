@@ -4,6 +4,7 @@ import com.example.Proyecto_Final_Progra3.dto.requestdto.ProyectoRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.ProyectoResponseDTO;
 import com.example.Proyecto_Final_Progra3.model.freelance.Client;
 import com.example.Proyecto_Final_Progra3.model.freelance.proyecto.Proyecto;
+import com.example.Proyecto_Final_Progra3.repository.EmployeeRepository;
 import com.example.Proyecto_Final_Progra3.repository.freelance.ClientRepository;
 import com.example.Proyecto_Final_Progra3.repository.freelance.ProyectoRepository;
 import com.example.Proyecto_Final_Progra3.repository.PerfilRepository;
@@ -22,6 +23,7 @@ public class ProyectoService {
     private final ProyectoRepository proyectoRepository;
     private final ClientRepository clientRepository;
     private final PerfilRepository perfilRepository;
+    private final EmployeeRepository employeeRepository;
 
     @Transactional
     public ProyectoResponseDTO crearProyecto(ProyectoRequestDTO dto) {
@@ -35,7 +37,7 @@ public class ProyectoService {
         proyecto.setPresupuestoMax(dto.getPresupuestoMax());
         proyecto.setPresupuestoMin(dto.getPresupuestoMin());
         proyecto.setClient(client);
-        
+
         proyecto.setDuracion(dto.getDuracion());
         proyecto.setTipoPago(dto.getTipoPago());
         proyecto.setHabilidades(dto.getHabilidades());
@@ -49,10 +51,10 @@ public class ProyectoService {
         com.example.Proyecto_Final_Progra3.model.Perfil perfil = perfilRepository
                 .findByUsuario(username)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-                
+
         Client client = clientRepository.findByPerfil(perfil)
                 .orElseThrow(() -> new RuntimeException("Solo los clientes pueden crear proyectos"));
-                
+
         dto.setClienteId(client.getClienteId());
         return crearProyecto(dto);
     }
@@ -71,6 +73,34 @@ public class ProyectoService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public List<ProyectoResponseDTO> listarMisProyectosPublicados(String username) {
+        com.example.Proyecto_Final_Progra3.model.Perfil perfil = perfilRepository
+                .findByUsuario(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        Client client = clientRepository.findByPerfil(perfil)
+                .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+
+        return proyectoRepository.findByClient_ClienteId(client.getClienteId()).stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProyectoResponseDTO> listarMisProyectosAsignados(String username) {
+        com.example.Proyecto_Final_Progra3.model.Perfil perfil = perfilRepository
+                .findByUsuario(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        com.example.Proyecto_Final_Progra3.model.employee.Employee employee = employeeRepository.findByPerfil(perfil)
+                .orElseThrow(() -> new RuntimeException("Freelancer no encontrado"));
+
+        return proyectoRepository.findByFreelancer_EmployeeId(employee.getEmployeeId()).stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+    }
+
     private ProyectoResponseDTO mapToDto(Proyecto proyecto) {
         ProyectoResponseDTO dto = new ProyectoResponseDTO();
         dto.setProyectoId(proyecto.getId());
@@ -85,10 +115,17 @@ public class ProyectoService {
         } else {
             dto.setNombreCliente("Cliente Desconocido");
         }
-        
+
         dto.setDuracion(proyecto.getDuracion());
         dto.setTipoPago(proyecto.getTipoPago());
-        dto.setHabilidades(proyecto.getHabilidades() != null ? new java.util.ArrayList<>(proyecto.getHabilidades()) : new java.util.ArrayList<>());
+        dto.setHabilidades(proyecto.getHabilidades() != null ? new java.util.ArrayList<>(proyecto.getHabilidades())
+                : new java.util.ArrayList<>());
+
+        dto.setEstado(proyecto.getEstado() != null ? proyecto.getEstado().name() : "BUSCANDO_TALENTO");
+        if (proyecto.getFreelancer() != null) {
+            dto.setNombreFreelancer(
+                    proyecto.getFreelancer().getNombre() + " " + proyecto.getFreelancer().getApellido());
+        }
 
         return dto;
     }
