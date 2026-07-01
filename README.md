@@ -115,9 +115,9 @@ POST /api/v1/proyectos
 
 
 ## Integrantes 
-. NIEVA JOAQUIN
-. RAMIREZ GABRIEL
-. SAFI YAMIL
+. NIEVA JOAQUIN (J0aking21/ JoaquinDev22)
+. RAMIREZ GABRIEL (Gabrielramirez2003)
+. SAFI YAMIL (Yamils06)
 
 ## Objetivo Academico
 
