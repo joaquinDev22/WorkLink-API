@@ -127,10 +127,3 @@ Proyecto desarrollado como trabajo final de la materia Programación III de la U
 
 -- FRONTEND --
 https://github.com/joaquinDev22/Proyecto-Final-Front-End
-
--- BACKEND --
-https://github.com/joaquinDev22/Proyecto-Final-Progra-3
-
-## DEMO 
-
-https://proyect-worklink.netlify.app/
