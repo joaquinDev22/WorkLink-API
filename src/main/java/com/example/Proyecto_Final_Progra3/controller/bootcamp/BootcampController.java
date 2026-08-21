@@ -4,7 +4,6 @@ import com.example.Proyecto_Final_Progra3.dto.requestdto.BootcampRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.BootcampResponseDTO;
 import com.example.Proyecto_Final_Progra3.service.bootcamp.BootcampService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -21,9 +20,6 @@ import java.util.List;
 public class BootcampController {
 
     private final BootcampService bootcampService;
-
-
-
 
     @Operation(summary = "Crear bootcamp", description = "Permite registrar un nuevo bootcamp en la plataforma.")
     @PostMapping

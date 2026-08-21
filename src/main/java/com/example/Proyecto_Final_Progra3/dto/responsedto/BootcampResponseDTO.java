@@ -2,23 +2,21 @@ package com.example.Proyecto_Final_Progra3.dto.responsedto;
 
 import com.example.Proyecto_Final_Progra3.model.bootcamps.enums.Modalidad;
 import com.example.Proyecto_Final_Progra3.model.bootcamps.enums.Tipo;
-import lombok.Data;
 import java.time.LocalDate;
+import java.util.List;
 
-@Data
-public class BootcampResponseDTO {
-    private Integer id;
-    private String titulo;
-    private String descripcion;
-    private LocalDate inicio;
-    private LocalDate fin;
-    private Modalidad modalidad;
-    private Integer cupos;
-    private Tipo tipo;
-    private Integer instructor_id;
-    
-    private String logo;
-    private String precio;
-    private Double rating;
-    private java.util.List<String> etiquetas;
-}
+public record BootcampResponseDTO(
+        Integer id,
+        String titulo,
+        String descripcion,
+        LocalDate inicio,
+        LocalDate fin,
+        Modalidad modalidad,
+        Integer cupos,
+        Tipo tipo,
+        Integer instructor_id,
+        String logo,
+        String precio,
+        Double rating,
+        List<String> etiquetas
+) {}

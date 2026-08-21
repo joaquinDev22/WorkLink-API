@@ -7,6 +7,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,12 +20,19 @@ import java.io.IOException;
 @Component
 @AllArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
     private final JwtService jwtService;
     private final PerfilDetailService perfilDetailService;
 
-    protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
-            throws IOException, ServletException {
+    @Override
+    protected void doFilterInternal(
+            @NonNull HttpServletRequest req,
+            @NonNull HttpServletResponse res,
+            @NonNull FilterChain chain
+    ) throws IOException, ServletException {
+
         String authHeader = req.getHeader("Authorization");
+
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             chain.doFilter(req, res);
             return;
@@ -39,16 +47,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 if (jwtService.isTokenValid(token, userDetails)) {
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities());
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities()
+                    );
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             }
         } catch (Exception e) {
-            // Si el token es inválido o expiró, lo ignoramos y dejamos que la petición siga
-            // Si la ruta requiere seguridad (ej. /empresas/**), fallará luego. Si es
-            // pública (ej. /login), pasará.
+            logger.debug("Error procesando el JWT Token: " + e.getMessage());
         }
+
         chain.doFilter(req, res);
     }
 }

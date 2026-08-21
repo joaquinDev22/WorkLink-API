@@ -1,23 +1,20 @@
 package com.example.Proyecto_Final_Progra3.dto.responsedto;
 
-import lombok.Data;
-
 import java.time.LocalDate;
+import java.util.List;
 
-@Data
-public class VacanteResponseDTO {
-    private Integer vacanteId;
-    private String puesto;
-    private String descripcion;
-    private LocalDate publicacion;
-    private LocalDate finalizacion;
-    private Integer empresaId;
-    private String nombreEmpresa;
-    
-    private String logo;
-    private String ubicacion;
-    private String tipoUbicacion;
-    private String tipoVacante;
-    private String salario;
-    private java.util.List<String> etiquetas;
-}
+public record VacanteResponseDTO(
+        Integer vacanteId,
+        String puesto,
+        String descripcion,
+        LocalDate publicacion,
+        LocalDate finalizacion,
+        Integer empresaId,
+        String nombreEmpresa,
+        String logo,
+        String ubicacion,
+        String tipoUbicacion,
+        String tipoVacante,
+        String salario,
+        List<String> etiquetas
+) {}

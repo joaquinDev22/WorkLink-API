@@ -1,13 +1,8 @@
 package com.example.Proyecto_Final_Progra3.dto.requestdto;
 
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
-public class PerfilRequestDTO {
-    private String usuario;
-    private String email;
-    private String password;
-    private String rol;
-}
+public record PerfilRequestDTO(
+        String usuario,
+        String email,
+        String password,
+        String rol
+) {}
