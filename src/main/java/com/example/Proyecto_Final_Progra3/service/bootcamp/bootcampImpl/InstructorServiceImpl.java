@@ -1,4 +1,4 @@
-package com.example.Proyecto_Final_Progra3.service.bootcamp;
+package com.example.Proyecto_Final_Progra3.service.bootcamp.bootcampImpl;
 
 
 import com.example.Proyecto_Final_Progra3.dto.requestdto.InstructorRequestDTO;
