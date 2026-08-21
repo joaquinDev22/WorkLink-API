@@ -1,31 +1,30 @@
-package com.example.Proyecto_Final_Progra3.service.enterprise;
+package com.example.Proyecto_Final_Progra3.service.enterprise.enterpriseImpl;
 
 import com.example.Proyecto_Final_Progra3.dto.requestdto.EmpresaRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.EmpresaResponseDTO;
+import com.example.Proyecto_Final_Progra3.mappers.EmpresaMapper;
 import com.example.Proyecto_Final_Progra3.model.Perfil;
 import com.example.Proyecto_Final_Progra3.model.enterprise.Empresa;
 import com.example.Proyecto_Final_Progra3.repository.PerfilRepository;
+import com.example.Proyecto_Final_Progra3.repository.bootcamp.BootcampRepository;
+import com.example.Proyecto_Final_Progra3.repository.bootcamp.InstructorRepository;
 import com.example.Proyecto_Final_Progra3.repository.enterprise.EmpresaRepository;
-import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Service;
-
-import org.springframework.transaction.annotation.Transactional;
-import com.example.Proyecto_Final_Progra3.mappers.EmpresaMapper;
-
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.stream.Collectors;
-
 import com.example.Proyecto_Final_Progra3.repository.enterprise.RecruiterRepository;
 import com.example.Proyecto_Final_Progra3.repository.enterprise.VacanteRepository;
-import com.example.Proyecto_Final_Progra3.repository.bootcamp.InstructorRepository;
-import com.example.Proyecto_Final_Progra3.repository.bootcamp.BootcampRepository;
+import com.example.Proyecto_Final_Progra3.service.enterprise.enterpriseInterfaces.IEmpresaService;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Service
 @Transactional(readOnly = true)
-public class EmpresaService {
+public class EmpresaServiceImpl implements IEmpresaService {
     private final EmpresaRepository empresaRepository;
     private final PerfilRepository perfilRepository;
     private final EmpresaMapper mapper;
@@ -35,9 +34,10 @@ public class EmpresaService {
     private final InstructorRepository instructorRepository;
     private final BootcampRepository bootcampRepository;
 
+    @Override
     @Transactional
     public EmpresaResponseDTO crearEmpresa(EmpresaRequestDTO dto) {
-        Perfil perfil = perfilRepository.findById(dto.getPrefil_id())
+        Perfil perfil = perfilRepository.findById(dto.perfil_id())
                 .orElseThrow(() -> new RuntimeException("Ese perfil no existe"));
 
         Empresa empresa = mapper.toEntity(dto);
@@ -48,6 +48,7 @@ public class EmpresaService {
         return mapper.toDto(empresa);
     }
 
+    @Override
     @Transactional
     public EmpresaResponseDTO editarEmpresa(Integer id, EmpresaRequestDTO dto) {
         Empresa empresa = empresaRepository.findById(id)
@@ -60,18 +61,21 @@ public class EmpresaService {
         return mapper.toDto(empresa);
     }
 
+    @Override
     public List<EmpresaResponseDTO> mostrarEmpresas() {
         return empresaRepository.findAll().stream()
                 .map(mapper::toDto)
                 .collect(Collectors.toList());
     }
 
+    @Override
     public EmpresaResponseDTO buscarEmpresaXid(Integer id) {
         Empresa empresa = empresaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Ese empresa no existe"));
         return mapper.toDto(empresa);
     }
 
+    @Override
     public List<EmpresaResponseDTO> buscarEmpresasXidPerfil(int idPerfil) {
         Perfil perfil = perfilRepository.findById(idPerfil)
                 .orElseThrow(() -> new RuntimeException("Ese perfil no existe"));
@@ -80,6 +84,7 @@ public class EmpresaService {
                 .collect(Collectors.toList());
     }
 
+    @Override
     @Transactional
     public void eliminarEmpresa(Integer idEmpresa) {
         Empresa empresa = empresaRepository.findById(idEmpresa)
@@ -88,6 +93,7 @@ public class EmpresaService {
         empresaRepository.delete(empresa);
     }
 
+    @Override
     public Map<String, Long> getDashboardStats(String username) {
         Perfil perfil = perfilRepository.findByUsuario(username)
                 .orElseThrow(() -> new RuntimeException("Ese perfil no existe"));

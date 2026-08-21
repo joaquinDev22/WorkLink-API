@@ -2,7 +2,7 @@ package com.example.Proyecto_Final_Progra3.controller.enterprise;
 
 import com.example.Proyecto_Final_Progra3.dto.requestdto.VacanteRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.VacanteResponseDTO;
-import com.example.Proyecto_Final_Progra3.service.enterprise.VacanteService;
+import com.example.Proyecto_Final_Progra3.service.enterprise.enterpriseInterfaces.IVacanteService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,7 +19,7 @@ import java.util.List;
 @Tag(name = "Empleo", description = "Gestión de empresas, vacantes laborales, postulantes, entrevistas, habilidades y portfolios profesionales.")
 public class VacanteController {
 
-    private final VacanteService vacanteService;
+    private final IVacanteService vacanteService;
 
     @Operation(summary = "Crear vacante", description = "Permite registrar una nueva oferta laboral en la plataforma.")
     @PostMapping

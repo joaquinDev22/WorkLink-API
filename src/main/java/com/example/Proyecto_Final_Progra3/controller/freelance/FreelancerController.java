@@ -1,6 +1,6 @@
 package com.example.Proyecto_Final_Progra3.controller.freelance;
 
-import com.example.Proyecto_Final_Progra3.service.freelance.FreelancerService;
+import com.example.Proyecto_Final_Progra3.service.freelance.freelanceInterfaces.IFreelancerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/freelancer")
 @Tag(name = "Freelance", description = "Gestión de proyectos freelance, postulaciones, hitos, pagos, clientes y freelancers.")
 public class FreelancerController {
-    private final FreelancerService service;
-    public FreelancerController(FreelancerService service) {
+    private final IFreelancerService service;
+    public FreelancerController(IFreelancerService service) {
         this.service = service;
     }
 

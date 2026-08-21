@@ -2,7 +2,7 @@ package com.example.Proyecto_Final_Progra3.controller.bootcamp;
 
 import com.example.Proyecto_Final_Progra3.dto.requestdto.BootcampRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.BootcampResponseDTO;
-import com.example.Proyecto_Final_Progra3.service.bootcamp.BootcampService;
+import com.example.Proyecto_Final_Progra3.service.bootcamp.bootcampInterfaces.IBootcampService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -19,7 +19,7 @@ import java.util.List;
 @Tag(name = "Bootcamps", description = "Gestión de bootcamps, incluyendo creación, modificación, consulta y eliminación.")
 public class BootcampController {
 
-    private final BootcampService bootcampService;
+    private final IBootcampService bootcampService;
 
     @Operation(summary = "Crear bootcamp", description = "Permite registrar un nuevo bootcamp en la plataforma.")
     @PostMapping

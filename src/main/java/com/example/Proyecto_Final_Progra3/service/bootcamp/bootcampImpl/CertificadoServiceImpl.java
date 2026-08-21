@@ -7,6 +7,7 @@ import com.example.Proyecto_Final_Progra3.model.bootcamps.Inscripcion;
 import com.example.Proyecto_Final_Progra3.model.bootcamps.enums.EstadoInscripcion;
 import com.example.Proyecto_Final_Progra3.repository.bootcamp.CertificadoBootcampRepository;
 import com.example.Proyecto_Final_Progra3.repository.bootcamp.InscripcionRepository;
+import com.example.Proyecto_Final_Progra3.service.bootcamp.bootcampInterfaces.ICertificadoService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +20,7 @@ import com.example.Proyecto_Final_Progra3.mappers.CertificadoMapper;
 @AllArgsConstructor
 @Service
 @Transactional(readOnly = true)
-public class CertificadoService {
+public class CertificadoServiceImpl implements ICertificadoService {
     private final CertificadoBootcampRepository certificadoBootcampRepository;
     private final InscripcionRepository inscripcionRepository;
     private final CertificadoMapper mapper;
@@ -60,7 +61,8 @@ public class CertificadoService {
         return mapper.toDto(certificado);
     }
 
-    private String generarCodigoCertificado(Bootcamp bootcamp, Employee employee) {
+    @Override
+    public String generarCodigoCertificado(Bootcamp bootcamp, Employee employee) {
         return "BOOT-" + bootcamp.getId() + "-EMP-" + employee.getEmployeeId();
     }
 }

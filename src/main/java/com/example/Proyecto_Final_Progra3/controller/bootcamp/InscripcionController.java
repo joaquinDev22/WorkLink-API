@@ -1,7 +1,7 @@
 package com.example.Proyecto_Final_Progra3.controller.bootcamp;
 
 import com.example.Proyecto_Final_Progra3.dto.responsedto.InscripcionResponseDTO;
-import com.example.Proyecto_Final_Progra3.service.bootcamp.InscripcionService;
+import com.example.Proyecto_Final_Progra3.service.bootcamp.bootcampInterfaces.IInscripcionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Bootcamps", description = "Gestión de bootcamps, incluyendo creación, modificación, consulta y eliminación.")
 public class InscripcionController {
 
-    private final InscripcionService inscripcionService;
+    private final IInscripcionService inscripcionService;
 
     @Parameter(name = "bootcampId", description = "Identificador del bootcamp", example = "1")
     @Parameter(name = "employeeId", description = "Identificador del empleado a inscribir", example = "5")

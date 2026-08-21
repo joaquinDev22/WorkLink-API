@@ -1,22 +1,23 @@
-package com.example.Proyecto_Final_Progra3.service.perfil;
+package com.example.Proyecto_Final_Progra3.service.perfil.perfilImpl;
 
 import com.example.Proyecto_Final_Progra3.dto.PerfilUsuarioDTO;
 import com.example.Proyecto_Final_Progra3.model.Perfil;
+import com.example.Proyecto_Final_Progra3.model.ProyectoPerfil;
 import com.example.Proyecto_Final_Progra3.model.employee.Employee;
+import com.example.Proyecto_Final_Progra3.model.employee.EmployeeHabilidad;
+import com.example.Proyecto_Final_Progra3.model.employee.EmployeeHabilidadId;
+import com.example.Proyecto_Final_Progra3.model.employee.Habilidad;
 import com.example.Proyecto_Final_Progra3.model.enterprise.Empresa;
 import com.example.Proyecto_Final_Progra3.model.freelance.Client;
 import com.example.Proyecto_Final_Progra3.repository.EmployeeRepository;
 import com.example.Proyecto_Final_Progra3.repository.PerfilRepository;
+import com.example.Proyecto_Final_Progra3.repository.ProyectoPerfilRepository;
+import com.example.Proyecto_Final_Progra3.repository.employee.EmployeeHabilidadRepository;
+import com.example.Proyecto_Final_Progra3.repository.employee.HabilidadRepository;
 import com.example.Proyecto_Final_Progra3.repository.enterprise.EmpresaRepository;
 import com.example.Proyecto_Final_Progra3.repository.freelance.ClientRepository;
-import com.example.Proyecto_Final_Progra3.service.enterprise.PortfolioService;
-import com.example.Proyecto_Final_Progra3.model.employee.Habilidad;
-import com.example.Proyecto_Final_Progra3.model.employee.EmployeeHabilidad;
-import com.example.Proyecto_Final_Progra3.model.employee.EmployeeHabilidadId;
-import com.example.Proyecto_Final_Progra3.model.ProyectoPerfil;
-import com.example.Proyecto_Final_Progra3.repository.employee.HabilidadRepository;
-import com.example.Proyecto_Final_Progra3.repository.employee.EmployeeHabilidadRepository;
-import com.example.Proyecto_Final_Progra3.repository.ProyectoPerfilRepository;
+import com.example.Proyecto_Final_Progra3.service.enterprise.enterpriseInterfaces.IPortfolioService;
+import com.example.Proyecto_Final_Progra3.service.perfil.perfilInterfaces.IPerfilUsuarioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,18 +30,19 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class PerfilUsuarioService {
+public class PerfilUsuarioServiceImpl implements IPerfilUsuarioService {
 
     private final PerfilRepository perfilRepository;
     private final EmployeeRepository employeeRepository;
     private final EmpresaRepository empresaRepository;
     private final ClientRepository clientRepository;
-    private final PortfolioService portfolioService;
+    private final IPortfolioService portfolioService;
     
     private final ProyectoPerfilRepository proyectoPerfilRepository;
     private final HabilidadRepository habilidadRepository;
     private final EmployeeHabilidadRepository employeeHabilidadRepository;
 
+    @Override
     @Transactional(readOnly = true)
     public PerfilUsuarioDTO getMyProfile(String username) {
         Perfil perfil = perfilRepository.findByUsuario(username)
@@ -62,7 +64,6 @@ public class PerfilUsuarioService {
                 dto.setApellido(emp.getApellido());
                 dto.setFechaNacimiento(emp.getFechaNacimiento() != null ? emp.getFechaNacimiento().toString() : null);
                 
-                // Map skills
                 List<EmployeeHabilidad> empHabs = employeeHabilidadRepository.findByEmployee(emp);
                 List<PerfilUsuarioDTO.HabilidadDTO> habs = empHabs.stream().map(eh -> {
                     PerfilUsuarioDTO.HabilidadDTO hd = new PerfilUsuarioDTO.HabilidadDTO();
@@ -105,7 +106,6 @@ public class PerfilUsuarioService {
             }
         }
         
-        // Map projects (for all profiles)
         List<ProyectoPerfil> proyectos = proyectoPerfilRepository.findByPerfilOrderByFechaCreacionDesc(perfil);
         List<PerfilUsuarioDTO.ProyectoDTO> projs = proyectos.stream().map(p -> {
             PerfilUsuarioDTO.ProyectoDTO pd = new PerfilUsuarioDTO.ProyectoDTO();
@@ -121,6 +121,7 @@ public class PerfilUsuarioService {
         return dto;
     }
 
+    @Override
     @Transactional
     public PerfilUsuarioDTO updateMyProfile(String username, PerfilUsuarioDTO request) {
         Perfil perfil = perfilRepository.findByUsuario(username)
@@ -201,6 +202,7 @@ public class PerfilUsuarioService {
         return getMyProfile(username);
     }
     
+    @Override
     @Transactional
     public void uploadFoto(String username, MultipartFile file) throws IOException {
         Perfil perfil = perfilRepository.findByUsuario(username)
@@ -209,6 +211,7 @@ public class PerfilUsuarioService {
         perfilRepository.save(perfil);
     }
 
+    @Override
     @Transactional
     public void uploadBanner(String username, MultipartFile file) throws IOException {
         Perfil perfil = perfilRepository.findByUsuario(username)
@@ -217,6 +220,7 @@ public class PerfilUsuarioService {
         perfilRepository.save(perfil);
     }
 
+    @Override
     @Transactional
     public PerfilUsuarioDTO.HabilidadDTO addHabilidad(String username, String nombreHabilidad, Integer nivel) {
         Perfil perfil = perfilRepository.findByUsuario(username)
@@ -251,6 +255,7 @@ public class PerfilUsuarioService {
         return dto;
     }
 
+    @Override
     @Transactional
     public void removeHabilidad(String username, Integer habilidadId) {
         Perfil perfil = perfilRepository.findByUsuario(username)
@@ -266,6 +271,7 @@ public class PerfilUsuarioService {
         employeeHabilidadRepository.deleteById(id);
     }
 
+    @Override
     @Transactional
     public PerfilUsuarioDTO.ProyectoDTO addProyecto(String username, String nombre, String descripcion, String link, MultipartFile imagen) throws IOException {
         Perfil perfil = perfilRepository.findByUsuario(username)
@@ -296,6 +302,7 @@ public class PerfilUsuarioService {
         return dto;
     }
 
+    @Override
     @Transactional
     public void removeProyecto(String username, Integer proyectoId) {
         Perfil perfil = perfilRepository.findByUsuario(username)
@@ -311,6 +318,7 @@ public class PerfilUsuarioService {
         proyectoPerfilRepository.delete(proyecto);
     }
 
+    @Override
     @Transactional
     public void uploadMyCV(String username, MultipartFile file) {
         Perfil perfil = perfilRepository.findByUsuario(username)

@@ -4,7 +4,7 @@ import com.example.Proyecto_Final_Progra3.dto.requestdto.LogginRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.requestdto.PerfilRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.LogginResponseDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.PerfilResponseDTO;
-import com.example.Proyecto_Final_Progra3.service.perfil.AuthService;
+import com.example.Proyecto_Final_Progra3.service.perfil.perfilInterfaces.IAuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthService authService;
+    private final IAuthService authService;
 
     @Operation(summary = "Registrar usuario", description = "Permite registrar un nuevo usuario en la plataforma creando su perfil y credenciales de acceso.")
     @PostMapping("/register")

@@ -1,13 +1,14 @@
-package com.example.Proyecto_Final_Progra3.service.freelance;
+package com.example.Proyecto_Final_Progra3.service.freelance.freelanceImpl;
 
 import com.example.Proyecto_Final_Progra3.dto.requestdto.ProyectoRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.ProyectoResponseDTO;
 import com.example.Proyecto_Final_Progra3.model.freelance.Client;
 import com.example.Proyecto_Final_Progra3.model.freelance.proyecto.Proyecto;
 import com.example.Proyecto_Final_Progra3.repository.EmployeeRepository;
+import com.example.Proyecto_Final_Progra3.repository.PerfilRepository;
 import com.example.Proyecto_Final_Progra3.repository.freelance.ClientRepository;
 import com.example.Proyecto_Final_Progra3.repository.freelance.ProyectoRepository;
-import com.example.Proyecto_Final_Progra3.repository.PerfilRepository;
+import com.example.Proyecto_Final_Progra3.service.freelance.freelanceInterfaces.IProyectoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,34 +19,36 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class ProyectoService {
+public class ProyectoServiceImpl implements IProyectoService {
 
     private final ProyectoRepository proyectoRepository;
     private final ClientRepository clientRepository;
     private final PerfilRepository perfilRepository;
     private final EmployeeRepository employeeRepository;
 
+    @Override
     @Transactional
     public ProyectoResponseDTO crearProyecto(ProyectoRequestDTO dto) {
-        Client client = clientRepository.findById(dto.getClienteId())
+        Client client = clientRepository.findById(dto.clienteId())
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
 
         Proyecto proyecto = new Proyecto();
-        proyecto.setArea(dto.getArea());
-        proyecto.setDescripcion(dto.getDescripcion());
+        proyecto.setArea(dto.area());
+        proyecto.setDescripcion(dto.descripcion());
         proyecto.setFechaPublicacion(LocalDate.now());
-        proyecto.setPresupuestoMax(dto.getPresupuestoMax());
-        proyecto.setPresupuestoMin(dto.getPresupuestoMin());
+        proyecto.setPresupuestoMax(dto.presupuestoMax());
+        proyecto.setPresupuestoMin(dto.presupuestoMin());
         proyecto.setClient(client);
 
-        proyecto.setDuracion(dto.getDuracion());
-        proyecto.setTipoPago(dto.getTipoPago());
-        proyecto.setHabilidades(dto.getHabilidades());
+        proyecto.setDuracion(dto.duracion());
+        proyecto.setTipoPago(dto.tipoPago());
+        proyecto.setHabilidades(dto.habilidades());
 
         Proyecto guardado = proyectoRepository.save(proyecto);
         return mapToDto(guardado);
     }
 
+    @Override
     @Transactional
     public ProyectoResponseDTO crearMiProyecto(String username, ProyectoRequestDTO dto) {
         com.example.Proyecto_Final_Progra3.model.Perfil perfil = perfilRepository
@@ -55,10 +58,20 @@ public class ProyectoService {
         Client client = clientRepository.findByPerfil(perfil)
                 .orElseThrow(() -> new RuntimeException("Solo los clientes pueden crear proyectos"));
 
-        dto.setClienteId(client.getClienteId());
-        return crearProyecto(dto);
+        ProyectoRequestDTO dtoConCliente = new ProyectoRequestDTO(
+                dto.area(),
+                dto.descripcion(),
+                dto.presupuestoMax(),
+                dto.presupuestoMin(),
+                client.getClienteId(),
+                dto.duracion(),
+                dto.tipoPago(),
+                dto.habilidades()
+        );
+        return crearProyecto(dtoConCliente);
     }
 
+    @Override
     @Transactional
     public void cancelarMiProyecto(Integer id, String username) {
         Proyecto proyecto = proyectoRepository.findById(id)
@@ -76,6 +89,7 @@ public class ProyectoService {
         proyectoRepository.save(proyecto);
     }
 
+    @Override
     @Transactional(readOnly = true)
     public ProyectoResponseDTO buscarPorId(Integer id) {
         return proyectoRepository.findById(id)
@@ -83,6 +97,7 @@ public class ProyectoService {
                 .orElseThrow(() -> new RuntimeException("Proyecto no encontrado"));
     }
 
+    @Override
     @Transactional(readOnly = true)
     public List<ProyectoResponseDTO> listarTodos() {
         return proyectoRepository.findAll().stream()
@@ -90,6 +105,7 @@ public class ProyectoService {
                 .collect(Collectors.toList());
     }
 
+    @Override
     @Transactional(readOnly = true)
     public List<ProyectoResponseDTO> listarMisProyectosPublicados(String username) {
         com.example.Proyecto_Final_Progra3.model.Perfil perfil = perfilRepository
@@ -104,6 +120,7 @@ public class ProyectoService {
                 .collect(Collectors.toList());
     }
 
+    @Override
     @Transactional(readOnly = true)
     public List<ProyectoResponseDTO> listarMisProyectosAsignados(String username) {
         com.example.Proyecto_Final_Progra3.model.Perfil perfil = perfilRepository
@@ -119,31 +136,29 @@ public class ProyectoService {
     }
 
     private ProyectoResponseDTO mapToDto(Proyecto proyecto) {
-        ProyectoResponseDTO dto = new ProyectoResponseDTO();
-        dto.setProyectoId(proyecto.getId());
-        dto.setArea(proyecto.getArea());
-        dto.setDescripcion(proyecto.getDescripcion());
-        dto.setFechaPublicacion(proyecto.getFechaPublicacion());
-        dto.setPresupuestoMax(proyecto.getPresupuestoMax());
-        dto.setPresupuestoMin(proyecto.getPresupuestoMin());
-        if (proyecto.getClient() != null) {
-            dto.setClienteId(proyecto.getClient().getClienteId());
-            dto.setNombreCliente(proyecto.getClient().getFirstName() + " " + proyecto.getClient().getLastName());
-        } else {
-            dto.setNombreCliente("Cliente Desconocido");
-        }
+        Integer clienteId = proyecto.getClient() != null ? proyecto.getClient().getClienteId() : null;
+        String nombreCliente = proyecto.getClient() != null
+                ? (proyecto.getClient().getFirstName() + " " + proyecto.getClient().getLastName())
+                : "Cliente Desconocido";
+        String estado = proyecto.getEstado() != null ? proyecto.getEstado().name() : "BUSCANDO_TALENTO";
+        String nombreFreelancer = proyecto.getFreelancer() != null
+                ? (proyecto.getFreelancer().getNombre() + " " + proyecto.getFreelancer().getApellido())
+                : null;
 
-        dto.setDuracion(proyecto.getDuracion());
-        dto.setTipoPago(proyecto.getTipoPago());
-        dto.setHabilidades(proyecto.getHabilidades() != null ? new java.util.ArrayList<>(proyecto.getHabilidades())
-                : new java.util.ArrayList<>());
-
-        dto.setEstado(proyecto.getEstado() != null ? proyecto.getEstado().name() : "BUSCANDO_TALENTO");
-        if (proyecto.getFreelancer() != null) {
-            dto.setNombreFreelancer(
-                    proyecto.getFreelancer().getNombre() + " " + proyecto.getFreelancer().getApellido());
-        }
-
-        return dto;
+        return new ProyectoResponseDTO(
+                proyecto.getId(),
+                proyecto.getArea(),
+                proyecto.getDescripcion(),
+                proyecto.getFechaPublicacion(),
+                proyecto.getPresupuestoMax(),
+                proyecto.getPresupuestoMin(),
+                clienteId,
+                nombreCliente,
+                proyecto.getDuracion(),
+                proyecto.getTipoPago(),
+                proyecto.getHabilidades() != null ? new java.util.ArrayList<>(proyecto.getHabilidades()) : new java.util.ArrayList<>(),
+                estado,
+                nombreFreelancer
+        );
     }
 }

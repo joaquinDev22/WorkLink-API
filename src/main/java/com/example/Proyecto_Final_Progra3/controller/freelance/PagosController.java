@@ -2,7 +2,7 @@ package com.example.Proyecto_Final_Progra3.controller.freelance;
 
 import com.example.Proyecto_Final_Progra3.dto.requestdto.PagosRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.PagosResponseDTO;
-import com.example.Proyecto_Final_Progra3.service.freelance.PagosService;
+import com.example.Proyecto_Final_Progra3.service.freelance.freelanceInterfaces.IPagosService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,7 +19,7 @@ import java.util.List;
 @Tag(name = "Freelance", description = "Gestión de proyectos freelance, postulaciones, hitos, pagos, clientes y freelancers.")
 public class PagosController {
 
-    private final PagosService pagosService;
+    private final IPagosService pagosService;
 
     @Parameter(name = "proyectoId", description = "Identificador único del proyecto", example = "1")
     @Operation(summary = "Registrar pago", description = "Permite registrar un nuevo pago asociado a un proyecto específico.")

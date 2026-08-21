@@ -2,7 +2,7 @@ package com.example.Proyecto_Final_Progra3.controller.freelance;
 
 import com.example.Proyecto_Final_Progra3.dto.requestdto.PostulacionProyectoRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.PostulacionProyectoResponseDTO;
-import com.example.Proyecto_Final_Progra3.service.freelance.PostulacionProyectoService;
+import com.example.Proyecto_Final_Progra3.service.freelance.freelanceInterfaces.IPostulacionProyectoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,7 +19,7 @@ import java.util.List;
 @Tag(name = "Freelance", description = "Gestión de proyectos freelance, postulaciones, hitos, pagos, clientes y freelancers.")
 public class PostulacionProyectoController {
 
-    private final PostulacionProyectoService postulacionService;
+    private final IPostulacionProyectoService postulacionService;
 
     @Parameter(name = "proyectoId", description = "Identificador único del proyecto freelance", example = "1")
     @Operation(summary = "Enviar propuesta a proyecto", description = "Permite enviar una propuesta para participar en un proyecto freelance específico.")

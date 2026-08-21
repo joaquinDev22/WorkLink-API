@@ -1,12 +1,14 @@
-package com.example.Proyecto_Final_Progra3.service.enterprise;
+package com.example.Proyecto_Final_Progra3.service.enterprise.enterpriseImpl;
 
 import com.example.Proyecto_Final_Progra3.dto.requestdto.VacanteRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.VacanteResponseDTO;
 import com.example.Proyecto_Final_Progra3.model.enterprise.Empresa;
 import com.example.Proyecto_Final_Progra3.model.enterprise.Vacante;
-import com.example.Proyecto_Final_Progra3.repository.enterprise.EmpresaRepository;
-import com.example.Proyecto_Final_Progra3.repository.enterprise.VacanteRepository;
 import com.example.Proyecto_Final_Progra3.repository.PerfilRepository;
+import com.example.Proyecto_Final_Progra3.repository.enterprise.EmpresaRepository;
+import com.example.Proyecto_Final_Progra3.repository.enterprise.RecruiterRepository;
+import com.example.Proyecto_Final_Progra3.repository.enterprise.VacanteRepository;
+import com.example.Proyecto_Final_Progra3.service.enterprise.enterpriseInterfaces.IVacanteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,36 +19,38 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class VacanteService {
+public class VacanteServiceImpl implements IVacanteService {
 
     private final VacanteRepository vacanteRepository;
     private final EmpresaRepository empresaRepository;
     private final PerfilRepository perfilRepository;
-    private final com.example.Proyecto_Final_Progra3.repository.enterprise.RecruiterRepository recruiterRepository;
+    private final RecruiterRepository recruiterRepository;
 
+    @Override
     @Transactional
     public VacanteResponseDTO crearVacante(VacanteRequestDTO dto) {
-        Empresa empresa = empresaRepository.findById(dto.getEmpresaId())
+        Empresa empresa = empresaRepository.findById(dto.empresaId())
                 .orElseThrow(() -> new RuntimeException("Empresa no encontrada"));
 
         Vacante vacante = new Vacante();
-        vacante.setPuesto(dto.getPuesto());
-        vacante.setDescripcion(dto.getDescripcion());
+        vacante.setPuesto(dto.puesto());
+        vacante.setDescripcion(dto.descripcion());
         vacante.setPublicacion(LocalDate.now());
-        vacante.setFinalizacion(dto.getFinalizacion());
+        vacante.setFinalizacion(dto.finalizacion());
         vacante.setEmpresa(empresa);
         
-        vacante.setLogo(dto.getLogo());
-        vacante.setUbicacion(dto.getUbicacion());
-        vacante.setTipoUbicacion(dto.getTipoUbicacion());
-        vacante.setTipoVacante(dto.getTipoVacante());
-        vacante.setSalario(dto.getSalario());
-        vacante.setEtiquetas(dto.getEtiquetas());
+        vacante.setLogo(dto.logo());
+        vacante.setUbicacion(dto.ubicacion());
+        vacante.setTipoUbicacion(dto.tipoUbicacion());
+        vacante.setTipoVacante(dto.tipoVacante());
+        vacante.setSalario(dto.salario());
+        vacante.setEtiquetas(dto.etiquetas());
 
         Vacante guardada = vacanteRepository.save(vacante);
         return mapToDto(guardada);
     }
 
+    @Override
     @Transactional
     public VacanteResponseDTO crearMiVacante(String username, VacanteRequestDTO dto) {
         com.example.Proyecto_Final_Progra3.model.Perfil perfil = perfilRepository.findByUsuario(username)
@@ -62,10 +66,22 @@ public class VacanteService {
             }
         }
                 
-        dto.setEmpresaId(empresa.getId());
-        return crearVacante(dto);
+        VacanteRequestDTO dtoConEmpresa = new VacanteRequestDTO(
+                dto.puesto(),
+                dto.descripcion(),
+                dto.finalizacion(),
+                empresa.getId(),
+                dto.logo(),
+                dto.ubicacion(),
+                dto.tipoUbicacion(),
+                dto.tipoVacante(),
+                dto.salario(),
+                dto.etiquetas()
+        );
+        return crearVacante(dtoConEmpresa);
     }
 
+    @Override
     @Transactional(readOnly = true)
     public VacanteResponseDTO buscarPorId(Integer id) {
         return vacanteRepository.findById(id)
@@ -73,6 +89,7 @@ public class VacanteService {
                 .orElseThrow(() -> new RuntimeException("Vacante no encontrada"));
     }
 
+    @Override
     @Transactional(readOnly = true)
     public List<VacanteResponseDTO> listarTodas() {
         return vacanteRepository.findAll().stream()
@@ -80,6 +97,7 @@ public class VacanteService {
                 .collect(Collectors.toList());
     }
 
+    @Override
     @Transactional(readOnly = true)
     public List<VacanteResponseDTO> listarMisVacantes(String username) {
         com.example.Proyecto_Final_Progra3.model.Perfil perfil = perfilRepository.findByUsuario(username)
@@ -98,22 +116,20 @@ public class VacanteService {
     }
 
     private VacanteResponseDTO mapToDto(Vacante vacante) {
-        VacanteResponseDTO dto = new VacanteResponseDTO();
-        dto.setVacanteId(vacante.getVacanteId());
-        dto.setPuesto(vacante.getPuesto());
-        dto.setDescripcion(vacante.getDescripcion());
-        dto.setPublicacion(vacante.getPublicacion());
-        dto.setFinalizacion(vacante.getFinalizacion());
-        dto.setEmpresaId(vacante.getEmpresa().getId());
-        dto.setNombreEmpresa(vacante.getEmpresa().getNombre());
-        
-        dto.setLogo(vacante.getLogo());
-        dto.setUbicacion(vacante.getUbicacion());
-        dto.setTipoUbicacion(vacante.getTipoUbicacion());
-        dto.setTipoVacante(vacante.getTipoVacante());
-        dto.setSalario(vacante.getSalario());
-        dto.setEtiquetas(vacante.getEtiquetas() != null ? new java.util.ArrayList<>(vacante.getEtiquetas()) : new java.util.ArrayList<>());
-
-        return dto;
+        return new VacanteResponseDTO(
+                vacante.getVacanteId(),
+                vacante.getPuesto(),
+                vacante.getDescripcion(),
+                vacante.getPublicacion(),
+                vacante.getFinalizacion(),
+                vacante.getEmpresa().getId(),
+                vacante.getEmpresa().getNombre(),
+                vacante.getLogo(),
+                vacante.getUbicacion(),
+                vacante.getTipoUbicacion(),
+                vacante.getTipoVacante(),
+                vacante.getSalario(),
+                vacante.getEtiquetas() != null ? new java.util.ArrayList<>(vacante.getEtiquetas()) : new java.util.ArrayList<>()
+        );
     }
 }

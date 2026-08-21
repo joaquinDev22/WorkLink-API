@@ -7,5 +7,5 @@ public record EmpresaRequestDTO(
         @NotBlank(message = "La descripcion de la empresa no puede estar vacia") String descripcion,
         String sitio_web,
         String ubicacion,
-        Integer prefil_id
+        Integer perfil_id
 ) {}

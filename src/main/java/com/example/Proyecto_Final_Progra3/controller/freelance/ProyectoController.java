@@ -2,7 +2,7 @@ package com.example.Proyecto_Final_Progra3.controller.freelance;
 
 import com.example.Proyecto_Final_Progra3.dto.requestdto.ProyectoRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.ProyectoResponseDTO;
-import com.example.Proyecto_Final_Progra3.service.freelance.ProyectoService;
+import com.example.Proyecto_Final_Progra3.service.freelance.freelanceInterfaces.IProyectoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,7 +19,7 @@ import java.util.List;
 @Tag(name = "Freelance", description = "Gestión de proyectos freelance, postulaciones, hitos, pagos, clientes y freelancers.")
 public class ProyectoController {
 
-    private final ProyectoService proyectoService;
+    private final IProyectoService proyectoService;
 
     @Operation(summary = "Crear proyecto", description = "Permite registrar un nuevo proyecto freelance en la plataforma.")
     @PostMapping

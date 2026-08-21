@@ -13,7 +13,7 @@ public record BootcampRequestDTO(
         LocalDate fin,
         Modalidad modalidad,
         Tipo tipo,
-        int cupos,
+        Integer cupos,
         @NotNull(message = "El id del instructor no puede ser nulo") Integer instructor_id,
         @NotNull(message = "El id de la empresa no puede ser nulo") Integer empresa_id,
         String logo,

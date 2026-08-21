@@ -1,44 +1,46 @@
-package com.example.Proyecto_Final_Progra3.service.perfil;
+package com.example.Proyecto_Final_Progra3.service.perfil.perfilImpl;
 
 import com.example.Proyecto_Final_Progra3.dto.requestdto.LogginRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.requestdto.PerfilRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.LogginResponseDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.PerfilResponseDTO;
+import com.example.Proyecto_Final_Progra3.mappers.PerfilMapper;
 import com.example.Proyecto_Final_Progra3.model.Perfil;
+import com.example.Proyecto_Final_Progra3.model.employee.Employee;
+import com.example.Proyecto_Final_Progra3.model.enterprise.Empresa;
+import com.example.Proyecto_Final_Progra3.model.freelance.Client;
+import com.example.Proyecto_Final_Progra3.repository.EmployeeRepository;
 import com.example.Proyecto_Final_Progra3.repository.PerfilRepository;
 import com.example.Proyecto_Final_Progra3.repository.RolRepository;
+import com.example.Proyecto_Final_Progra3.repository.enterprise.EmpresaRepository;
+import com.example.Proyecto_Final_Progra3.repository.freelance.ClientRepository;
+import com.example.Proyecto_Final_Progra3.service.perfil.perfilInterfaces.IAuthService;
+import com.example.Proyecto_Final_Progra3.service.perfil.perfilInterfaces.IJwtService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import org.springframework.transaction.annotation.Transactional;
-import com.example.Proyecto_Final_Progra3.mappers.PerfilMapper;
-import com.example.Proyecto_Final_Progra3.model.employee.Employee;
-import com.example.Proyecto_Final_Progra3.model.freelance.Client;
-import com.example.Proyecto_Final_Progra3.model.enterprise.Empresa;
-import com.example.Proyecto_Final_Progra3.repository.EmployeeRepository;
-import com.example.Proyecto_Final_Progra3.repository.enterprise.EmpresaRepository;
-import com.example.Proyecto_Final_Progra3.repository.freelance.ClientRepository;
 
 @Service
 @AllArgsConstructor
 @Transactional(readOnly = true)
-public class AuthService {
+public class AuthServiceImpl implements IAuthService {
 
     private final PerfilRepository perfilRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final RolRepository rolRepository;
-    private final JwtService jwtService;
+    private final IJwtService jwtService;
     private final PerfilMapper mapper;
 
     private final EmployeeRepository employeeRepository;
     private final EmpresaRepository empresaRepository;
     private final ClientRepository clientRepository;
 
+    @Override
     @Transactional
     public PerfilResponseDTO register(PerfilRequestDTO dto) {
 
@@ -102,6 +104,7 @@ public class AuthService {
         return mapper.toDto(perfil);
     }
 
+    @Override
     public LogginResponseDTO loggin(LogginRequestDTO dto) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -124,6 +127,7 @@ public class AuthService {
                 token);
     }
 
+    @Override
     @Transactional
     public void bajaPerfil(PerfilRequestDTO dto) {
         Perfil perfil = perfilRepository.findByUsuario(dto.getUsuario())
@@ -133,6 +137,7 @@ public class AuthService {
         perfilRepository.save(perfil);
     }
 
+    @Override
     @Transactional
     public void altaPerfil(PerfilRequestDTO dto) {
         Perfil perfil = perfilRepository.findByUsuario(dto.getUsuario())

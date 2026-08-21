@@ -1,7 +1,7 @@
 package com.example.Proyecto_Final_Progra3.controller.enterprise;
 
 import com.example.Proyecto_Final_Progra3.dto.responsedto.PostulacionResponseDTO;
-import com.example.Proyecto_Final_Progra3.service.enterprise.PostulacionVacanteService;
+import com.example.Proyecto_Final_Progra3.service.enterprise.enterpriseInterfaces.IPostulacionVacanteService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,7 +18,7 @@ import java.util.List;
 @Tag(name = "Empleo", description = "Gestión de empresas, vacantes laborales, postulantes, entrevistas, habilidades y portfolios profesionales.")
 public class PostulacionVacanteController {
 
-    private final PostulacionVacanteService postulacionService;
+    private final IPostulacionVacanteService postulacionService;
 
     @Parameter(name = "vacanteId", description = "Identificador de la vacante", example = "1")
     @Parameter(name = "employeeId", description = "Identificador del empleado que realiza la postulación", example = "5")

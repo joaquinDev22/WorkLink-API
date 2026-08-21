@@ -1,7 +1,7 @@
 package com.example.Proyecto_Final_Progra3.config.security;
 
-import com.example.Proyecto_Final_Progra3.service.perfil.JwtService;
-import com.example.Proyecto_Final_Progra3.service.perfil.PerfilDetailService;
+import com.example.Proyecto_Final_Progra3.service.perfil.perfilInterfaces.IJwtService;
+import com.example.Proyecto_Final_Progra3.service.perfil.perfilInterfaces.IPerfilDetailService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,8 +21,8 @@ import java.io.IOException;
 @AllArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JwtService jwtService;
-    private final PerfilDetailService perfilDetailService;
+    private final IJwtService jwtService;
+    private final IPerfilDetailService perfilDetailService;
 
     @Override
     protected void doFilterInternal(

@@ -1,4 +1,4 @@
-package com.example.Proyecto_Final_Progra3.serviceInterfaces;
+package com.example.Proyecto_Final_Progra3.service.bootcamp.bootcampInterfaces;
 
 import com.example.Proyecto_Final_Progra3.dto.requestdto.BootcampRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.BootcampResponseDTO;

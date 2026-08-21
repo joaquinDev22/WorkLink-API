@@ -9,6 +9,7 @@ import com.example.Proyecto_Final_Progra3.repository.EmployeeRepository;
 import com.example.Proyecto_Final_Progra3.repository.bootcamp.BootcampRepository;
 import com.example.Proyecto_Final_Progra3.repository.bootcamp.InscripcionRepository;
 import com.example.Proyecto_Final_Progra3.repository.PerfilRepository;
+import com.example.Proyecto_Final_Progra3.service.bootcamp.bootcampInterfaces.IInscripcionService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +22,7 @@ import com.example.Proyecto_Final_Progra3.mappers.InscripcionMapper;
 @AllArgsConstructor
 @Service
 @Transactional(readOnly = true)
-public class InscripcionService {
+public class InscripcionServiceImpl implements IInscripcionService {
     private final InscripcionRepository inscripcionRepository;
     private final BootcampRepository bootcampRepository;
     private final EmployeeRepository employeeRepository;
@@ -100,7 +101,7 @@ public class InscripcionService {
     }
 
 
-    private void validarInscripcionBootcamp(Bootcamp bootcamp, Employee employee) {
+    public void validarInscripcionBootcamp(Bootcamp bootcamp, Employee employee) {
 
         if (bootcamp.getCupos() <= 0) {
             throw new RuntimeException("No hay cupos disponibles para este bootcamp");

@@ -1,7 +1,9 @@
 package com.example.Proyecto_Final_Progra3.controller.employee;
 
+import com.example.Proyecto_Final_Progra3.model.employee.Employee;
 import com.example.Proyecto_Final_Progra3.model.employee.Habilidad;
 import com.example.Proyecto_Final_Progra3.repository.employee.HabilidadRepository;
+import com.example.Proyecto_Final_Progra3.service.employee.employeeInterfaces.IEmployeeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -17,12 +19,11 @@ import java.util.List;
 @RequiredArgsConstructor
 @Tag(name = "Empleo", description = "Gestión de empresas, vacantes laborales, postulantes, entrevistas, habilidades y portfolios profesionales.")
 public class HabilidadController {
-
-    private final HabilidadRepository habilidadRepository;
+    private final IEmployeeService service;
 
     @Operation(summary = "Listar habilidades", description = "Obtiene la lista completa de habilidades registradas en la plataforma.")
     @GetMapping
     public ResponseEntity<List<Habilidad>> getAllHabilidades() {
-        return ResponseEntity.ok(habilidadRepository.findAll());
+        return ResponseEntity.ok(service.getAllHabilities());
     }
 }

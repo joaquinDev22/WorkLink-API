@@ -1,9 +1,10 @@
-package com.example.Proyecto_Final_Progra3.service.enterprise;
+package com.example.Proyecto_Final_Progra3.service.enterprise.enterpriseImpl;
 
 import com.example.Proyecto_Final_Progra3.model.employee.Employee;
 import com.example.Proyecto_Final_Progra3.model.enterprise.Portfolio;
 import com.example.Proyecto_Final_Progra3.repository.EmployeeRepository;
 import com.example.Proyecto_Final_Progra3.repository.enterprise.PortfolioRepository;
+import com.example.Proyecto_Final_Progra3.service.enterprise.enterpriseInterfaces.IPortfolioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,25 +14,25 @@ import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
-public class PortfolioService {
+public class PortfolioServiceImpl implements IPortfolioService {
 
     private final PortfolioRepository portfolioRepository;
     private final EmployeeRepository employeeRepository;
 
+    @Override
     @Transactional
     public void guardarCV(Integer employeeId, MultipartFile file) {
         if (!"application/pdf".equals(file.getContentType())) {
             throw new RuntimeException("El archivo debe ser un formato PDF válido.");
         }
 
-        // Buscar el portfolio existente del empleado o crear uno nuevo
         Portfolio portfolio = portfolioRepository.findByEmployee_EmployeeId(employeeId)
                 .orElseGet(() -> {
                     Employee employee = employeeRepository.findById(employeeId)
                             .orElseThrow(() -> new RuntimeException("Empleado no encontrado con ID: " + employeeId));
                     Portfolio nuevoPortfolio = new Portfolio();
                     nuevoPortfolio.setEmployee(employee);
-                    nuevoPortfolio.setDescripcion("Mi Portfolio"); // Valor por defecto ya que no puede ser nulo
+                    nuevoPortfolio.setDescripcion("Mi Portfolio");
                     return nuevoPortfolio;
                 });
 

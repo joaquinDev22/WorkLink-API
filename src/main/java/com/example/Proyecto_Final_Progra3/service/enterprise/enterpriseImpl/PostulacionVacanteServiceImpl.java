@@ -1,4 +1,4 @@
-package com.example.Proyecto_Final_Progra3.service.enterprise;
+package com.example.Proyecto_Final_Progra3.service.enterprise.enterpriseImpl;
 
 import com.example.Proyecto_Final_Progra3.dto.responsedto.PostulacionResponseDTO;
 import com.example.Proyecto_Final_Progra3.model.employee.Employee;
@@ -6,8 +6,10 @@ import com.example.Proyecto_Final_Progra3.model.enterprise.EstadoPostulacion;
 import com.example.Proyecto_Final_Progra3.model.enterprise.PostulacionVacante;
 import com.example.Proyecto_Final_Progra3.model.enterprise.Vacante;
 import com.example.Proyecto_Final_Progra3.repository.EmployeeRepository;
+import com.example.Proyecto_Final_Progra3.repository.PerfilRepository;
 import com.example.Proyecto_Final_Progra3.repository.enterprise.PostulacionVacanteRepository;
 import com.example.Proyecto_Final_Progra3.repository.enterprise.VacanteRepository;
+import com.example.Proyecto_Final_Progra3.service.enterprise.enterpriseInterfaces.IPostulacionVacanteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,13 +22,14 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class PostulacionVacanteService {
+public class PostulacionVacanteServiceImpl implements IPostulacionVacanteService {
 
     private final PostulacionVacanteRepository postulacionRepository;
     private final VacanteRepository vacanteRepository;
     private final EmployeeRepository employeeRepository;
-    private final com.example.Proyecto_Final_Progra3.repository.PerfilRepository perfilRepository;
+    private final PerfilRepository perfilRepository;
 
+    @Override
     @Transactional
     public PostulacionResponseDTO postularseMe(String username, Integer vacanteId, String mensaje, MultipartFile cv) {
         com.example.Proyecto_Final_Progra3.model.Perfil perfil = perfilRepository.findByUsuario(username)
@@ -38,6 +41,7 @@ public class PostulacionVacanteService {
         return postularse(vacanteId, employee.getEmployeeId(), mensaje, cv);
     }
 
+    @Override
     @Transactional
     public PostulacionResponseDTO postularse(Integer vacanteId, Integer employeeId, String mensaje, MultipartFile cv) {
         Vacante vacante = vacanteRepository.findById(vacanteId)
@@ -68,6 +72,7 @@ public class PostulacionVacanteService {
         return mapToDto(guardada);
     }
 
+    @Override
     @Transactional(readOnly = true)
     public List<PostulacionResponseDTO> listarPostulantes(Integer vacanteId) {
         return postulacionRepository.findByVacante_VacanteId(vacanteId).stream()
@@ -76,17 +81,17 @@ public class PostulacionVacanteService {
     }
 
     private PostulacionResponseDTO mapToDto(PostulacionVacante p) {
-        PostulacionResponseDTO dto = new PostulacionResponseDTO();
-        dto.setPostulacionId(p.getPostulacionVacanteId());
-        dto.setVacanteId(p.getVacante().getVacanteId());
-        dto.setPuestoVacante(p.getVacante().getPuesto());
-        dto.setEmployeeId(p.getEmployee().getEmployeeId());
-        dto.setNombreCandidato(p.getEmployee().getNombre() + " " + p.getEmployee().getApellido());
-        dto.setEmailCandidato(p.getEmployee().getEmail());
-        dto.setFechaPostulacion(p.getFechaPostulacion());
-        dto.setEstado(p.getEstado());
-        dto.setMensaje(p.getMensaje());
-        dto.setTieneCvSubido(p.getCv() != null && p.getCv().length > 0);
-        return dto;
+        return new PostulacionResponseDTO(
+                p.getPostulacionVacanteId(),
+                p.getVacante().getVacanteId(),
+                p.getVacante().getPuesto(),
+                p.getEmployee().getEmployeeId(),
+                p.getEmployee().getNombre() + " " + p.getEmployee().getApellido(),
+                p.getEmployee().getEmail(),
+                p.getFechaPostulacion(),
+                p.getEstado(),
+                p.getMensaje(),
+                p.getCv() != null && p.getCv().length > 0
+        );
     }
 }

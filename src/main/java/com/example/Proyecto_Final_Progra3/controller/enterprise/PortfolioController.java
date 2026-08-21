@@ -1,6 +1,6 @@
 package com.example.Proyecto_Final_Progra3.controller.enterprise;
 
-import com.example.Proyecto_Final_Progra3.service.enterprise.PortfolioService;
+import com.example.Proyecto_Final_Progra3.service.enterprise.enterpriseInterfaces.IPortfolioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -15,7 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Tag(name = "Empleo", description = "Gestión de empresas, vacantes laborales, postulantes, entrevistas, habilidades y portfolios profesionales.")
 public class PortfolioController {
 
-    private final PortfolioService portfolioService;
+    private final IPortfolioService portfolioService;
 
     @Parameter(name = "employeeId", description = "Identificador del postulante al que se asociará el currículum", example = "1")
     @Parameter(description = "Archivo del currículum vitae a cargar", required = true)

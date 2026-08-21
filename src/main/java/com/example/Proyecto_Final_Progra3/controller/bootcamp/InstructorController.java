@@ -2,7 +2,7 @@ package com.example.Proyecto_Final_Progra3.controller.bootcamp;
 
 import com.example.Proyecto_Final_Progra3.dto.requestdto.InstructorRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.InstructorResponseDTO;
-import com.example.Proyecto_Final_Progra3.service.bootcamp.InstructorService;
+import com.example.Proyecto_Final_Progra3.service.bootcamp.bootcampInterfaces.IInstructorService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -20,7 +20,7 @@ import java.util.List;
 @Tag(name = "Bootcamps", description = "Gestión de bootcamps, incluyendo creación, modificación, consulta y eliminación.")
 public class InstructorController {
 
-    private final InstructorService instructorService;
+    private final IInstructorService instructorService;
 
     @Operation(summary = "Crear instructor", description = "Permite registrar un nuevo instructor en la plataforma.")
     @PostMapping

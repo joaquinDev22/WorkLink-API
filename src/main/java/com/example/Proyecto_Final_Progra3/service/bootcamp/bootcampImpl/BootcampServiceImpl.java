@@ -1,4 +1,4 @@
-package com.example.Proyecto_Final_Progra3.service.bootcamp;
+package com.example.Proyecto_Final_Progra3.service.bootcamp.bootcampImpl;
 
 import com.example.Proyecto_Final_Progra3.dto.requestdto.BootcampRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.BootcampResponseDTO;
@@ -11,7 +11,7 @@ import com.example.Proyecto_Final_Progra3.model.bootcamps.enums.Tipo;
 import com.example.Proyecto_Final_Progra3.repository.PerfilRepository;
 import com.example.Proyecto_Final_Progra3.repository.bootcamp.BootcampRepository;
 import com.example.Proyecto_Final_Progra3.repository.bootcamp.InstructorRepository;
-import com.example.Proyecto_Final_Progra3.serviceInterfaces.IBootcampService;
+import com.example.Proyecto_Final_Progra3.service.bootcamp.bootcampInterfaces.IBootcampService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

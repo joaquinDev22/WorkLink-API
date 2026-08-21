@@ -2,7 +2,7 @@ package com.example.Proyecto_Final_Progra3.controller.bootcamp;
 
 import com.example.Proyecto_Final_Progra3.dto.requestdto.CalificacionBootcampRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.CalificacionBootcampResponseDTO;
-import com.example.Proyecto_Final_Progra3.service.bootcamp.CalificacionBootcampService;
+import com.example.Proyecto_Final_Progra3.service.bootcamp.bootcampInterfaces.ICalificacionBootcampService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Bootcamps", description = "Gestión de bootcamps, incluyendo creación, modificación, consulta y eliminación.")
 public class CalificacionBootcampController {
 
-    private final CalificacionBootcampService calificacionService;
+    private final ICalificacionBootcampService calificacionService;
 
     @Parameter(name = "bootcampId", description = "Identificador del bootcamp a calificar", example = "1")
     @Operation(summary = "Calificar bootcamp", description = "Permite registrar una calificación y comentario para un bootcamp específico.")

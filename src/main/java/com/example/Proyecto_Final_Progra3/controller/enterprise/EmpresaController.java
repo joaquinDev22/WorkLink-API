@@ -2,7 +2,7 @@ package com.example.Proyecto_Final_Progra3.controller.enterprise;
 
 import com.example.Proyecto_Final_Progra3.dto.requestdto.EmpresaRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.EmpresaResponseDTO;
-import com.example.Proyecto_Final_Progra3.service.enterprise.EmpresaService;
+import com.example.Proyecto_Final_Progra3.service.enterprise.enterpriseInterfaces.IEmpresaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,7 +18,7 @@ import org.springframework.http.ResponseEntity;
 @RequestMapping("/api/v1/empresas")
 @Tag(name = "Empleo", description = "Gestión de empresas, vacantes laborales, postulantes, entrevistas, habilidades y portfolios profesionales.")
 public class EmpresaController {
-    private final EmpresaService empresaService;
+    private final IEmpresaService empresaService;
 
     @Operation(summary = "Crear empresa", description = "Crea una nueva empresa en el sistema.")
     @PostMapping

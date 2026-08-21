@@ -1,7 +1,7 @@
 package com.example.Proyecto_Final_Progra3.controller.perfil;
 
 import com.example.Proyecto_Final_Progra3.dto.PerfilUsuarioDTO;
-import com.example.Proyecto_Final_Progra3.service.perfil.PerfilUsuarioService;
+import com.example.Proyecto_Final_Progra3.service.perfil.perfilInterfaces.IPerfilUsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Tag(name = "Perfiles", description = "Administración de perfiles de usuario y datos personales.")
 public class PerfilController {
 
-    private final PerfilUsuarioService perfilUsuarioService;
+    private final IPerfilUsuarioService perfilUsuarioService;
 
     @Operation(summary = "Obtener mi perfil", description = "Obtiene la información completa del perfil del usuario autenticado.")
     @GetMapping("/me")
