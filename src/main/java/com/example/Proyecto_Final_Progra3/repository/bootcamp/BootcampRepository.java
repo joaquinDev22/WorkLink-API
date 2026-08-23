@@ -1,17 +1,19 @@
 package com.example.Proyecto_Final_Progra3.repository.bootcamp;
 
-import com.example.Proyecto_Final_Progra3.model.bootcamps.Bootcamp;
+import com.example.Proyecto_Final_Progra3.model.bootcamps.BootcampEntity;
+import com.example.Proyecto_Final_Progra3.model.bootcamps.InstructorEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;
 import java.util.List;
 
-public interface BootcampRepository extends JpaRepository<Bootcamp, Integer> {
-    List<Bootcamp> findByCuposGreaterThanAndInicioGreaterThanEqual(int cupos, LocalDate fecha);
+public interface BootcampRepository extends JpaRepository<BootcampEntity, Integer> {
+    List<BootcampEntity> findByCuposGreaterThanAndInicioGreaterThanEqual(int cupos, LocalDate fecha);
 
-    List<Bootcamp> findByModalidad(String modalidad);
+    List<BootcampEntity> findByModalidad(String modalidad);
 
-    List<Bootcamp> findByInstructor(com.example.Proyecto_Final_Progra3.model.bootcamps.Instructor instructor);
+    List<BootcampEntity> findByInstructor(InstructorEntity instructor);
 
     Long countByEmpresa_Id(Integer empresaId);
 }
+

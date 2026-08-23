@@ -2,9 +2,11 @@ package com.example.Proyecto_Final_Progra3.dto.responsedto;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 public record VacanteResponseDTO(
         Integer vacanteId,
+        UUID uuid,
         String puesto,
         String descripcion,
         LocalDate publicacion,
@@ -18,3 +20,4 @@ public record VacanteResponseDTO(
         String salario,
         List<String> etiquetas
 ) {}
+

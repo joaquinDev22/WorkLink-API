@@ -2,8 +2,15 @@ package com.example.Proyecto_Final_Progra3.service.freelance.freelanceImpl;
 
 import com.example.Proyecto_Final_Progra3.dto.requestdto.ProyectoRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.ProyectoResponseDTO;
-import com.example.Proyecto_Final_Progra3.model.freelance.Client;
-import com.example.Proyecto_Final_Progra3.model.freelance.proyecto.Proyecto;
+import com.example.Proyecto_Final_Progra3.exceptions.domain.BusinessRuleException;
+import com.example.Proyecto_Final_Progra3.exceptions.domain.ResourceNotFoundException;
+import com.example.Proyecto_Final_Progra3.exceptions.domain.UnauthorizedAccessException;
+import com.example.Proyecto_Final_Progra3.mappers.ProyectoMapper;
+import com.example.Proyecto_Final_Progra3.model.PerfilEntity;
+import com.example.Proyecto_Final_Progra3.model.employee.EmployeeEntity;
+import com.example.Proyecto_Final_Progra3.model.freelance.ClientEntity;
+import com.example.Proyecto_Final_Progra3.model.freelance.enums.EstadoProyecto;
+import com.example.Proyecto_Final_Progra3.model.freelance.proyecto.ProyectoEntity;
 import com.example.Proyecto_Final_Progra3.repository.EmployeeRepository;
 import com.example.Proyecto_Final_Progra3.repository.PerfilRepository;
 import com.example.Proyecto_Final_Progra3.repository.freelance.ClientRepository;
@@ -15,24 +22,25 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ProyectoServiceImpl implements IProyectoService {
 
     private final ProyectoRepository proyectoRepository;
     private final ClientRepository clientRepository;
     private final PerfilRepository perfilRepository;
     private final EmployeeRepository employeeRepository;
+    private final ProyectoMapper proyectoMapper;
 
     @Override
     @Transactional
     public ProyectoResponseDTO crearProyecto(ProyectoRequestDTO dto) {
-        Client client = clientRepository.findById(dto.clienteId())
-                .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+        ClientEntity client = clientRepository.findById(dto.clienteId())
+                .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado con ID: " + dto.clienteId()));
 
-        Proyecto proyecto = new Proyecto();
+        ProyectoEntity proyecto = new ProyectoEntity();
         proyecto.setArea(dto.area());
         proyecto.setDescripcion(dto.descripcion());
         proyecto.setFechaPublicacion(LocalDate.now());
@@ -44,19 +52,18 @@ public class ProyectoServiceImpl implements IProyectoService {
         proyecto.setTipoPago(dto.tipoPago());
         proyecto.setHabilidades(dto.habilidades());
 
-        Proyecto guardado = proyectoRepository.save(proyecto);
-        return mapToDto(guardado);
+        ProyectoEntity guardado = proyectoRepository.save(proyecto);
+        return proyectoMapper.toDto(guardado);
     }
 
     @Override
     @Transactional
     public ProyectoResponseDTO crearMiProyecto(String username, ProyectoRequestDTO dto) {
-        com.example.Proyecto_Final_Progra3.model.Perfil perfil = perfilRepository
-                .findByUsuario(username)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        PerfilEntity perfil = perfilRepository.findByUsuario(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + username));
 
-        Client client = clientRepository.findByPerfil(perfil)
-                .orElseThrow(() -> new RuntimeException("Solo los clientes pueden crear proyectos"));
+        ClientEntity client = clientRepository.findByPerfil(perfil)
+                .orElseThrow(() -> new UnauthorizedAccessException("Solo los clientes pueden crear proyectos"));
 
         ProyectoRequestDTO dtoConCliente = new ProyectoRequestDTO(
                 dto.area(),
@@ -74,91 +81,52 @@ public class ProyectoServiceImpl implements IProyectoService {
     @Override
     @Transactional
     public void cancelarMiProyecto(Integer id, String username) {
-        Proyecto proyecto = proyectoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Proyecto no encontrado"));
+        ProyectoEntity proyecto = proyectoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado con ID: " + id));
 
         if (!proyecto.getClient().getPerfil().getUsuario().equals(username)) {
-            throw new RuntimeException("No tienes permiso para cancelar este proyecto");
+            throw new UnauthorizedAccessException("No tienes permiso para cancelar este proyecto");
         }
 
-        if (proyecto.getEstado() != com.example.Proyecto_Final_Progra3.model.freelance.enums.EstadoProyecto.BUSCANDO_TALENTO) {
-            throw new RuntimeException("Solo puedes cancelar proyectos que estén buscando talento");
+        if (proyecto.getEstado() != EstadoProyecto.BUSCANDO_TALENTO) {
+            throw new BusinessRuleException("Solo puedes cancelar proyectos que estén buscando talento");
         }
 
-        proyecto.setEstado(com.example.Proyecto_Final_Progra3.model.freelance.enums.EstadoProyecto.CANCELADO);
+        proyecto.setEstado(EstadoProyecto.CANCELADO);
         proyectoRepository.save(proyecto);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public ProyectoResponseDTO buscarPorId(Integer id) {
         return proyectoRepository.findById(id)
-                .map(this::mapToDto)
-                .orElseThrow(() -> new RuntimeException("Proyecto no encontrado"));
+                .map(proyectoMapper::toDto)
+                .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado con ID: " + id));
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<ProyectoResponseDTO> listarTodos() {
-        return proyectoRepository.findAll().stream()
-                .map(this::mapToDto)
-                .collect(Collectors.toList());
+        return proyectoMapper.toDtoList(proyectoRepository.findAll());
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<ProyectoResponseDTO> listarMisProyectosPublicados(String username) {
-        com.example.Proyecto_Final_Progra3.model.Perfil perfil = perfilRepository
-                .findByUsuario(username)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        PerfilEntity perfil = perfilRepository.findByUsuario(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + username));
 
-        Client client = clientRepository.findByPerfil(perfil)
-                .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+        ClientEntity client = clientRepository.findByPerfil(perfil)
+                .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado para el usuario: " + username));
 
-        return proyectoRepository.findByClient_ClienteId(client.getClienteId()).stream()
-                .map(this::mapToDto)
-                .collect(Collectors.toList());
+        return proyectoMapper.toDtoList(proyectoRepository.findByClient_ClienteId(client.getClienteId()));
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<ProyectoResponseDTO> listarMisProyectosAsignados(String username) {
-        com.example.Proyecto_Final_Progra3.model.Perfil perfil = perfilRepository
-                .findByUsuario(username)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        PerfilEntity perfil = perfilRepository.findByUsuario(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + username));
 
-        com.example.Proyecto_Final_Progra3.model.employee.Employee employee = employeeRepository.findByPerfil(perfil)
-                .orElseThrow(() -> new RuntimeException("Freelancer no encontrado"));
+        EmployeeEntity employee = employeeRepository.findByPerfil(perfil)
+                .orElseThrow(() -> new ResourceNotFoundException("Freelancer no encontrado para el usuario: " + username));
 
-        return proyectoRepository.findByFreelancer_EmployeeId(employee.getEmployeeId()).stream()
-                .map(this::mapToDto)
-                .collect(Collectors.toList());
-    }
-
-    private ProyectoResponseDTO mapToDto(Proyecto proyecto) {
-        Integer clienteId = proyecto.getClient() != null ? proyecto.getClient().getClienteId() : null;
-        String nombreCliente = proyecto.getClient() != null
-                ? (proyecto.getClient().getFirstName() + " " + proyecto.getClient().getLastName())
-                : "Cliente Desconocido";
-        String estado = proyecto.getEstado() != null ? proyecto.getEstado().name() : "BUSCANDO_TALENTO";
-        String nombreFreelancer = proyecto.getFreelancer() != null
-                ? (proyecto.getFreelancer().getNombre() + " " + proyecto.getFreelancer().getApellido())
-                : null;
-
-        return new ProyectoResponseDTO(
-                proyecto.getId(),
-                proyecto.getArea(),
-                proyecto.getDescripcion(),
-                proyecto.getFechaPublicacion(),
-                proyecto.getPresupuestoMax(),
-                proyecto.getPresupuestoMin(),
-                clienteId,
-                nombreCliente,
-                proyecto.getDuracion(),
-                proyecto.getTipoPago(),
-                proyecto.getHabilidades() != null ? new java.util.ArrayList<>(proyecto.getHabilidades()) : new java.util.ArrayList<>(),
-                estado,
-                nombreFreelancer
-        );
+        return proyectoMapper.toDtoList(proyectoRepository.findByFreelancer_EmployeeId(employee.getEmployeeId()));
     }
 }

@@ -2,8 +2,14 @@ package com.example.Proyecto_Final_Progra3.service.enterprise.enterpriseImpl;
 
 import com.example.Proyecto_Final_Progra3.dto.requestdto.VacanteRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.VacanteResponseDTO;
-import com.example.Proyecto_Final_Progra3.model.enterprise.Empresa;
-import com.example.Proyecto_Final_Progra3.model.enterprise.Vacante;
+import com.example.Proyecto_Final_Progra3.exceptions.domain.BusinessRuleException;
+import com.example.Proyecto_Final_Progra3.exceptions.domain.ResourceNotFoundException;
+import com.example.Proyecto_Final_Progra3.exceptions.domain.UnauthorizedAccessException;
+import com.example.Proyecto_Final_Progra3.mappers.VacanteMapper;
+import com.example.Proyecto_Final_Progra3.model.PerfilEntity;
+import com.example.Proyecto_Final_Progra3.model.enterprise.EmpresaEntity;
+import com.example.Proyecto_Final_Progra3.model.enterprise.RecruiterEntity;
+import com.example.Proyecto_Final_Progra3.model.enterprise.VacanteEntity;
 import com.example.Proyecto_Final_Progra3.repository.PerfilRepository;
 import com.example.Proyecto_Final_Progra3.repository.enterprise.EmpresaRepository;
 import com.example.Proyecto_Final_Progra3.repository.enterprise.RecruiterRepository;
@@ -15,24 +21,25 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class VacanteServiceImpl implements IVacanteService {
 
     private final VacanteRepository vacanteRepository;
     private final EmpresaRepository empresaRepository;
     private final PerfilRepository perfilRepository;
     private final RecruiterRepository recruiterRepository;
+    private final VacanteMapper vacanteMapper;
 
     @Override
     @Transactional
     public VacanteResponseDTO crearVacante(VacanteRequestDTO dto) {
-        Empresa empresa = empresaRepository.findById(dto.empresaId())
-                .orElseThrow(() -> new RuntimeException("Empresa no encontrada"));
+        EmpresaEntity empresa = empresaRepository.findById(dto.empresaId())
+                .orElseThrow(() -> new ResourceNotFoundException("Empresa no encontrada con ID: " + dto.empresaId()));
 
-        Vacante vacante = new Vacante();
+        VacanteEntity vacante = new VacanteEntity();
         vacante.setPuesto(dto.puesto());
         vacante.setDescripcion(dto.descripcion());
         vacante.setPublicacion(LocalDate.now());
@@ -46,23 +53,23 @@ public class VacanteServiceImpl implements IVacanteService {
         vacante.setSalario(dto.salario());
         vacante.setEtiquetas(dto.etiquetas());
 
-        Vacante guardada = vacanteRepository.save(vacante);
-        return mapToDto(guardada);
+        VacanteEntity guardada = vacanteRepository.save(vacante);
+        return vacanteMapper.toDto(guardada);
     }
 
     @Override
     @Transactional
     public VacanteResponseDTO crearMiVacante(String username, VacanteRequestDTO dto) {
-        com.example.Proyecto_Final_Progra3.model.Perfil perfil = perfilRepository.findByUsuario(username)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        PerfilEntity perfil = perfilRepository.findByUsuario(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + username));
                 
-        Empresa empresa = empresaRepository.findByPerfil(perfil).orElse(null);
+        EmpresaEntity empresa = empresaRepository.findByPerfil(perfil).orElse(null);
         if (empresa == null) {
-            com.example.Proyecto_Final_Progra3.model.enterprise.Recruiter recruiter = recruiterRepository.findByPerfil(perfil)
-                .orElseThrow(() -> new RuntimeException("Solo las empresas o recruiters pueden crear vacantes"));
+            RecruiterEntity recruiter = recruiterRepository.findByPerfil(perfil)
+                .orElseThrow(() -> new UnauthorizedAccessException("Solo las empresas o recruiters pueden crear vacantes"));
             empresa = recruiter.getEmpresa();
             if (empresa == null) {
-                throw new RuntimeException("El recruiter no está asociado a ninguna empresa.");
+                throw new BusinessRuleException("El recruiter no está asociado a ninguna empresa.");
             }
         }
                 
@@ -82,54 +89,29 @@ public class VacanteServiceImpl implements IVacanteService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public VacanteResponseDTO buscarPorId(Integer id) {
         return vacanteRepository.findById(id)
-                .map(this::mapToDto)
-                .orElseThrow(() -> new RuntimeException("Vacante no encontrada"));
+                .map(vacanteMapper::toDto)
+                .orElseThrow(() -> new ResourceNotFoundException("Vacante no encontrada con ID: " + id));
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<VacanteResponseDTO> listarTodas() {
-        return vacanteRepository.findAll().stream()
-                .map(this::mapToDto)
-                .collect(Collectors.toList());
+        return vacanteMapper.toDtoList(vacanteRepository.findAll());
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<VacanteResponseDTO> listarMisVacantes(String username) {
-        com.example.Proyecto_Final_Progra3.model.Perfil perfil = perfilRepository.findByUsuario(username)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        PerfilEntity perfil = perfilRepository.findByUsuario(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + username));
                 
-        Empresa empresa = empresaRepository.findByPerfil(perfil).orElse(null);
+        EmpresaEntity empresa = empresaRepository.findByPerfil(perfil).orElse(null);
         if (empresa == null) {
-            com.example.Proyecto_Final_Progra3.model.enterprise.Recruiter recruiter = recruiterRepository.findByPerfil(perfil)
-                .orElseThrow(() -> new RuntimeException("Solo las empresas o recruiters tienen vacantes propias"));
+            RecruiterEntity recruiter = recruiterRepository.findByPerfil(perfil)
+                .orElseThrow(() -> new UnauthorizedAccessException("Solo las empresas o recruiters tienen vacantes propias"));
             empresa = recruiter.getEmpresa();
         }
         
-        return vacanteRepository.findByEmpresa_Id(empresa.getId()).stream()
-                .map(this::mapToDto)
-                .collect(Collectors.toList());
-    }
-
-    private VacanteResponseDTO mapToDto(Vacante vacante) {
-        return new VacanteResponseDTO(
-                vacante.getVacanteId(),
-                vacante.getPuesto(),
-                vacante.getDescripcion(),
-                vacante.getPublicacion(),
-                vacante.getFinalizacion(),
-                vacante.getEmpresa().getId(),
-                vacante.getEmpresa().getNombre(),
-                vacante.getLogo(),
-                vacante.getUbicacion(),
-                vacante.getTipoUbicacion(),
-                vacante.getTipoVacante(),
-                vacante.getSalario(),
-                vacante.getEtiquetas() != null ? new java.util.ArrayList<>(vacante.getEtiquetas()) : new java.util.ArrayList<>()
-        );
+        return vacanteMapper.toDtoList(vacanteRepository.findByEmpresa_Id(empresa.getId()));
     }
 }

@@ -1,17 +1,23 @@
 package com.example.Proyecto_Final_Progra3.service.perfil.perfilImpl;
 
-import com.example.Proyecto_Final_Progra3.dto.requestdto.LogginRequestDTO;
+import com.example.Proyecto_Final_Progra3.dto.requestdto.LoginRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.requestdto.PerfilRequestDTO;
-import com.example.Proyecto_Final_Progra3.dto.responsedto.LogginResponseDTO;
+import com.example.Proyecto_Final_Progra3.dto.responsedto.LoginResponseDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.PerfilResponseDTO;
+import com.example.Proyecto_Final_Progra3.exceptions.domain.BusinessRuleException;
+import com.example.Proyecto_Final_Progra3.exceptions.domain.ResourceNotFoundException;
+import com.example.Proyecto_Final_Progra3.exceptions.domain.UnauthorizedAccessException;
 import com.example.Proyecto_Final_Progra3.mappers.PerfilMapper;
-import com.example.Proyecto_Final_Progra3.model.Perfil;
-import com.example.Proyecto_Final_Progra3.model.employee.Employee;
-import com.example.Proyecto_Final_Progra3.model.enterprise.Empresa;
-import com.example.Proyecto_Final_Progra3.model.freelance.Client;
+import com.example.Proyecto_Final_Progra3.model.PerfilEntity;
+import com.example.Proyecto_Final_Progra3.model.RolEntity;
+import com.example.Proyecto_Final_Progra3.model.bootcamps.InstructorEntity;
+import com.example.Proyecto_Final_Progra3.model.employee.EmployeeEntity;
+import com.example.Proyecto_Final_Progra3.model.enterprise.EmpresaEntity;
+import com.example.Proyecto_Final_Progra3.model.freelance.ClientEntity;
 import com.example.Proyecto_Final_Progra3.repository.EmployeeRepository;
 import com.example.Proyecto_Final_Progra3.repository.PerfilRepository;
 import com.example.Proyecto_Final_Progra3.repository.RolRepository;
+import com.example.Proyecto_Final_Progra3.repository.bootcamp.InstructorRepository;
 import com.example.Proyecto_Final_Progra3.repository.enterprise.EmpresaRepository;
 import com.example.Proyecto_Final_Progra3.repository.freelance.ClientRepository;
 import com.example.Proyecto_Final_Progra3.service.perfil.perfilInterfaces.IAuthService;
@@ -39,22 +45,23 @@ public class AuthServiceImpl implements IAuthService {
     private final EmployeeRepository employeeRepository;
     private final EmpresaRepository empresaRepository;
     private final ClientRepository clientRepository;
+    private final InstructorRepository instructorRepository;
 
     @Override
     @Transactional
     public PerfilResponseDTO register(PerfilRequestDTO dto) {
 
-        if (perfilRepository.findByUsuario(dto.getUsuario()).isPresent()) {
-            throw new RuntimeException("El usuario ya existe");
+        if (perfilRepository.findByUsuario(dto.usuario()).isPresent()) {
+            throw new BusinessRuleException("El nombre de usuario ya se encuentra registrado");
         }
 
-        Perfil perfil = mapper.toEntity(dto);
-        perfil.setPassword(passwordEncoder.encode(dto.getPassword()));
+        PerfilEntity perfil = mapper.toEntity(dto);
+        perfil.setPassword(passwordEncoder.encode(dto.password()));
 
-        com.example.Proyecto_Final_Progra3.model.Rol rol = rolRepository.findByNombre(dto.getRol().toUpperCase());
+        RolEntity rol = rolRepository.findByNombre(dto.rol().toUpperCase());
         if (rol == null) {
-            rol = new com.example.Proyecto_Final_Progra3.model.Rol();
-            rol.setNombre(dto.getRol().toUpperCase());
+            rol = new RolEntity();
+            rol.setNombre(dto.rol().toUpperCase());
             rolRepository.save(rol);
         }
         perfil.setRol(rol);
@@ -63,7 +70,7 @@ public class AuthServiceImpl implements IAuthService {
 
         String rolName = perfil.getRol().getNombre().toUpperCase();
         if ("EMPLOYEE".equals(rolName) || "FREELANCER".equals(rolName) || "POSTULANTE".equals(rolName)) {
-            Employee employee = new Employee();
+            EmployeeEntity employee = new EmployeeEntity();
             employee.setNombre(perfil.getUsuario());
             employee.setApellido("");
             employee.setEmail(perfil.getEmail() != null ? perfil.getEmail() : "");
@@ -71,7 +78,7 @@ public class AuthServiceImpl implements IAuthService {
             employee.setPerfil(perfil);
             employeeRepository.save(employee);
         } else if ("CLIENTE".equals(rolName)) {
-            Client client = new Client();
+            ClientEntity client = new ClientEntity();
             client.setFirstName(perfil.getUsuario());
             client.setLastName("");
             client.setEmail(perfil.getEmail() != null ? perfil.getEmail() : "");
@@ -81,7 +88,7 @@ public class AuthServiceImpl implements IAuthService {
             client.setPerfil(perfil);
             clientRepository.save(client);
         } else if ("EMPRESA".equals(rolName)) {
-            Empresa empresa = new Empresa();
+            EmpresaEntity empresa = new EmpresaEntity();
             empresa.setNombre(perfil.getUsuario());
             empresa.setDescripcion("");
             empresa.setSitio_web("");
@@ -89,38 +96,36 @@ public class AuthServiceImpl implements IAuthService {
             empresa.setPerfil(perfil);
             empresaRepository.save(empresa);
         } else if ("INSTRUCTOR".equals(rolName)) {
-            com.example.Proyecto_Final_Progra3.model.bootcamps.Instructor instructor = new com.example.Proyecto_Final_Progra3.model.bootcamps.Instructor();
+            InstructorEntity instructor = new InstructorEntity();
             instructor.setNombre(perfil.getUsuario());
             instructor.setApellido("");
             instructor.setPresentacion("");
             instructor.setTitulo("");
             instructor.setTipo(com.example.Proyecto_Final_Progra3.model.bootcamps.enums.Tipo.PARTICULAR);
             instructor.setPerfil(perfil);
-            com.example.Proyecto_Final_Progra3.service.BeanUtil
-                    .getBean(com.example.Proyecto_Final_Progra3.repository.bootcamp.InstructorRepository.class)
-                    .save(instructor);
+            instructorRepository.save(instructor);
         }
 
         return mapper.toDto(perfil);
     }
 
     @Override
-    public LogginResponseDTO loggin(LogginRequestDTO dto) {
+    public LoginResponseDTO loggin(LoginRequestDTO dto) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        dto.getUsuario(),
-                        dto.getPassword()));
+                        dto.usuario(),
+                        dto.password()));
 
-        Perfil perfil = (Perfil) authentication.getPrincipal();
+        PerfilEntity perfil = (PerfilEntity) authentication.getPrincipal();
 
         assert perfil != null;
 
         if (!perfil.is_active()) {
-            throw new RuntimeException("EL PERFIL ESTA DESACTIVADO");
+            throw new UnauthorizedAccessException("El perfil de usuario se encuentra desactivado.");
         }
         String token = jwtService.generateToken(perfil);
 
-        return new LogginResponseDTO(
+        return new LoginResponseDTO(
                 "Login exitoso",
                 perfil.getUsuario(),
                 perfil.getRol().getNombre(),
@@ -130,8 +135,8 @@ public class AuthServiceImpl implements IAuthService {
     @Override
     @Transactional
     public void bajaPerfil(PerfilRequestDTO dto) {
-        Perfil perfil = perfilRepository.findByUsuario(dto.getUsuario())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        PerfilEntity perfil = perfilRepository.findByUsuario(dto.usuario())
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + dto.usuario()));
 
         perfil.set_active(false);
         perfilRepository.save(perfil);
@@ -140,8 +145,8 @@ public class AuthServiceImpl implements IAuthService {
     @Override
     @Transactional
     public void altaPerfil(PerfilRequestDTO dto) {
-        Perfil perfil = perfilRepository.findByUsuario(dto.getUsuario())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        PerfilEntity perfil = perfilRepository.findByUsuario(dto.usuario())
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + dto.usuario()));
 
         perfil.set_active(true);
         perfilRepository.save(perfil);

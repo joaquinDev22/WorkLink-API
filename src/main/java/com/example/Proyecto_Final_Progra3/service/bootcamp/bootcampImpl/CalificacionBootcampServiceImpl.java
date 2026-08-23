@@ -1,11 +1,16 @@
 package com.example.Proyecto_Final_Progra3.service.bootcamp.bootcampImpl;
 
 import com.example.Proyecto_Final_Progra3.dto.requestdto.CalificacionBootcampRequestDTO;
-import com.example.Proyecto_Final_Progra3.model.employee.Employee;
-import com.example.Proyecto_Final_Progra3.model.bootcamps.Bootcamp;
-import com.example.Proyecto_Final_Progra3.model.bootcamps.CalificacionBootcamp;
-import com.example.Proyecto_Final_Progra3.model.bootcamps.Inscripcion;
+import com.example.Proyecto_Final_Progra3.dto.responsedto.CalificacionBootcampResponseDTO;
+import com.example.Proyecto_Final_Progra3.exceptions.domain.BadRequestException;
+import com.example.Proyecto_Final_Progra3.exceptions.domain.BusinessRuleException;
+import com.example.Proyecto_Final_Progra3.exceptions.domain.ResourceNotFoundException;
+import com.example.Proyecto_Final_Progra3.mappers.CalificacionBootcampMapper;
+import com.example.Proyecto_Final_Progra3.model.bootcamps.BootcampEntity;
+import com.example.Proyecto_Final_Progra3.model.bootcamps.CalificacionBootcampEntity;
+import com.example.Proyecto_Final_Progra3.model.bootcamps.InscripcionEntity;
 import com.example.Proyecto_Final_Progra3.model.bootcamps.enums.EstadoInscripcion;
+import com.example.Proyecto_Final_Progra3.model.employee.EmployeeEntity;
 import com.example.Proyecto_Final_Progra3.repository.EmployeeRepository;
 import com.example.Proyecto_Final_Progra3.repository.bootcamp.BootcampRepository;
 import com.example.Proyecto_Final_Progra3.repository.bootcamp.CalificacionBootcampRepository;
@@ -13,12 +18,9 @@ import com.example.Proyecto_Final_Progra3.repository.bootcamp.InscripcionReposit
 import com.example.Proyecto_Final_Progra3.service.bootcamp.bootcampInterfaces.ICalificacionBootcampService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-
-import org.springframework.transaction.annotation.Transactional;
-import com.example.Proyecto_Final_Progra3.dto.responsedto.CalificacionBootcampResponseDTO;
-import com.example.Proyecto_Final_Progra3.mappers.CalificacionBootcampMapper;
 
 @AllArgsConstructor
 @Service
@@ -35,27 +37,27 @@ public class CalificacionBootcampServiceImpl implements ICalificacionBootcampSer
 
         validarCalificacion(dto);
 
-        Bootcamp bootcamp = bootcampRepository.findById(bootcampId)
-                .orElseThrow(() -> new RuntimeException("No existe un bootcamp con ese ID"));
+        BootcampEntity bootcamp = bootcampRepository.findById(bootcampId)
+                .orElseThrow(() -> new ResourceNotFoundException("No existe un bootcamp con el ID: " + bootcampId));
 
-        Employee employee = employeeRepository.findById(dto.employeeId())
-                .orElseThrow(() -> new RuntimeException("No existe un empleado con ese ID"));
+        EmployeeEntity employee = employeeRepository.findById(dto.employeeId())
+                .orElseThrow(() -> new ResourceNotFoundException("No existe un empleado con el ID: " + dto.employeeId()));
 
-        Inscripcion inscripcion = inscripcionBootcampRepository
+        InscripcionEntity inscripcion = inscripcionBootcampRepository
                 .findByBootcampAndEmployee(bootcamp, employee)
-                .orElseThrow(() -> new RuntimeException("El empleado no está inscripto en este bootcamp"));
+                .orElseThrow(() -> new BusinessRuleException("El empleado no está inscripto en este bootcamp"));
 
         if (inscripcion.getEstado() == EstadoInscripcion.CANCELADO) {
-            throw new RuntimeException("No se puede calificar un bootcamp con inscripción cancelada");
+            throw new BusinessRuleException("No se puede calificar un bootcamp con inscripción cancelada");
         }
 
         boolean yaCalifico = calificacionBootcampRepository.existsByBootcampAndEmployee(bootcamp, employee);
 
         if (yaCalifico) {
-            throw new RuntimeException("El empleado ya calificó este bootcamp");
+            throw new BusinessRuleException("El empleado ya calificó este bootcamp");
         }
 
-        CalificacionBootcamp calificacion = new CalificacionBootcamp();
+        CalificacionBootcampEntity calificacion = new CalificacionBootcampEntity();
         calificacion.setBootcamp(bootcamp);
         calificacion.setEmployee(employee);
         calificacion.setPuntaje(dto.puntaje());
@@ -69,23 +71,23 @@ public class CalificacionBootcampServiceImpl implements ICalificacionBootcampSer
     public void validarCalificacion(CalificacionBootcampRequestDTO dto) {
 
         if (dto.employeeId() == null) {
-            throw new RuntimeException("El empleado es obligatorio");
+            throw new BadRequestException("El empleado es obligatorio");
         }
 
         if (dto.puntaje() == null) {
-            throw new RuntimeException("El puntaje es obligatorio");
+            throw new BadRequestException("El puntaje es obligatorio");
         }
 
         if (dto.puntaje() < 1 || dto.puntaje() > 5) {
-            throw new RuntimeException("El puntaje debe estar entre 1 y 5");
+            throw new BadRequestException("El puntaje debe estar entre 1 y 5");
         }
 
         if (dto.comentario() == null || dto.comentario().isBlank()) {
-            throw new RuntimeException("El comentario es obligatorio");
+            throw new BadRequestException("El comentario es obligatorio");
         }
 
         if (dto.comentario().length() > 255) {
-            throw new RuntimeException("El comentario no puede superar los 255 caracteres");
+            throw new BadRequestException("El comentario no puede superar los 255 caracteres");
         }
     }
 }

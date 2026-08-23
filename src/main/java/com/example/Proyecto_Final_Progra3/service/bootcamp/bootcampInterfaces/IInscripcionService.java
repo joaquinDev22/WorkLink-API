@@ -1,8 +1,8 @@
 package com.example.Proyecto_Final_Progra3.service.bootcamp.bootcampInterfaces;
 
 import com.example.Proyecto_Final_Progra3.dto.responsedto.InscripcionResponseDTO;
-import com.example.Proyecto_Final_Progra3.model.bootcamps.Bootcamp;
-import com.example.Proyecto_Final_Progra3.model.employee.Employee;
+import com.example.Proyecto_Final_Progra3.model.bootcamps.BootcampEntity;
+import com.example.Proyecto_Final_Progra3.model.employee.EmployeeEntity;
 import java.util.List;
 
 public interface IInscripcionService {
@@ -10,5 +10,6 @@ public interface IInscripcionService {
     InscripcionResponseDTO realizarMiInscripcion(String username, Integer bootcampId);
     List<InscripcionResponseDTO> obtenerMisInscripciones(String username);
     InscripcionResponseDTO cancelarInscripcion(Integer inscripcionId);
-    void validarInscripcionBootcamp(Bootcamp bootcamp, Employee employee);
+    void validarInscripcionBootcamp(BootcampEntity bootcamp, EmployeeEntity employee);
 }
+

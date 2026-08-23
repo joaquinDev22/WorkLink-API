@@ -1,8 +1,8 @@
 package com.example.Proyecto_Final_Progra3.controller;
 
-import com.example.Proyecto_Final_Progra3.dto.requestdto.LogginRequestDTO;
+import com.example.Proyecto_Final_Progra3.dto.requestdto.LoginRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.requestdto.PerfilRequestDTO;
-import com.example.Proyecto_Final_Progra3.dto.responsedto.LogginResponseDTO;
+import com.example.Proyecto_Final_Progra3.dto.responsedto.LoginResponseDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.PerfilResponseDTO;
 import com.example.Proyecto_Final_Progra3.service.perfil.perfilInterfaces.IAuthService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,7 +30,7 @@ public class AuthController {
 
     @Operation(summary = "Iniciar sesión", description = "Autentica a un usuario mediante sus credenciales y devuelve la información necesaria para acceder a los recursos protegidos.")
     @PostMapping("/login")
-    public ResponseEntity<LogginResponseDTO> login(@Valid @RequestBody LogginRequestDTO dto) {
+    public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO dto) {
         return ResponseEntity.ok(authService.loggin(dto));
     }
 }

@@ -1,12 +1,14 @@
 package com.example.Proyecto_Final_Progra3.controller.enterprise;
 
 import com.example.Proyecto_Final_Progra3.dto.requestdto.EmpresaRequestDTO;
+import com.example.Proyecto_Final_Progra3.dto.responsedto.DashboardStatsResponseDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.EmpresaResponseDTO;
 import com.example.Proyecto_Final_Progra3.service.enterprise.enterpriseInterfaces.IEmpresaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
@@ -43,11 +45,8 @@ public class EmpresaController {
 
     @Operation(summary = "Obtener estadísticas del dashboard", description = "Obtiene las estadísticas principales de la empresa autenticada para mostrar en el panel de control.")
     @GetMapping("/dashboard")
-    public ResponseEntity<java.util.Map<String, Long>> getDashboardStats(
-            org.springframework.security.core.Authentication authentication) {
-        if (authentication == null || authentication.getName() == null) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
+    public ResponseEntity<DashboardStatsResponseDTO> getDashboardStats(Authentication authentication){
         return ResponseEntity.ok(empresaService.getDashboardStats(authentication.getName()));
     }
+
 }

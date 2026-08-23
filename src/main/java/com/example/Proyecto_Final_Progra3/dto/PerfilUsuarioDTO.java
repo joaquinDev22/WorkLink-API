@@ -1,8 +1,12 @@
 package com.example.Proyecto_Final_Progra3.dto;
 
-import lombok.Data;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class PerfilUsuarioDTO {
     private String nombre;
     private String apellido;
@@ -32,14 +36,22 @@ public class PerfilUsuarioDTO {
     private java.util.List<HabilidadDTO> habilidades;
     private java.util.List<ProyectoDTO> proyectos;
 
-    @Data
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
     public static class HabilidadDTO {
         private Integer habilidadId;
         private String nombre;
         private Integer nivel; // 1: Básico, 2: Intermedio, 3: Avanzado, 4: Experto
     }
 
-    @Data
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
     public static class ProyectoDTO {
         private Integer id;
         private String nombre;
@@ -48,3 +60,4 @@ public class PerfilUsuarioDTO {
         private byte[] imagen;
     }
 }
+

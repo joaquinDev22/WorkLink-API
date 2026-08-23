@@ -1,20 +1,25 @@
 package com.example.Proyecto_Final_Progra3.model.freelance.pagos;
 
-import com.example.Proyecto_Final_Progra3.model.freelance.Client;
+import com.example.Proyecto_Final_Progra3.model.freelance.ClientEntity;
 import com.example.Proyecto_Final_Progra3.model.freelance.enums.EmpresaTarjeta;
 import com.example.Proyecto_Final_Progra3.model.freelance.enums.EntidadBancaria;
 import com.example.Proyecto_Final_Progra3.model.freelance.enums.TipoDeTajeta;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
 @Table(name = "Metodos_Pago_Cliente")
 public class MetodosPagoCliente {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id 
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "metodos_pago_cliente_id")
+    @EqualsAndHashCode.Include
     private Integer metodoId;
 
     @Column(nullable = false, length = 50)
@@ -41,7 +46,8 @@ public class MetodosPagoCliente {
     @Column(name = "numero_tarjeta", nullable = false, unique = true, length = 50)
     private String numeroTarjeta;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cliente_id")
-    private Client client;
+    private ClientEntity client;
 }
+

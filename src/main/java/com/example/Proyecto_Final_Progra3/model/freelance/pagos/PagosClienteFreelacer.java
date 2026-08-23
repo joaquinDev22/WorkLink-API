@@ -1,27 +1,33 @@
 package com.example.Proyecto_Final_Progra3.model.freelance.pagos;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
 @Table(name = "pagos_cliente_freelancer")
 public class PagosClienteFreelacer {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id 
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "pagos_cliente_freelancer_id")
+    @EqualsAndHashCode.Include
     private Integer pagoId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pago_id")
-    private Pagos pagos;
+    private PagosEntity pagos;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "metodos_cobro_freelancer_id")
     private MetodosCobroFreelancer metodosCobroFreelancer;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "metodos_pago_cliente_id")
     private MetodosPagoCliente metodosPagoCliente;
 }
+

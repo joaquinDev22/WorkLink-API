@@ -20,7 +20,7 @@ public class JwtServiceImpl implements IJwtService {
 
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(
-                jwtProperties.getSecret().getBytes(StandardCharsets.UTF_8)
+                jwtProperties.secret().getBytes(StandardCharsets.UTF_8)
         );
     }
 
@@ -29,7 +29,7 @@ public class JwtServiceImpl implements IJwtService {
         return Jwts.builder()
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + jwtProperties.getExpiration()))
+                .expiration(new Date(System.currentTimeMillis() + jwtProperties.expiration()))
                 .signWith(getSigningKey())
                 .compact();
     }

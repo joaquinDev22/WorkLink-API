@@ -1,23 +1,26 @@
 package com.example.Proyecto_Final_Progra3.service.bootcamp.bootcampImpl;
 
-
-import com.example.Proyecto_Final_Progra3.model.employee.Employee;
-import com.example.Proyecto_Final_Progra3.model.bootcamps.Bootcamp;
-import com.example.Proyecto_Final_Progra3.model.bootcamps.Inscripcion;
+import com.example.Proyecto_Final_Progra3.dto.responsedto.InscripcionResponseDTO;
+import com.example.Proyecto_Final_Progra3.exceptions.domain.BusinessRuleException;
+import com.example.Proyecto_Final_Progra3.exceptions.domain.ResourceNotFoundException;
+import com.example.Proyecto_Final_Progra3.exceptions.domain.UnauthorizedAccessException;
+import com.example.Proyecto_Final_Progra3.mappers.InscripcionMapper;
+import com.example.Proyecto_Final_Progra3.model.PerfilEntity;
+import com.example.Proyecto_Final_Progra3.model.bootcamps.BootcampEntity;
+import com.example.Proyecto_Final_Progra3.model.bootcamps.InscripcionEntity;
 import com.example.Proyecto_Final_Progra3.model.bootcamps.enums.EstadoInscripcion;
+import com.example.Proyecto_Final_Progra3.model.employee.EmployeeEntity;
 import com.example.Proyecto_Final_Progra3.repository.EmployeeRepository;
+import com.example.Proyecto_Final_Progra3.repository.PerfilRepository;
 import com.example.Proyecto_Final_Progra3.repository.bootcamp.BootcampRepository;
 import com.example.Proyecto_Final_Progra3.repository.bootcamp.InscripcionRepository;
-import com.example.Proyecto_Final_Progra3.repository.PerfilRepository;
 import com.example.Proyecto_Final_Progra3.service.bootcamp.bootcampInterfaces.IInscripcionService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-
-import org.springframework.transaction.annotation.Transactional;
-import com.example.Proyecto_Final_Progra3.dto.responsedto.InscripcionResponseDTO;
-import com.example.Proyecto_Final_Progra3.mappers.InscripcionMapper;
+import java.util.List;
 
 @AllArgsConstructor
 @Service
@@ -32,15 +35,15 @@ public class InscripcionServiceImpl implements IInscripcionService {
     @Transactional
     public InscripcionResponseDTO realizarInscripcion(Integer bootcampId, Integer employeeId) {
 
-        Bootcamp bootcamp = bootcampRepository.findById(bootcampId)
-                .orElseThrow(() -> new RuntimeException("No existe un bootcamp particular con ese ID"));
+        BootcampEntity bootcamp = bootcampRepository.findById(bootcampId)
+                .orElseThrow(() -> new ResourceNotFoundException("No existe un bootcamp con el ID: " + bootcampId));
 
-        Employee employee = employeeRepository.findById(employeeId)
-                .orElseThrow(() -> new RuntimeException("No existe un empleado con ese ID"));
+        EmployeeEntity employee = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new ResourceNotFoundException("No existe un empleado con el ID: " + employeeId));
 
         validarInscripcionBootcamp(bootcamp, employee);
 
-        Inscripcion inscripcion = new Inscripcion();
+        InscripcionEntity inscripcion = new InscripcionEntity();
         inscripcion.setBootcamp(bootcamp);
         inscripcion.setEmployee(employee);
         inscripcion.setInscripcion(LocalDate.now());
@@ -55,40 +58,38 @@ public class InscripcionServiceImpl implements IInscripcionService {
 
     @Transactional
     public InscripcionResponseDTO realizarMiInscripcion(String username, Integer bootcampId) {
-        com.example.Proyecto_Final_Progra3.model.Perfil perfil = perfilRepository
+        PerfilEntity perfil = perfilRepository
                 .findByUsuario(username)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + username));
                 
-        Employee employee = employeeRepository.findByPerfil(perfil)
-                .orElseThrow(() -> new RuntimeException("Solo los empleados o freelancers pueden inscribirse en bootcamps"));
+        EmployeeEntity employee = employeeRepository.findByPerfil(perfil)
+                .orElseThrow(() -> new UnauthorizedAccessException("Solo los empleados o freelancers pueden inscribirse en bootcamps"));
                 
         return realizarInscripcion(bootcampId, employee.getEmployeeId());
     }
 
-    public java.util.List<InscripcionResponseDTO> obtenerMisInscripciones(String username) {
-        com.example.Proyecto_Final_Progra3.model.Perfil perfil = perfilRepository
+    public List<InscripcionResponseDTO> obtenerMisInscripciones(String username) {
+        PerfilEntity perfil = perfilRepository
                 .findByUsuario(username)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + username));
                 
-        Employee employee = employeeRepository.findByPerfil(perfil)
-                .orElseThrow(() -> new RuntimeException("Solo los empleados o freelancers pueden inscribirse en bootcamps"));
+        EmployeeEntity employee = employeeRepository.findByPerfil(perfil)
+                .orElseThrow(() -> new UnauthorizedAccessException("Solo los empleados o freelancers pueden consultar sus inscripciones"));
                 
-        return inscripcionRepository.findByEmployee(employee).stream()
-                .map(mapper::toDto)
-                .collect(java.util.stream.Collectors.toList());
+        return mapper.toDtoList(inscripcionRepository.findByEmployee(employee));
     }
 
     @Transactional
     public InscripcionResponseDTO cancelarInscripcion(Integer inscripcionId) {
 
-        Inscripcion inscripcion = inscripcionRepository.findById(inscripcionId)
-                .orElseThrow(() -> new RuntimeException("No existe una inscripción con ese ID"));
+        InscripcionEntity inscripcion = inscripcionRepository.findById(inscripcionId)
+                .orElseThrow(() -> new ResourceNotFoundException("No existe una inscripción con el ID: " + inscripcionId));
 
         if (inscripcion.getEstado() == EstadoInscripcion.CANCELADO) {
-            throw new RuntimeException("La inscripción ya se encuentra cancelada");
+            throw new BusinessRuleException("La inscripción ya se encuentra cancelada");
         }
 
-        Bootcamp bootcamp = inscripcion.getBootcamp();
+        BootcampEntity bootcamp = inscripcion.getBootcamp();
 
         inscripcion.setEstado(EstadoInscripcion.CANCELADO);
 
@@ -100,21 +101,20 @@ public class InscripcionServiceImpl implements IInscripcionService {
         return mapper.toDto(inscripcion);
     }
 
-
-    public void validarInscripcionBootcamp(Bootcamp bootcamp, Employee employee) {
+    public void validarInscripcionBootcamp(BootcampEntity bootcamp, EmployeeEntity employee) {
 
         if (bootcamp.getCupos() <= 0) {
-            throw new RuntimeException("No hay cupos disponibles para este bootcamp");
+            throw new BusinessRuleException("No hay cupos disponibles para este bootcamp");
         }
 
         if (bootcamp.getInicio().isBefore(LocalDate.now()) || bootcamp.getInicio().isEqual(LocalDate.now())) {
-            throw new RuntimeException("No se puede inscribir a un bootcamp que ya comenzó o comienza hoy");
+            throw new BusinessRuleException("No se puede inscribir a un bootcamp que ya comenzó o comienza hoy");
         }
 
         boolean yaInscripto = inscripcionRepository.existsByBootcampAndEmployee(bootcamp, employee);
 
         if (yaInscripto) {
-            throw new RuntimeException("El empleado ya está inscripto en este bootcamp");
+            throw new BusinessRuleException("El empleado ya está inscripto en este bootcamp");
         }
     }
 }

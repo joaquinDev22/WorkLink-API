@@ -1,6 +1,8 @@
 package com.example.Proyecto_Final_Progra3.exceptions.bootcamps;
 
-public class InstructorInvalidoException extends RuntimeException {
+import com.example.Proyecto_Final_Progra3.exceptions.domain.BadRequestException;
+
+public class InstructorInvalidoException extends BadRequestException {
     public InstructorInvalidoException(String message) {
         super(message);
     }

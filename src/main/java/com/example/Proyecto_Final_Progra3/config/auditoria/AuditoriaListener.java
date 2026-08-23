@@ -1,6 +1,6 @@
 package com.example.Proyecto_Final_Progra3.config.auditoria;
 
-import com.example.Proyecto_Final_Progra3.model.auditoria.AuditoriaOperaciones;
+import com.example.Proyecto_Final_Progra3.model.auditoria.AuditoriaOperacionesEntity;
 import com.example.Proyecto_Final_Progra3.repository.auditoria.AuditoriaOperacionesRepository;
 import com.example.Proyecto_Final_Progra3.service.BeanUtil;
 
@@ -33,22 +33,20 @@ public class AuditoriaListener {
     }
 
     private void registrarOperacion(Object target, String operacion) {
-        // Evitar bucle de recursión si la propia entidad de auditoría dispara el evento
-        if (target instanceof AuditoriaOperaciones) {
+        if (target instanceof AuditoriaOperacionesEntity) {
             return;
         }
 
         try {
             AuditoriaOperacionesRepository repository = BeanUtil.getBean(AuditoriaOperacionesRepository.class);
 
-            AuditoriaOperaciones auditoria = new AuditoriaOperaciones();
+            AuditoriaOperacionesEntity auditoria = new AuditoriaOperacionesEntity();
             auditoria.setTablaAfectada(target.getClass().getSimpleName());
             auditoria.setOperacion(operacion);
 
             Integer id = obtenerId(target);
             auditoria.setIdRegistroAfectado(id != null ? id : 0);
 
-            // Obtención segura del nombre de usuario autenticado
             String username = obtenerNombreUsuario();
             auditoria.setUsuario(username);
 
@@ -60,7 +58,6 @@ public class AuditoriaListener {
             repository.save(auditoria);
 
         } catch (Exception e) {
-            // Se atrapa la excepción para evitar revertir (rollback) la transacción principal
             log.error("Error al registrar la auditoría para la entidad {}: {}", target.getClass().getSimpleName(), e.getMessage(), e);
         }
     }
@@ -81,11 +78,9 @@ public class AuditoriaListener {
             if (id instanceof Number number) {
                 return number.intValue();
             } else if (id != null) {
-                // Si el ID fuera String o de otro tipo parseable a número
                 return Integer.parseInt(id.toString());
             }
         } catch (Exception ignored) {
-            // Si la entidad no posee método getId() o falla la invocación
         }
         return 0;
     }

@@ -3,10 +3,12 @@ package com.example.Proyecto_Final_Progra3.service.bootcamp.bootcampImpl;
 import com.example.Proyecto_Final_Progra3.dto.requestdto.BootcampRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.BootcampResponseDTO;
 import com.example.Proyecto_Final_Progra3.exceptions.bootcamps.BootcampInvalidoException;
+import com.example.Proyecto_Final_Progra3.exceptions.domain.ResourceNotFoundException;
+import com.example.Proyecto_Final_Progra3.exceptions.domain.UnauthorizedAccessException;
 import com.example.Proyecto_Final_Progra3.mappers.BootcampMapper;
-import com.example.Proyecto_Final_Progra3.model.Perfil;
-import com.example.Proyecto_Final_Progra3.model.bootcamps.Bootcamp;
-import com.example.Proyecto_Final_Progra3.model.bootcamps.Instructor;
+import com.example.Proyecto_Final_Progra3.model.PerfilEntity;
+import com.example.Proyecto_Final_Progra3.model.bootcamps.BootcampEntity;
+import com.example.Proyecto_Final_Progra3.model.bootcamps.InstructorEntity;
 import com.example.Proyecto_Final_Progra3.model.bootcamps.enums.Tipo;
 import com.example.Proyecto_Final_Progra3.repository.PerfilRepository;
 import com.example.Proyecto_Final_Progra3.repository.bootcamp.BootcampRepository;
@@ -18,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Service
@@ -35,10 +36,10 @@ public class BootcampServiceImpl implements IBootcampService {
     public BootcampResponseDTO crearBootcamp(BootcampRequestDTO dto) {
         validarBootcamp(dto);
 
-        Instructor instructor = instructorRepository.findById(dto.instructor_id())
-                .orElseThrow(() -> new BootcampInvalidoException("No existe un instructor con el ID: " + dto.instructor_id()));
+        InstructorEntity instructor = instructorRepository.findById(dto.instructor_id())
+                .orElseThrow(() -> new ResourceNotFoundException("No existe un instructor con el ID: " + dto.instructor_id()));
 
-        Bootcamp bootcamp = mapper.toEntity(dto);
+        BootcampEntity bootcamp = mapper.toEntity(dto);
         bootcamp.setInstructor(instructor);
 
         bootcamp.setTipo(instructor.getTipo() == Tipo.PARTICULAR ? Tipo.PARTICULAR : Tipo.EMPRESA);
@@ -50,13 +51,12 @@ public class BootcampServiceImpl implements IBootcampService {
     @Override
     @Transactional
     public BootcampResponseDTO crearMiBootcamp(String username, BootcampRequestDTO dto) {
-        Perfil perfil = perfilRepository.findByUsuario(username)
-                .orElseThrow(() -> new BootcampInvalidoException("Usuario no encontrado: " + username));
+        PerfilEntity perfil = perfilRepository.findByUsuario(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + username));
 
-        Instructor instructor = instructorRepository.findByPerfil(perfil)
-                .orElseThrow(() -> new BootcampInvalidoException("Solo los instructores pueden crear bootcamps"));
+        InstructorEntity instructor = instructorRepository.findByPerfil(perfil)
+                .orElseThrow(() -> new UnauthorizedAccessException("Solo los instructores pueden crear bootcamps"));
 
-        // Como los Records son inmutables, creamos una nueva instancia pasando el instructor_id e empresa_id asignados
         BootcampRequestDTO dtoConInstructor = new BootcampRequestDTO(
                 dto.titulo(),
                 dto.descripcion(),
@@ -65,8 +65,8 @@ public class BootcampServiceImpl implements IBootcampService {
                 dto.modalidad(),
                 dto.tipo(),
                 dto.cupos(),
-                instructor.getId(), // Asignamos el ID del instructor
-                1,                  // Asignamos empresa_id placeholder
+                instructor.getId(),
+                1,
                 dto.logo(),
                 dto.precio(),
                 dto.rating(),
@@ -79,8 +79,8 @@ public class BootcampServiceImpl implements IBootcampService {
     @Override
     @Transactional
     public void eliminarBootcamp(Integer id) {
-        Bootcamp bootcamp = repository.findById(id)
-                .orElseThrow(() -> new BootcampInvalidoException("No existe un bootcamp con el ID: " + id));
+        BootcampEntity bootcamp = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No existe un bootcamp con el ID: " + id));
 
         repository.delete(bootcamp);
     }
@@ -88,13 +88,13 @@ public class BootcampServiceImpl implements IBootcampService {
     @Override
     @Transactional
     public BootcampResponseDTO modificarBootcamp(Integer id, BootcampRequestDTO dto) {
-        Bootcamp bootcamp = repository.findById(id)
-                .orElseThrow(() -> new BootcampInvalidoException("No existe un bootcamp con el ID: " + id));
+        BootcampEntity bootcamp = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No existe un bootcamp con el ID: " + id));
 
         validarBootcamp(dto);
 
-        Instructor instructor = instructorRepository.findById(dto.instructor_id())
-                .orElseThrow(() -> new BootcampInvalidoException("No existe un instructor con el ID: " + dto.instructor_id()));
+        InstructorEntity instructor = instructorRepository.findById(dto.instructor_id())
+                .orElseThrow(() -> new ResourceNotFoundException("No existe un instructor con el ID: " + dto.instructor_id()));
 
         mapper.updateEntityFromDto(dto, bootcamp);
         bootcamp.setInstructor(instructor);
@@ -105,36 +105,30 @@ public class BootcampServiceImpl implements IBootcampService {
 
     @Override
     public List<BootcampResponseDTO> listarBootcamps() {
-        return repository.findAll().stream()
-                .map(mapper::toDto)
-                .collect(Collectors.toList());
+        return mapper.toDtoList(repository.findAll());
     }
 
     @Override
     public List<BootcampResponseDTO> listarMisBootcamps(String username) {
-        Perfil perfil = perfilRepository.findByUsuario(username)
-                .orElseThrow(() -> new BootcampInvalidoException("Usuario no encontrado: " + username));
+        PerfilEntity perfil = perfilRepository.findByUsuario(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + username));
 
-        Instructor instructor = instructorRepository.findByPerfil(perfil)
-                .orElseThrow(() -> new BootcampInvalidoException("Solo los instructores pueden listar sus bootcamps"));
+        InstructorEntity instructor = instructorRepository.findByPerfil(perfil)
+                .orElseThrow(() -> new UnauthorizedAccessException("Solo los instructores pueden listar sus bootcamps"));
 
-        return repository.findByInstructor(instructor).stream()
-                .map(mapper::toDto)
-                .collect(Collectors.toList());
+        return mapper.toDtoList(repository.findByInstructor(instructor));
     }
 
     @Override
     public BootcampResponseDTO buscarPorId(Integer id) {
         return repository.findById(id)
                 .map(mapper::toDto)
-                .orElseThrow(() -> new BootcampInvalidoException("No existe un Bootcamp con el ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("No existe un Bootcamp con el ID: " + id));
     }
 
     @Override
     public List<BootcampResponseDTO> listarDisponibles() {
-        return repository.findByCuposGreaterThanAndInicioGreaterThanEqual(0, LocalDate.now()).stream()
-                .map(mapper::toDto)
-                .collect(Collectors.toList());
+        return mapper.toDtoList(repository.findByCuposGreaterThanAndInicioGreaterThanEqual(0, LocalDate.now()));
     }
 
     @Override
@@ -142,9 +136,7 @@ public class BootcampServiceImpl implements IBootcampService {
         if (modalidad == null || modalidad.isBlank()) {
             throw new BootcampInvalidoException("La modalidad es obligatoria");
         }
-        return repository.findByModalidad(modalidad).stream()
-                .map(mapper::toDto)
-                .collect(Collectors.toList());
+        return mapper.toDtoList(repository.findByModalidad(modalidad));
     }
 
     private void validarBootcamp(BootcampRequestDTO dto) {

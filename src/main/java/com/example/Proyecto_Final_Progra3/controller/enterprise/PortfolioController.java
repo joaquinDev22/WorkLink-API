@@ -1,5 +1,6 @@
 package com.example.Proyecto_Final_Progra3.controller.enterprise;
 
+import com.example.Proyecto_Final_Progra3.dto.responsedto.MessageResponseDTO;
 import com.example.Proyecto_Final_Progra3.service.enterprise.enterpriseInterfaces.IPortfolioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -21,12 +22,8 @@ public class PortfolioController {
     @Parameter(description = "Archivo del currículum vitae a cargar", required = true)
     @Operation(summary = "Subir CV", description = "Permite cargar y asociar un currículum vitae en formato digital a un postulante específico.")
     @PostMapping("/{employeeId}/cv")
-    public ResponseEntity<String> subirCV(@PathVariable Integer employeeId, @RequestParam("file") MultipartFile file) {
-        try {
-            portfolioService.guardarCV(employeeId, file);
-            return ResponseEntity.ok("CV subido exitosamente a la base de datos.");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error al subir el CV: " + e.getMessage());
-        }
+    public ResponseEntity<MessageResponseDTO> subirCV(@PathVariable Integer employeeId, @RequestParam("file") MultipartFile file) {
+        portfolioService.guardarCV(employeeId, file);
+        return ResponseEntity.ok(new MessageResponseDTO("CV subido exitosamente a la base de datos."));
     }
 }

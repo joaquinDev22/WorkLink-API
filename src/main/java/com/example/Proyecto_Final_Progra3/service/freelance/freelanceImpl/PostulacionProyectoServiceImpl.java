@@ -2,9 +2,13 @@ package com.example.Proyecto_Final_Progra3.service.freelance.freelanceImpl;
 
 import com.example.Proyecto_Final_Progra3.dto.requestdto.PostulacionProyectoRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.PostulacionProyectoResponseDTO;
-import com.example.Proyecto_Final_Progra3.model.employee.Employee;
-import com.example.Proyecto_Final_Progra3.model.freelance.proyecto.PostulacionProyecto;
-import com.example.Proyecto_Final_Progra3.model.freelance.proyecto.Proyecto;
+import com.example.Proyecto_Final_Progra3.exceptions.domain.ResourceNotFoundException;
+import com.example.Proyecto_Final_Progra3.exceptions.domain.UnauthorizedAccessException;
+import com.example.Proyecto_Final_Progra3.mappers.PostulacionProyectoMapper;
+import com.example.Proyecto_Final_Progra3.model.PerfilEntity;
+import com.example.Proyecto_Final_Progra3.model.employee.EmployeeEntity;
+import com.example.Proyecto_Final_Progra3.model.freelance.proyecto.PostulacionProyectoEntity;
+import com.example.Proyecto_Final_Progra3.model.freelance.proyecto.ProyectoEntity;
 import com.example.Proyecto_Final_Progra3.repository.EmployeeRepository;
 import com.example.Proyecto_Final_Progra3.repository.PerfilRepository;
 import com.example.Proyecto_Final_Progra3.repository.freelance.PostulacionProyectoRepository;
@@ -16,25 +20,26 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class PostulacionProyectoServiceImpl implements IPostulacionProyectoService {
 
     private final PostulacionProyectoRepository postulacionRepository;
     private final ProyectoRepository proyectoRepository;
     private final EmployeeRepository employeeRepository;
     private final PerfilRepository perfilRepository;
+    private final PostulacionProyectoMapper postulacionProyectoMapper;
 
     @Override
     @Transactional
     public PostulacionProyectoResponseDTO postularseMe(String username, Integer proyectoId, PostulacionProyectoRequestDTO dto) {
-        com.example.Proyecto_Final_Progra3.model.Perfil perfil = perfilRepository.findByUsuario(username)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        PerfilEntity perfil = perfilRepository.findByUsuario(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + username));
                 
-        Employee employee = employeeRepository.findByPerfil(perfil)
-                .orElseThrow(() -> new RuntimeException("Solo los freelancers/empleados pueden postularse"));
+        EmployeeEntity employee = employeeRepository.findByPerfil(perfil)
+                .orElseThrow(() -> new UnauthorizedAccessException("Solo los freelancers/empleados pueden postularse"));
                 
         PostulacionProyectoRequestDTO dtoConEmployee = new PostulacionProyectoRequestDTO(
                 dto.descripcion(),
@@ -47,40 +52,25 @@ public class PostulacionProyectoServiceImpl implements IPostulacionProyectoServi
     @Override
     @Transactional
     public PostulacionProyectoResponseDTO postularse(Integer proyectoId, PostulacionProyectoRequestDTO dto) {
-        Proyecto proyecto = proyectoRepository.findById(proyectoId)
-                .orElseThrow(() -> new RuntimeException("Proyecto no encontrado"));
+        ProyectoEntity proyecto = proyectoRepository.findById(proyectoId)
+                .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado con ID: " + proyectoId));
 
-        Employee employee = employeeRepository.findById(dto.employeeId())
-                .orElseThrow(() -> new RuntimeException("Empleado/Freelancer no encontrado"));
+        EmployeeEntity employee = employeeRepository.findById(dto.employeeId())
+                .orElseThrow(() -> new ResourceNotFoundException("Empleado/Freelancer no encontrado con ID: " + dto.employeeId()));
 
-        PostulacionProyecto postulacion = new PostulacionProyecto();
+        PostulacionProyectoEntity postulacion = new PostulacionProyectoEntity();
         postulacion.setDescripcion(dto.descripcion());
         postulacion.setCosto(dto.costo());
         postulacion.setFechaPostulacion(LocalDate.now());
         postulacion.setEmployee(employee);
         postulacion.setProyecto(proyecto);
 
-        PostulacionProyecto guardada = postulacionRepository.save(postulacion);
-        return mapToDto(guardada);
+        PostulacionProyectoEntity guardada = postulacionRepository.save(postulacion);
+        return postulacionProyectoMapper.toDto(guardada);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<PostulacionProyectoResponseDTO> listarPostulacionesPorProyecto(Integer proyectoId) {
-        return postulacionRepository.findByProyecto_Id(proyectoId).stream()
-                .map(this::mapToDto)
-                .collect(Collectors.toList());
-    }
-
-    private PostulacionProyectoResponseDTO mapToDto(PostulacionProyecto p) {
-        return new PostulacionProyectoResponseDTO(
-                p.getId(),
-                p.getDescripcion(),
-                p.getCosto(),
-                p.getFechaPostulacion(),
-                p.getEmployee().getEmployeeId(),
-                p.getEmployee().getNombre() + " " + p.getEmployee().getApellido(),
-                p.getProyecto().getId()
-        );
+        return postulacionProyectoMapper.toDtoList(postulacionRepository.findByProyecto_Id(proyectoId));
     }
 }

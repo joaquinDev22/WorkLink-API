@@ -1,20 +1,27 @@
 package com.example.Proyecto_Final_Progra3.service.perfil.perfilImpl;
 
 import com.example.Proyecto_Final_Progra3.dto.PerfilUsuarioDTO;
-import com.example.Proyecto_Final_Progra3.model.Perfil;
-import com.example.Proyecto_Final_Progra3.model.ProyectoPerfil;
-import com.example.Proyecto_Final_Progra3.model.employee.Employee;
-import com.example.Proyecto_Final_Progra3.model.employee.EmployeeHabilidad;
+import com.example.Proyecto_Final_Progra3.exceptions.domain.BusinessRuleException;
+import com.example.Proyecto_Final_Progra3.exceptions.domain.ResourceNotFoundException;
+import com.example.Proyecto_Final_Progra3.exceptions.domain.UnauthorizedAccessException;
+import com.example.Proyecto_Final_Progra3.model.PerfilEntity;
+import com.example.Proyecto_Final_Progra3.model.ProyectoPerfilEntity;
+import com.example.Proyecto_Final_Progra3.model.bootcamps.InstructorEntity;
+import com.example.Proyecto_Final_Progra3.model.employee.EmployeeEntity;
+import com.example.Proyecto_Final_Progra3.model.employee.EmployeeHabilidadEntity;
 import com.example.Proyecto_Final_Progra3.model.employee.EmployeeHabilidadId;
-import com.example.Proyecto_Final_Progra3.model.employee.Habilidad;
-import com.example.Proyecto_Final_Progra3.model.enterprise.Empresa;
-import com.example.Proyecto_Final_Progra3.model.freelance.Client;
+import com.example.Proyecto_Final_Progra3.model.employee.HabilidadEntity;
+import com.example.Proyecto_Final_Progra3.model.enterprise.EmpresaEntity;
+import com.example.Proyecto_Final_Progra3.model.enterprise.RecruiterEntity;
+import com.example.Proyecto_Final_Progra3.model.freelance.ClientEntity;
 import com.example.Proyecto_Final_Progra3.repository.EmployeeRepository;
 import com.example.Proyecto_Final_Progra3.repository.PerfilRepository;
 import com.example.Proyecto_Final_Progra3.repository.ProyectoPerfilRepository;
+import com.example.Proyecto_Final_Progra3.repository.bootcamp.InstructorRepository;
 import com.example.Proyecto_Final_Progra3.repository.employee.EmployeeHabilidadRepository;
 import com.example.Proyecto_Final_Progra3.repository.employee.HabilidadRepository;
 import com.example.Proyecto_Final_Progra3.repository.enterprise.EmpresaRepository;
+import com.example.Proyecto_Final_Progra3.repository.enterprise.RecruiterRepository;
 import com.example.Proyecto_Final_Progra3.repository.freelance.ClientRepository;
 import com.example.Proyecto_Final_Progra3.service.enterprise.enterpriseInterfaces.IPortfolioService;
 import com.example.Proyecto_Final_Progra3.service.perfil.perfilInterfaces.IPerfilUsuarioService;
@@ -30,12 +37,15 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class PerfilUsuarioServiceImpl implements IPerfilUsuarioService {
 
     private final PerfilRepository perfilRepository;
     private final EmployeeRepository employeeRepository;
     private final EmpresaRepository empresaRepository;
     private final ClientRepository clientRepository;
+    private final InstructorRepository instructorRepository;
+    private final RecruiterRepository recruiterRepository;
     private final IPortfolioService portfolioService;
     
     private final ProyectoPerfilRepository proyectoPerfilRepository;
@@ -43,10 +53,9 @@ public class PerfilUsuarioServiceImpl implements IPerfilUsuarioService {
     private final EmployeeHabilidadRepository employeeHabilidadRepository;
 
     @Override
-    @Transactional(readOnly = true)
     public PerfilUsuarioDTO getMyProfile(String username) {
-        Perfil perfil = perfilRepository.findByUsuario(username)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        PerfilEntity perfil = perfilRepository.findByUsuario(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + username));
                 
         PerfilUsuarioDTO dto = new PerfilUsuarioDTO();
         dto.setRol(perfil.getRol().getNombre());
@@ -58,13 +67,13 @@ public class PerfilUsuarioServiceImpl implements IPerfilUsuarioService {
         
         String rol = perfil.getRol().getNombre().toUpperCase();
         if ("EMPLOYEE".equals(rol) || "FREELANCER".equals(rol) || "POSTULANTE".equals(rol)) {
-            Employee emp = employeeRepository.findByPerfil(perfil).orElse(null);
+            EmployeeEntity emp = employeeRepository.findByPerfil(perfil).orElse(null);
             if (emp != null) {
                 dto.setNombre(emp.getNombre());
                 dto.setApellido(emp.getApellido());
                 dto.setFechaNacimiento(emp.getFechaNacimiento() != null ? emp.getFechaNacimiento().toString() : null);
                 
-                List<EmployeeHabilidad> empHabs = employeeHabilidadRepository.findByEmployee(emp);
+                List<EmployeeHabilidadEntity> empHabs = employeeHabilidadRepository.findByEmployee(emp);
                 List<PerfilUsuarioDTO.HabilidadDTO> habs = empHabs.stream().map(eh -> {
                     PerfilUsuarioDTO.HabilidadDTO hd = new PerfilUsuarioDTO.HabilidadDTO();
                     hd.setHabilidadId(eh.getHabilidad().getHabilidadId());
@@ -75,7 +84,7 @@ public class PerfilUsuarioServiceImpl implements IPerfilUsuarioService {
                 dto.setHabilidades(habs);
             }
         } else if ("CLIENTE".equals(rol)) {
-            Client client = clientRepository.findByPerfil(perfil).orElse(null);
+            ClientEntity client = clientRepository.findByPerfil(perfil).orElse(null);
             if (client != null) {
                 dto.setNombre(client.getFirstName());
                 dto.setApellido(client.getLastName());
@@ -83,22 +92,20 @@ public class PerfilUsuarioServiceImpl implements IPerfilUsuarioService {
                 dto.setPais(client.getCountry());
             }
         } else if ("EMPRESA".equals(rol)) {
-            Empresa emp = empresaRepository.findByPerfil(perfil).orElse(null);
+            EmpresaEntity emp = empresaRepository.findByPerfil(perfil).orElse(null);
             if (emp != null) {
                 dto.setNombre(emp.getNombre());
                 dto.setSitioWeb(emp.getSitio_web());
             }
         } else if ("INSTRUCTOR".equals(rol)) {
-            com.example.Proyecto_Final_Progra3.model.bootcamps.Instructor inst = 
-                com.example.Proyecto_Final_Progra3.service.BeanUtil.getBean(com.example.Proyecto_Final_Progra3.repository.bootcamp.InstructorRepository.class).findByPerfil(perfil).orElse(null);
+            InstructorEntity inst = instructorRepository.findByPerfil(perfil).orElse(null);
             if (inst != null) {
                 dto.setNombre(inst.getNombre());
                 dto.setApellido(inst.getApellido());
                 dto.setTipoInstructor(inst.getTipo() != null ? inst.getTipo().name() : null);
             }
         } else if ("RECRUITER".equals(rol)) {
-            com.example.Proyecto_Final_Progra3.model.enterprise.Recruiter rec = 
-                com.example.Proyecto_Final_Progra3.service.BeanUtil.getBean(com.example.Proyecto_Final_Progra3.repository.enterprise.RecruiterRepository.class).findByPerfil(perfil).orElse(null);
+            RecruiterEntity rec = recruiterRepository.findByPerfil(perfil).orElse(null);
             if (rec != null) {
                 dto.setNombre(rec.getNombre());
                 dto.setApellido(rec.getApellido());
@@ -106,7 +113,7 @@ public class PerfilUsuarioServiceImpl implements IPerfilUsuarioService {
             }
         }
         
-        List<ProyectoPerfil> proyectos = proyectoPerfilRepository.findByPerfilOrderByFechaCreacionDesc(perfil);
+        List<ProyectoPerfilEntity> proyectos = proyectoPerfilRepository.findByPerfilOrderByFechaCreacionDesc(perfil);
         List<PerfilUsuarioDTO.ProyectoDTO> projs = proyectos.stream().map(p -> {
             PerfilUsuarioDTO.ProyectoDTO pd = new PerfilUsuarioDTO.ProyectoDTO();
             pd.setId(p.getId());
@@ -124,8 +131,8 @@ public class PerfilUsuarioServiceImpl implements IPerfilUsuarioService {
     @Override
     @Transactional
     public PerfilUsuarioDTO updateMyProfile(String username, PerfilUsuarioDTO request) {
-        Perfil perfil = perfilRepository.findByUsuario(username)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        PerfilEntity perfil = perfilRepository.findByUsuario(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + username));
                 
         if (request.getEmail() != null) perfil.setEmail(request.getEmail());
         if (request.getUbicacion() != null) perfil.setUbicacion(request.getUbicacion());
@@ -135,8 +142,8 @@ public class PerfilUsuarioServiceImpl implements IPerfilUsuarioService {
         
         String rol = perfil.getRol().getNombre().toUpperCase();
         if ("EMPLOYEE".equals(rol) || "FREELANCER".equals(rol) || "POSTULANTE".equals(rol)) {
-            Employee emp = employeeRepository.findByPerfil(perfil).orElseGet(() -> {
-                Employee e = new Employee();
+            EmployeeEntity emp = employeeRepository.findByPerfil(perfil).orElseGet(() -> {
+                EmployeeEntity e = new EmployeeEntity();
                 e.setPerfil(perfil);
                 return e;
             });
@@ -148,8 +155,8 @@ public class PerfilUsuarioServiceImpl implements IPerfilUsuarioService {
             if (request.getEmail() != null) emp.setEmail(request.getEmail());
             employeeRepository.save(emp);
         } else if ("CLIENTE".equals(rol)) {
-            Client client = clientRepository.findByPerfil(perfil).orElseGet(() -> {
-                Client c = new Client();
+            ClientEntity client = clientRepository.findByPerfil(perfil).orElseGet(() -> {
+                ClientEntity c = new ClientEntity();
                 c.setPerfil(perfil);
                 return c;
             });
@@ -160,8 +167,8 @@ public class PerfilUsuarioServiceImpl implements IPerfilUsuarioService {
             if (request.getEmail() != null) client.setEmail(request.getEmail());
             clientRepository.save(client);
         } else if ("EMPRESA".equals(rol)) {
-            Empresa emp = empresaRepository.findByPerfil(perfil).orElseGet(() -> {
-                Empresa e = new Empresa();
+            EmpresaEntity emp = empresaRepository.findByPerfil(perfil).orElseGet(() -> {
+                EmpresaEntity e = new EmpresaEntity();
                 e.setPerfil(perfil);
                 return e;
             });
@@ -169,9 +176,8 @@ public class PerfilUsuarioServiceImpl implements IPerfilUsuarioService {
             if (request.getSitioWeb() != null) emp.setSitio_web(request.getSitioWeb());
             empresaRepository.save(emp);
         } else if ("INSTRUCTOR".equals(rol)) {
-            com.example.Proyecto_Final_Progra3.model.bootcamps.Instructor inst = 
-                com.example.Proyecto_Final_Progra3.service.BeanUtil.getBean(com.example.Proyecto_Final_Progra3.repository.bootcamp.InstructorRepository.class).findByPerfil(perfil).orElseGet(() -> {
-                com.example.Proyecto_Final_Progra3.model.bootcamps.Instructor i = new com.example.Proyecto_Final_Progra3.model.bootcamps.Instructor();
+            InstructorEntity inst = instructorRepository.findByPerfil(perfil).orElseGet(() -> {
+                InstructorEntity i = new InstructorEntity();
                 i.setPerfil(perfil);
                 return i;
             });
@@ -182,11 +188,10 @@ public class PerfilUsuarioServiceImpl implements IPerfilUsuarioService {
                     inst.setTipo(com.example.Proyecto_Final_Progra3.model.bootcamps.enums.Tipo.valueOf(request.getTipoInstructor().toUpperCase()));
                 } catch(Exception ignored){}
             }
-            com.example.Proyecto_Final_Progra3.service.BeanUtil.getBean(com.example.Proyecto_Final_Progra3.repository.bootcamp.InstructorRepository.class).save(inst);
+            instructorRepository.save(inst);
         } else if ("RECRUITER".equals(rol)) {
-            com.example.Proyecto_Final_Progra3.model.enterprise.Recruiter rec = 
-                com.example.Proyecto_Final_Progra3.service.BeanUtil.getBean(com.example.Proyecto_Final_Progra3.repository.enterprise.RecruiterRepository.class).findByPerfil(perfil).orElseGet(() -> {
-                com.example.Proyecto_Final_Progra3.model.enterprise.Recruiter r = new com.example.Proyecto_Final_Progra3.model.enterprise.Recruiter();
+            RecruiterEntity rec = recruiterRepository.findByPerfil(perfil).orElseGet(() -> {
+                RecruiterEntity r = new RecruiterEntity();
                 r.setPerfil(perfil);
                 return r;
             });
@@ -196,7 +201,7 @@ public class PerfilUsuarioServiceImpl implements IPerfilUsuarioService {
             if (request.getFechaNacimiento() != null && !request.getFechaNacimiento().isEmpty()) {
                 rec.setFechaNacimiento(LocalDate.parse(request.getFechaNacimiento()));
             }
-            com.example.Proyecto_Final_Progra3.service.BeanUtil.getBean(com.example.Proyecto_Final_Progra3.repository.enterprise.RecruiterRepository.class).save(rec);
+            recruiterRepository.save(rec);
         }
         
         return getMyProfile(username);
@@ -205,8 +210,8 @@ public class PerfilUsuarioServiceImpl implements IPerfilUsuarioService {
     @Override
     @Transactional
     public void uploadFoto(String username, MultipartFile file) throws IOException {
-        Perfil perfil = perfilRepository.findByUsuario(username)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        PerfilEntity perfil = perfilRepository.findByUsuario(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + username));
         perfil.setFotoPerfil(file.getBytes());
         perfilRepository.save(perfil);
     }
@@ -214,8 +219,8 @@ public class PerfilUsuarioServiceImpl implements IPerfilUsuarioService {
     @Override
     @Transactional
     public void uploadBanner(String username, MultipartFile file) throws IOException {
-        Perfil perfil = perfilRepository.findByUsuario(username)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        PerfilEntity perfil = perfilRepository.findByUsuario(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + username));
         perfil.setBannerPerfil(file.getBytes());
         perfilRepository.save(perfil);
     }
@@ -223,20 +228,20 @@ public class PerfilUsuarioServiceImpl implements IPerfilUsuarioService {
     @Override
     @Transactional
     public PerfilUsuarioDTO.HabilidadDTO addHabilidad(String username, String nombreHabilidad, Integer nivel) {
-        Perfil perfil = perfilRepository.findByUsuario(username)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        PerfilEntity perfil = perfilRepository.findByUsuario(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + username));
                 
-        Employee emp = employeeRepository.findByPerfil(perfil)
-                .orElseThrow(() -> new RuntimeException("Solo los empleados pueden tener habilidades"));
+        EmployeeEntity emp = employeeRepository.findByPerfil(perfil)
+                .orElseThrow(() -> new UnauthorizedAccessException("Solo los empleados pueden tener habilidades"));
                 
-        Habilidad habilidad = habilidadRepository.findByNombreHabilidad(nombreHabilidad)
+        HabilidadEntity habilidad = habilidadRepository.findByNombreHabilidad(nombreHabilidad)
                 .orElseGet(() -> {
-                    Habilidad h = new Habilidad();
+                    HabilidadEntity h = new HabilidadEntity();
                     h.setNombreHabilidad(nombreHabilidad);
                     return habilidadRepository.save(h);
                 });
                 
-        EmployeeHabilidad empHab = new EmployeeHabilidad();
+        EmployeeHabilidadEntity empHab = new EmployeeHabilidadEntity();
         EmployeeHabilidadId id = new EmployeeHabilidadId();
         id.setEmployeeId(emp.getEmployeeId());
         id.setHabilidadId(habilidad.getHabilidadId());
@@ -258,11 +263,11 @@ public class PerfilUsuarioServiceImpl implements IPerfilUsuarioService {
     @Override
     @Transactional
     public void removeHabilidad(String username, Integer habilidadId) {
-        Perfil perfil = perfilRepository.findByUsuario(username)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        PerfilEntity perfil = perfilRepository.findByUsuario(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + username));
                 
-        Employee emp = employeeRepository.findByPerfil(perfil)
-                .orElseThrow(() -> new RuntimeException("Solo los empleados pueden tener habilidades"));
+        EmployeeEntity emp = employeeRepository.findByPerfil(perfil)
+                .orElseThrow(() -> new UnauthorizedAccessException("Solo los empleados pueden tener habilidades"));
                 
         EmployeeHabilidadId id = new EmployeeHabilidadId();
         id.setEmployeeId(emp.getEmployeeId());
@@ -274,15 +279,15 @@ public class PerfilUsuarioServiceImpl implements IPerfilUsuarioService {
     @Override
     @Transactional
     public PerfilUsuarioDTO.ProyectoDTO addProyecto(String username, String nombre, String descripcion, String link, MultipartFile imagen) throws IOException {
-        Perfil perfil = perfilRepository.findByUsuario(username)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        PerfilEntity perfil = perfilRepository.findByUsuario(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + username));
                 
         long count = proyectoPerfilRepository.countByPerfil(perfil);
         if (count >= 5) {
-            throw new RuntimeException("Solo se permiten hasta 5 proyectos en el perfil.");
+            throw new BusinessRuleException("Solo se permiten hasta 5 proyectos en el perfil.");
         }
                 
-        ProyectoPerfil proyecto = new ProyectoPerfil();
+        ProyectoPerfilEntity proyecto = new ProyectoPerfilEntity();
         proyecto.setPerfil(perfil);
         proyecto.setNombre(nombre);
         proyecto.setDescripcion(descripcion);
@@ -305,14 +310,14 @@ public class PerfilUsuarioServiceImpl implements IPerfilUsuarioService {
     @Override
     @Transactional
     public void removeProyecto(String username, Integer proyectoId) {
-        Perfil perfil = perfilRepository.findByUsuario(username)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        PerfilEntity perfil = perfilRepository.findByUsuario(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + username));
                 
-        ProyectoPerfil proyecto = proyectoPerfilRepository.findById(proyectoId)
-                .orElseThrow(() -> new RuntimeException("Proyecto no encontrado"));
+        ProyectoPerfilEntity proyecto = proyectoPerfilRepository.findById(proyectoId)
+                .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado con ID: " + proyectoId));
                 
         if (!proyecto.getPerfil().getId().equals(perfil.getId())) {
-            throw new RuntimeException("No tiene permisos para eliminar este proyecto.");
+            throw new UnauthorizedAccessException("No tiene permisos para eliminar este proyecto.");
         }
         
         proyectoPerfilRepository.delete(proyecto);
@@ -321,16 +326,16 @@ public class PerfilUsuarioServiceImpl implements IPerfilUsuarioService {
     @Override
     @Transactional
     public void uploadMyCV(String username, MultipartFile file) {
-        Perfil perfil = perfilRepository.findByUsuario(username)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        PerfilEntity perfil = perfilRepository.findByUsuario(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + username));
                 
         String rol = perfil.getRol().getNombre().toUpperCase();
         if (!"EMPLOYEE".equals(rol) && !"FREELANCER".equals(rol) && !"POSTULANTE".equals(rol)) {
-            throw new RuntimeException("Solo los freelancers/empleados pueden subir CV.");
+            throw new UnauthorizedAccessException("Solo los freelancers/empleados pueden subir CV.");
         }
         
-        Employee emp = employeeRepository.findByPerfil(perfil)
-                .orElseThrow(() -> new RuntimeException("No se encontró el registro de empleado."));
+        EmployeeEntity emp = employeeRepository.findByPerfil(perfil)
+                .orElseThrow(() -> new ResourceNotFoundException("No se encontró el registro de empleado."));
                 
         portfolioService.guardarCV(emp.getEmployeeId(), file);
     }

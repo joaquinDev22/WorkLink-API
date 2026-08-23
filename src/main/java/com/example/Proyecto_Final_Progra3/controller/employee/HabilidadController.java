@@ -1,8 +1,6 @@
 package com.example.Proyecto_Final_Progra3.controller.employee;
 
-import com.example.Proyecto_Final_Progra3.model.employee.Employee;
-import com.example.Proyecto_Final_Progra3.model.employee.Habilidad;
-import com.example.Proyecto_Final_Progra3.repository.employee.HabilidadRepository;
+import com.example.Proyecto_Final_Progra3.dto.responsedto.HabilidadResponseDTO;
 import com.example.Proyecto_Final_Progra3.service.employee.employeeInterfaces.IEmployeeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,7 +21,10 @@ public class HabilidadController {
 
     @Operation(summary = "Listar habilidades", description = "Obtiene la lista completa de habilidades registradas en la plataforma.")
     @GetMapping
-    public ResponseEntity<List<Habilidad>> getAllHabilidades() {
-        return ResponseEntity.ok(service.getAllHabilities());
+    public ResponseEntity<List<HabilidadResponseDTO>> getAllHabilidades() {
+        List<HabilidadResponseDTO> response = service.getAllHabilities().stream()
+                .map(h -> new HabilidadResponseDTO(h.getHabilidadId(), h.getNombreHabilidad()))
+                .toList();
+        return ResponseEntity.ok(response);
     }
 }
