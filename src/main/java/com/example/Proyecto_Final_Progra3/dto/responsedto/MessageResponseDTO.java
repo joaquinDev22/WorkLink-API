@@ -1,3 +1,4 @@
 package com.example.Proyecto_Final_Progra3.dto.responsedto;
 
-public record ResponseDTO() {}
+public record MessageResponseDTO() {
+}
