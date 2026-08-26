@@ -21,7 +21,7 @@ import java.util.List;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-     // HTTP 400 - Error de Validación de Campos (@Valid en Controller)
+     // HTTP 400 - Error of Validation of fields (@Valid en Controller)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponseDTO> handleValidationExceptions(MethodArgumentNotValidException ex) {
         List<String> errors = ex.getBindingResult().getFieldErrors().stream()
