@@ -4,8 +4,9 @@ import com.example.Proyecto_Final_Progra3.dto.responsedto.CertificadoResponseDTO
 import com.example.Proyecto_Final_Progra3.model.bootcamps.CertificadoBootcampEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface CertificadoMapper {
 
     @Mapping(target = "bootcamp_id", source = "bootcamp.id")

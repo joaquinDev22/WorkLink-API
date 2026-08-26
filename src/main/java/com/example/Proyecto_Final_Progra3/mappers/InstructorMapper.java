@@ -6,10 +6,11 @@ import com.example.Proyecto_Final_Progra3.model.bootcamps.InstructorEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.ReportingPolicy;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface InstructorMapper {
 
     @Mapping(target = "empresa.id", source = "empresa_id")
