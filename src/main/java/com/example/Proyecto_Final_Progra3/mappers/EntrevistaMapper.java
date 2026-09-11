@@ -6,7 +6,7 @@ import org.mapstruct.*;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface EntrevistaMapper {
     @Mapping(target = "candidateName", expression = "java(entity.getPostulacion() != null && entity.getPostulacion().getEmployee() != null ? entity.getPostulacion().getEmployee().getNombre() : \"Candidato\")")
     @Mapping(target = "vacancyTitle", expression = "java(entity.getPostulacion() != null && entity.getPostulacion().getVacante() != null ? entity.getPostulacion().getVacante().getPuesto() : \"Vacante\")")

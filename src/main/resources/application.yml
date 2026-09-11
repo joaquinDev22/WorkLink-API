@@ -1,22 +1,43 @@
 server:
   port: ${PORT:8080}
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/xml,text/plain
+    min-response-size: 1024
+
 spring:
   application:
     name: Proyecto_Final_Progra3
+  threads:
+    virtual:
+      enabled: true
   datasource:
-    url: jdbc:mysql://thomas.proxy.rlwy.net:19976/railway
-    username: root
-    password: ${DB_PASSWORD:hULcfGlheSVlMFLrIDYIjYswZbAGglKo}
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/bd_proyecto_final?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    username: ${DB_USER:root}
+    password: ${DB_PASSWORD:root}
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 30
+      minimum-idle: 10
+      idle-timeout: 300000
+      max-lifetime: 1800000
+      connection-timeout: 20000
+      
   jpa:
     hibernate:
-      ddl-auto: update
-    show-sql: true
+      ddl-auto: none
+    show-sql: false
     open-in-view: false
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
+        default_batch_fetch_size: 50
+        jdbc.batch_size: 50
+        order_inserts: true
+        order_updates: true
 
 jwt:
   secret: ${JWT_SECRET:MiClaveSuperSecretaDeMasDe32Caracteres123}
   expiration: ${JWT_EXPIRATION:86400000}
+
+

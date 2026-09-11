@@ -4,8 +4,9 @@ import com.example.Proyecto_Final_Progra3.dto.responsedto.CalificacionBootcampRe
 import com.example.Proyecto_Final_Progra3.model.bootcamps.CalificacionBootcampEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface CalificacionBootcampMapper {
 
     @Mapping(target = "bootcamp_id", source = "bootcamp.id")

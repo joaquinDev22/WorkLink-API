@@ -67,4 +67,10 @@ public class SecurityConfig {
             throw new IllegalStateException("No se pudo obtener el AuthenticationManager", e);
         }
     }
+
+    @Bean
+    public org.springframework.security.crypto.password.PasswordEncoder passwordEncoder() {
+        return new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
+    }
 }
+

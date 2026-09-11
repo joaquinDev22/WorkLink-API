@@ -21,7 +21,7 @@ import java.util.List;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-     // HTTP 400 - Error de Validación de Campos (@Valid en Controller)
+     // HTTP 400 - Error of Validation of fields (@Valid en Controller)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponseDTO> handleValidationExceptions(MethodArgumentNotValidException ex) {
         List<String> errors = ex.getBindingResult().getFieldErrors().stream()
@@ -52,7 +52,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BusinessRuleException.class)
     public ResponseEntity<ErrorResponseDTO> handleBusinessRuleException(BusinessRuleException ex) {
         ErrorResponseDTO error = new ErrorResponseDTO("Regla de negocio violada", List.of(ex.getMessage()), LocalDate.now());
-        return new ResponseEntity<>(error, HttpStatus.UNPROCESSABLE_ENTITY);
+        return new ResponseEntity<>(error, HttpStatus.UNPROCESSABLE_CONTENT);
     }
     // HTTP 403 - Acceso No Autorizado sobre Recurso Ajeno
     @ExceptionHandler(UnauthorizedAccessException.class)

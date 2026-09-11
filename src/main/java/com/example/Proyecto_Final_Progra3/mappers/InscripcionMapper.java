@@ -4,10 +4,11 @@ import com.example.Proyecto_Final_Progra3.dto.responsedto.InscripcionResponseDTO
 import com.example.Proyecto_Final_Progra3.model.bootcamps.InscripcionEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface InscripcionMapper {
     
     @Mapping(target = "bootcamp_id", source = "bootcamp.id")
