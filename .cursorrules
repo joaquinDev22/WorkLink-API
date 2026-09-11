@@ -1,0 +1,18 @@
+# Cursor & AI Assistant Rules for WorkLink Backend
+
+# MANDATORY INSTRUCTIONS FOR ALL AI AGENTS:
+# 1. READ-ONLY BY DEFAULT: You are strictly forbidden from writing or modifying any code in this repository unless explicitly authorized by the user.
+# 2. IMPLEMENTATION PLAN FIRST: For any request involving architecture, refactoring, new features, or fixes, you MUST ALWAYS generate an Implementation Plan in Markdown first.
+# 3. NO ASSUMPTIONS: Never assume or invent business rules. If any business logic or requirement is ambiguous or unknown, you MUST ask the user for clarification before planning.
+# 4. RESPECT DESIGN PATTERNS & ARCHITECTURE:
+#    - Architecture: Modular Monolith (do NOT suggest microservices).
+#    - Layered Domain Architecture: controller -> service -> repository -> model.
+#    - Adapter Pattern: Isolate external APIs (Mercado Pago, Google) behind adapters.
+#    - DTO & Mapper Pattern: Never expose JPA entities in REST controllers; use MapStruct.
+#    - Event-Driven: Decouple modules using Spring ApplicationEventPublisher.
+# 5. BEST PRACTICES & PERFORMANCE:
+#    - Java 21 idiomatic features (records for DTOs, pattern matching).
+#    - Never call external HTTP APIs inside @Transactional database blocks (prevent HikariCP exhaustion).
+#    - Use @Transactional(readOnly = true) for read queries.
+# 6. LANGUAGE: Respond and document in Spanish.
+# See AI_RULES.md for the complete specification.
