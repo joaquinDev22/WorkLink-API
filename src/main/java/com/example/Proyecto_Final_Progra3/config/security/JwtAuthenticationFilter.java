@@ -1,7 +1,7 @@
 package com.example.Proyecto_Final_Progra3.config.security;
 
-import com.example.Proyecto_Final_Progra3.service.perfil.perfilInterfaces.IJwtService;
-import com.example.Proyecto_Final_Progra3.service.perfil.perfilInterfaces.IPerfilDetailService;
+import com.example.Proyecto_Final_Progra3.auth.login.IJwtService;
+import com.example.Proyecto_Final_Progra3.auth.login.IPerfilDetailService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

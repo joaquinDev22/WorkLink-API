@@ -1,0 +1,10 @@
+package com.example.Proyecto_Final_Progra3.auth.perfil;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+
+public interface PerfilRepository extends JpaRepository<PerfilEntity, Integer> {
+    Optional<PerfilEntity> findByUsuario(String usuario);
+}
+

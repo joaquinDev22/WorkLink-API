@@ -1,6 +1,6 @@
 package com.example.Proyecto_Final_Progra3.config.security;
 
-import com.example.Proyecto_Final_Progra3.dto.responsedto.ErrorResponseDTO;
+import com.example.Proyecto_Final_Progra3.errors.ErrorResponseDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.servlet.http.HttpServletRequest;
