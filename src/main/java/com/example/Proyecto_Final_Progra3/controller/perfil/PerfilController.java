@@ -88,4 +88,11 @@ public class PerfilController {
         perfilUsuarioService.removeProyecto(authentication.getName(), proyectoId);
         return ResponseEntity.ok(new MessageResponseDTO("Proyecto eliminado."));
     }
+
+    @Operation(summary = "Dar de baja mi perfil", description = "Permite al usuario autenticado desactivar su cuenta y perfil propio mediante baja lógica (is_active = false).")
+    @DeleteMapping("/me")
+    public ResponseEntity<MessageResponseDTO> desactivarMiPerfil(Authentication authentication) {
+        perfilUsuarioService.desactivarMiPerfil(authentication.getName());
+        return ResponseEntity.ok(new MessageResponseDTO("Perfil desactivado exitosamente."));
+    }
 }

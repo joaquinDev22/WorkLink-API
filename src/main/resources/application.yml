@@ -30,6 +30,7 @@ spring:
     open-in-view: false
     properties:
       hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
         format_sql: false
         default_batch_fetch_size: 50
         jdbc.batch_size: 50
@@ -39,5 +40,12 @@ spring:
 jwt:
   secret: ${JWT_SECRET:MiClaveSuperSecretaDeMasDe32Caracteres123}
   expiration: ${JWT_EXPIRATION:86400000}
+
+mercadopago:
+  access-token: ${MERCADOPAGO_ACCESS_TOKEN:TEST-ACCESS-TOKEN}
+  webhook-url: ${MERCADOPAGO_WEBHOOK_URL:https://worklink.com/api/v1/pagos/webhook}
+
+google:
+  client-id: ${GOOGLE_CLIENT_ID:your-google-client-id.apps.googleusercontent.com}
 
 

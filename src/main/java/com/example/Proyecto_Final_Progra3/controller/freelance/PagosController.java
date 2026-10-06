@@ -36,4 +36,14 @@ public class PagosController {
     public ResponseEntity<List<PagosResponseDTO>> listarPagos(@PathVariable Integer proyectoId) {
         return ResponseEntity.ok(pagosService.listarPagos(proyectoId));
     }
+
+    @Parameter(name = "proyectoId", description = "Identificador único del proyecto", example = "1")
+    @Operation(summary = "Crear preferencia Checkout Pro de Mercado Pago", description = "Genera una preferencia en Mercado Pago con init_point para redirigir al usuario y pagar el proyecto.")
+    @PostMapping("/checkout")
+    public ResponseEntity<com.example.Proyecto_Final_Progra3.dto.responsedto.MercadoPagoPreferenceResponseDTO> crearCheckout(
+            @PathVariable Integer proyectoId,
+            @RequestParam(required = false) java.math.BigDecimal monto,
+            @RequestParam(required = false) String backUrl) {
+        return ResponseEntity.ok(pagosService.crearPreferenciaPago(proyectoId, monto, backUrl));
+    }
 }

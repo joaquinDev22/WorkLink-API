@@ -15,4 +15,5 @@ public interface IPerfilUsuarioService {
     PerfilUsuarioDTO.ProyectoDTO addProyecto(String username, String nombre, String descripcion, String link, MultipartFile imagen) throws IOException;
     void removeProyecto(String username, Integer proyectoId);
     void uploadMyCV(String username, MultipartFile file);
+    void desactivarMiPerfil(String username);
 }

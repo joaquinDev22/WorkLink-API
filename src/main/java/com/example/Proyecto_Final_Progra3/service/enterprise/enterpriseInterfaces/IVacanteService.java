@@ -11,4 +11,6 @@ public interface IVacanteService {
     VacanteResponseDTO buscarPorId(Integer id);
     List<VacanteResponseDTO> listarTodas();
     List<VacanteResponseDTO> listarMisVacantes(String username);
+    VacanteResponseDTO actualizarVacante(Integer id, String username, VacanteRequestDTO dto);
+    void eliminarVacante(Integer id, String username);
 }

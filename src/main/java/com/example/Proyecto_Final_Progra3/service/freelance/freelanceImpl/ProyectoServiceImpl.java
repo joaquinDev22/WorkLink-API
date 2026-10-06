@@ -97,6 +97,32 @@ public class ProyectoServiceImpl implements IProyectoService {
     }
 
     @Override
+    @Transactional
+    public ProyectoResponseDTO actualizarMiProyecto(Integer id, String username, ProyectoRequestDTO dto) {
+        ProyectoEntity proyecto = proyectoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado con ID: " + id));
+
+        if (!proyecto.getClient().getPerfil().getUsuario().equals(username)) {
+            throw new UnauthorizedAccessException("No tienes permiso para modificar este proyecto");
+        }
+
+        if (proyecto.getEstado() != EstadoProyecto.BUSCANDO_TALENTO) {
+            throw new BusinessRuleException("Solo se pueden modificar proyectos que se encuentren en estado BUSCANDO_TALENTO");
+        }
+
+        proyecto.setArea(dto.area());
+        proyecto.setDescripcion(dto.descripcion());
+        proyecto.setPresupuestoMin(dto.presupuestoMin());
+        proyecto.setPresupuestoMax(dto.presupuestoMax());
+        proyecto.setDuracion(dto.duracion());
+        proyecto.setTipoPago(dto.tipoPago());
+        proyecto.setHabilidades(dto.habilidades());
+
+        ProyectoEntity guardado = proyectoRepository.save(proyecto);
+        return proyectoMapper.toDto(guardado);
+    }
+
+    @Override
     public ProyectoResponseDTO buscarPorId(Integer id) {
         return proyectoRepository.findById(id)
                 .map(proyectoMapper::toDto)

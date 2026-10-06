@@ -9,5 +9,6 @@ import java.util.List;
 @Repository
 public interface PostulacionProyectoRepository extends JpaRepository<PostulacionProyectoEntity, Integer> {
     List<PostulacionProyectoEntity> findByProyecto_Id(Integer proyectoId);
+    long countByProyecto_Client_ClienteId(Integer clienteId);
 }
 

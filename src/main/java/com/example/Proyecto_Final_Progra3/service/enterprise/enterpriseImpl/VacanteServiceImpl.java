@@ -114,4 +114,52 @@ public class VacanteServiceImpl implements IVacanteService {
         
         return vacanteMapper.toDtoList(vacanteRepository.findByEmpresa_Id(empresa.getId()));
     }
+
+    private void validarPropiedadVacante(VacanteEntity vacante, String username) {
+        PerfilEntity perfil = perfilRepository.findByUsuario(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + username));
+
+        EmpresaEntity empresa = empresaRepository.findByPerfil(perfil).orElse(null);
+        if (empresa == null) {
+            RecruiterEntity recruiter = recruiterRepository.findByPerfil(perfil)
+                    .orElseThrow(() -> new UnauthorizedAccessException("Solo las empresas o recruiters asociados pueden modificar o eliminar vacantes"));
+            empresa = recruiter.getEmpresa();
+        }
+
+        if (empresa == null || !vacante.getEmpresa().getId().equals(empresa.getId())) {
+            throw new UnauthorizedAccessException("No tienes permiso para modificar o eliminar esta vacante");
+        }
+    }
+
+    @Override
+    @Transactional
+    public VacanteResponseDTO actualizarVacante(Integer id, String username, VacanteRequestDTO dto) {
+        VacanteEntity vacante = vacanteRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Vacante no encontrada con ID: " + id));
+
+        validarPropiedadVacante(vacante, username);
+
+        vacante.setPuesto(dto.puesto());
+        vacante.setDescripcion(dto.descripcion());
+        vacante.setFinalizacion(dto.finalizacion());
+        vacante.setLogo(dto.logo());
+        vacante.setUbicacion(dto.ubicacion());
+        vacante.setTipoUbicacion(dto.tipoUbicacion());
+        vacante.setTipoVacante(dto.tipoVacante());
+        vacante.setSalario(dto.salario());
+        vacante.setEtiquetas(dto.etiquetas());
+
+        VacanteEntity guardada = vacanteRepository.save(vacante);
+        return vacanteMapper.toDto(guardada);
+    }
+
+    @Override
+    @Transactional
+    public void eliminarVacante(Integer id, String username) {
+        VacanteEntity vacante = vacanteRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Vacante no encontrada con ID: " + id));
+
+        validarPropiedadVacante(vacante, username);
+        vacanteRepository.delete(vacante);
+    }
 }

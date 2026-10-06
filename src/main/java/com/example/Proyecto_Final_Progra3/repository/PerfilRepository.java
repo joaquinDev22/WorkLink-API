@@ -7,5 +7,8 @@ import java.util.Optional;
 
 public interface PerfilRepository extends JpaRepository<PerfilEntity, Integer> {
     Optional<PerfilEntity> findByUsuario(String usuario);
+    Optional<PerfilEntity> findByEmail(String email);
+    boolean existsByEmail(String email);
+    boolean existsByUsuario(String usuario);
 }
 

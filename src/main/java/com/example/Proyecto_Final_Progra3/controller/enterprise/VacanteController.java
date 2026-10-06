@@ -53,4 +53,24 @@ public class VacanteController {
     public ResponseEntity<List<VacanteResponseDTO>> listarMisVacantes(org.springframework.security.core.Authentication authentication) {
         return ResponseEntity.ok(vacanteService.listarMisVacantes(authentication.getName()));
     }
+
+    @Parameter(name = "id", description = "Identificador único de la vacante", example = "1")
+    @Operation(summary = "Modificar vacante", description = "Permite a la empresa o recruiter autenticado actualizar la información de una vacante de su propiedad.")
+    @PutMapping("/{id}")
+    public ResponseEntity<VacanteResponseDTO> actualizarVacante(
+            @PathVariable Integer id,
+            org.springframework.security.core.Authentication authentication,
+            @Valid @RequestBody VacanteRequestDTO dto) {
+        return ResponseEntity.ok(vacanteService.actualizarVacante(id, authentication.getName(), dto));
+    }
+
+    @Parameter(name = "id", description = "Identificador único de la vacante", example = "1")
+    @Operation(summary = "Eliminar vacante", description = "Permite a la empresa o recruiter dar de baja y eliminar una vacante laboral de su propiedad.")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminarVacante(
+            @PathVariable Integer id,
+            org.springframework.security.core.Authentication authentication) {
+        vacanteService.eliminarVacante(id, authentication.getName());
+        return ResponseEntity.noContent().build();
+    }
 }

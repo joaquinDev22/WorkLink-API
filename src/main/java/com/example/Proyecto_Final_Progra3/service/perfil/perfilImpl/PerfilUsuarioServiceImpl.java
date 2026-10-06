@@ -339,4 +339,13 @@ public class PerfilUsuarioServiceImpl implements IPerfilUsuarioService {
                 
         portfolioService.guardarCV(emp.getEmployeeId(), file);
     }
+
+    @Override
+    @Transactional
+    public void desactivarMiPerfil(String username) {
+        PerfilEntity perfil = perfilRepository.findByUsuario(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + username));
+        perfil.set_active(false);
+        perfilRepository.save(perfil);
+    }
 }

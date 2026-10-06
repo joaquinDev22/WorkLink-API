@@ -13,4 +13,5 @@ public interface IProyectoService {
     List<ProyectoResponseDTO> listarTodos();
     List<ProyectoResponseDTO> listarMisProyectosPublicados(String username);
     List<ProyectoResponseDTO> listarMisProyectosAsignados(String username);
+    ProyectoResponseDTO actualizarMiProyecto(Integer id, String username, ProyectoRequestDTO dto);
 }

@@ -11,5 +11,9 @@ import java.util.Optional;
 public interface RecruiterRepository extends JpaRepository<RecruiterEntity, Integer> {
     Long countByEmpresa_Id(Integer empresaId);
     Optional<RecruiterEntity> findByPerfil(PerfilEntity perfil);
+    java.util.List<RecruiterEntity> findByEmpresa_Id(Integer empresaId);
+    Optional<RecruiterEntity> findByRecruiterIdAndEmpresa_Id(Integer recruiterId, Integer empresaId);
+    boolean existsByEmail(String email);
+    boolean existsByEmailAndRecruiterIdNot(String email, Integer recruiterId);
 }
 

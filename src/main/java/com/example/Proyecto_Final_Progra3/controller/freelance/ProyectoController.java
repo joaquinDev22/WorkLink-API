@@ -67,4 +67,14 @@ public class ProyectoController {
         proyectoService.cancelarMiProyecto(id, authentication.getName());
         return ResponseEntity.noContent().build();
     }
+
+    @Parameter(name = "id", description = "Identificador único del proyecto freelance", example = "1")
+    @Operation(summary = "Modificar proyecto", description = "Permite al cliente propietario modificar los datos de un proyecto freelance en estado BUSCANDO_TALENTO.")
+    @PutMapping("/{id}")
+    public ResponseEntity<ProyectoResponseDTO> actualizarMiProyecto(
+            @PathVariable Integer id,
+            org.springframework.security.core.Authentication authentication,
+            @Valid @RequestBody ProyectoRequestDTO dto) {
+        return ResponseEntity.ok(proyectoService.actualizarMiProyecto(id, authentication.getName(), dto));
+    }
 }
