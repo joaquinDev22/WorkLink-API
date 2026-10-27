@@ -7,5 +7,6 @@ import java.util.List;
 
 public interface IEntrevistaService {
     List<EntrevistaResponseDTO> listarEntrevistas();
+    List<EntrevistaResponseDTO> listarMisEntrevistas(String username);
     EntrevistaResponseDTO agendarEntrevista(EntrevistaRequestDTO dto);
 }

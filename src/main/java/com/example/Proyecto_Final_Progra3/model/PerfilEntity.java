@@ -1,5 +1,6 @@
 package com.example.Proyecto_Final_Progra3.model;
 
+import com.example.Proyecto_Final_Progra3.util.UuidV7Generator;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -27,7 +28,7 @@ public class PerfilEntity implements UserDetails {
 
     @Builder.Default
     @Column(name = "uuid", nullable = false, unique = true, updatable = false)
-    private UUID uuid = UUID.randomUUID();
+    private UUID uuid = UuidV7Generator.generate();
 
     @Column(name = "usuario", nullable = false, unique = true, length = 50)
     private String usuario;

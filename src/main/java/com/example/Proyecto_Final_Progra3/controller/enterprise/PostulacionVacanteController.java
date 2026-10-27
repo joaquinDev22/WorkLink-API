@@ -1,12 +1,14 @@
 package com.example.Proyecto_Final_Progra3.controller.enterprise;
 
 import com.example.Proyecto_Final_Progra3.dto.responsedto.PostulacionResponseDTO;
+import com.example.Proyecto_Final_Progra3.model.enterprise.EstadoPostulacion;
 import com.example.Proyecto_Final_Progra3.service.enterprise.enterpriseInterfaces.IPostulacionVacanteService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -40,7 +42,7 @@ public class PostulacionVacanteController {
     @PostMapping("/me")
     public ResponseEntity<PostulacionResponseDTO> postularseMe(
             @PathVariable Integer vacanteId,
-            org.springframework.security.core.Authentication authentication,
+            Authentication authentication,
             @RequestParam("mensaje") String mensaje,
             @RequestParam(value = "cv", required = false) MultipartFile cv) {
         return ResponseEntity.ok(postulacionService.postularseMe(authentication.getName(), vacanteId, mensaje, cv));
@@ -51,5 +53,18 @@ public class PostulacionVacanteController {
     @GetMapping
     public ResponseEntity<List<PostulacionResponseDTO>> verPostulantes(@PathVariable Integer vacanteId) {
         return ResponseEntity.ok(postulacionService.listarPostulantes(vacanteId));
+    }
+
+    @Parameter(name = "vacanteId", description = "Identificador de la vacante", example = "1")
+    @Parameter(name = "postulacionId", description = "Identificador de la postulación", example = "1")
+    @Parameter(name = "nuevoEstado", description = "Nuevo estado de la postulación (PENDIENTE, VISUALIZADO, ENTREVISTA_AGENDADA, RECHAZADO)", example = "VISUALIZADO")
+    @Operation(summary = "Cambiar estado de postulación", description = "Permite a la empresa o recruiter modificar el estado del candidato en el proceso de selección.")
+    @PutMapping("/{postulacionId}/estado")
+    public ResponseEntity<PostulacionResponseDTO> cambiarEstado(
+            @PathVariable Integer vacanteId,
+            @PathVariable Integer postulacionId,
+            @RequestParam EstadoPostulacion nuevoEstado,
+            Authentication authentication) {
+        return ResponseEntity.ok(postulacionService.cambiarEstado(vacanteId, postulacionId, nuevoEstado, authentication.getName()));
     }
 }

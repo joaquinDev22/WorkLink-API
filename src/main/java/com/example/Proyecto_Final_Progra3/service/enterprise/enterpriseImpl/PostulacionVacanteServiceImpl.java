@@ -83,4 +83,35 @@ public class PostulacionVacanteServiceImpl implements IPostulacionVacanteService
     public List<PostulacionResponseDTO> listarPostulantes(Integer vacanteId) {
         return postulacionVacanteMapper.toDtoList(postulacionRepository.findByVacante_VacanteId(vacanteId));
     }
+
+    @Override
+    @Transactional
+    public PostulacionResponseDTO cambiarEstado(Integer vacanteId, Integer postulacionId, EstadoPostulacion nuevoEstado, String username) {
+        PostulacionVacanteEntity postulacion = postulacionRepository.findById(postulacionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Postulación no encontrada con ID: " + postulacionId));
+
+        if (!postulacion.getVacante().getVacanteId().equals(vacanteId)) {
+            throw new BusinessRuleException("La postulación no pertenece a la vacante indicada");
+        }
+
+        VacanteEntity vacante = postulacion.getVacante();
+        PerfilEntity perfil = perfilRepository.findByUsuario(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + username));
+
+        boolean autorizado = false;
+        if (vacante.getEmpresa() != null && vacante.getEmpresa().getPerfil() != null &&
+            vacante.getEmpresa().getPerfil().getUsuario().equals(username)) {
+            autorizado = true;
+        } else if ("RECRUITER".equals(perfil.getRol().getNombre()) || "EMPRESA".equals(perfil.getRol().getNombre())) {
+            autorizado = true;
+        }
+
+        if (!autorizado) {
+            throw new UnauthorizedAccessException("No tienes permisos para modificar el estado de esta postulación");
+        }
+
+        postulacion.setEstado(nuevoEstado);
+        PostulacionVacanteEntity guardada = postulacionRepository.save(postulacion);
+        return postulacionVacanteMapper.toDto(guardada);
+    }
 }

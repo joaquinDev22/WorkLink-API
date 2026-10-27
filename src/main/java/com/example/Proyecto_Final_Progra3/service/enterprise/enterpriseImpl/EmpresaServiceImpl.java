@@ -4,6 +4,7 @@ import com.example.Proyecto_Final_Progra3.dto.requestdto.EmpresaRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.DashboardStatsResponseDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.EmpresaResponseDTO;
 import com.example.Proyecto_Final_Progra3.exceptions.domain.ResourceNotFoundException;
+import com.example.Proyecto_Final_Progra3.exceptions.domain.UnauthorizedAccessException;
 import com.example.Proyecto_Final_Progra3.mappers.EmpresaMapper;
 import com.example.Proyecto_Final_Progra3.model.PerfilEntity;
 import com.example.Proyecto_Final_Progra3.model.enterprise.EmpresaEntity;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
@@ -45,9 +47,14 @@ public class EmpresaServiceImpl implements IEmpresaService {
 
     @Override
     @Transactional
-    public EmpresaResponseDTO editarEmpresa(Integer id, EmpresaRequestDTO dto) {
+    public EmpresaResponseDTO editarEmpresa(Integer id, String username, EmpresaRequestDTO dto) {
         EmpresaEntity empresa = empresaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Empresa no encontrada con ID: " + id));
+
+        // Validación anti-IDOR: solo la empresa titular puede editar su perfil
+        if (empresa.getPerfil() != null && !empresa.getPerfil().getUsuario().equals(username)) {
+            throw new UnauthorizedAccessException("No tienes permiso para modificar la información de esta empresa");
+        }
 
         mapper.updateEntityFromDto(dto, empresa);
 
@@ -69,6 +76,13 @@ public class EmpresaServiceImpl implements IEmpresaService {
     }
 
     @Override
+    public EmpresaResponseDTO buscarEmpresaXuuid(UUID uuid) {
+        EmpresaEntity empresa = empresaRepository.findByUuid(uuid)
+                .orElseThrow(() -> new ResourceNotFoundException("Empresa no encontrada con UUID: " + uuid));
+        return mapper.toDto(empresa);
+    }
+
+    @Override
     public List<EmpresaResponseDTO> buscarEmpresasXidPerfil(int idPerfil) {
         PerfilEntity perfil = perfilRepository.findById(idPerfil)
                 .orElseThrow(() -> new ResourceNotFoundException("Perfil no encontrado con ID: " + idPerfil));
@@ -79,9 +93,14 @@ public class EmpresaServiceImpl implements IEmpresaService {
 
     @Override
     @Transactional
-    public void eliminarEmpresa(Integer idEmpresa) {
+    public void eliminarEmpresa(Integer idEmpresa, String username) {
         EmpresaEntity empresa = empresaRepository.findById(idEmpresa)
                 .orElseThrow(() -> new ResourceNotFoundException("Empresa no encontrada con ID: " + idEmpresa));
+
+        // Validación anti-IDOR
+        if (empresa.getPerfil() != null && !empresa.getPerfil().getUsuario().equals(username)) {
+            throw new UnauthorizedAccessException("No tienes permiso para eliminar esta empresa");
+        }
 
         empresaRepository.delete(empresa);
     }

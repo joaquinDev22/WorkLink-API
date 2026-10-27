@@ -1,6 +1,8 @@
 package com.example.Proyecto_Final_Progra3.controller.freelance;
 
+import com.example.Proyecto_Final_Progra3.dto.requestdto.ClientProfileRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.ClientDashboardResponseDTO;
+import com.example.Proyecto_Final_Progra3.dto.responsedto.ClientProfileResponseDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.ProyectoResponseDTO;
 import com.example.Proyecto_Final_Progra3.exceptions.domain.ResourceNotFoundException;
 import com.example.Proyecto_Final_Progra3.model.PerfilEntity;
@@ -13,13 +15,11 @@ import com.example.Proyecto_Final_Progra3.repository.freelance.PostulacionProyec
 import com.example.Proyecto_Final_Progra3.repository.freelance.ProyectoRepository;
 import com.example.Proyecto_Final_Progra3.service.freelance.freelanceInterfaces.IProyectoService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -63,5 +63,52 @@ public class ClientController {
     @GetMapping("/proyectos")
     public ResponseEntity<List<ProyectoResponseDTO>> getProyectos(Authentication authentication) {
         return ResponseEntity.ok(proyectoService.listarMisProyectosPublicados(authentication.getName()));
+    }
+
+    @Operation(summary = "Obtener perfil del cliente", description = "Obtiene los datos personales del cliente particular autenticado.")
+    @GetMapping("/me")
+    public ResponseEntity<ClientProfileResponseDTO> getMyClientProfile(Authentication authentication) {
+        PerfilEntity perfil = perfilRepository.findByUsuario(authentication.getName())
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + authentication.getName()));
+
+        ClientEntity client = clientRepository.findByPerfil(perfil)
+                .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado para el usuario: " + authentication.getName()));
+
+        return ResponseEntity.ok(mapToClientDto(client));
+    }
+
+    @Operation(summary = "Actualizar perfil del cliente", description = "Permite modificar datos de contacto y país del cliente autenticado.")
+    @PutMapping("/me")
+    public ResponseEntity<ClientProfileResponseDTO> updateMyClientProfile(
+            Authentication authentication,
+            @RequestBody ClientProfileRequestDTO dto) {
+        PerfilEntity perfil = perfilRepository.findByUsuario(authentication.getName())
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + authentication.getName()));
+
+        ClientEntity client = clientRepository.findByPerfil(perfil)
+                .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado para el usuario: " + authentication.getName()));
+
+        if (dto.firstName() != null) client.setFirstName(dto.firstName());
+        if (dto.lastName() != null) client.setLastName(dto.lastName());
+        if (dto.phoneNumber() != null) client.setPhoneNumber(dto.phoneNumber());
+        if (dto.country() != null) client.setCountry(dto.country());
+        if (dto.fechaNacimiento() != null) client.setFechaNacimiento(dto.fechaNacimiento());
+
+        ClientEntity guardado = clientRepository.save(client);
+        return ResponseEntity.ok(mapToClientDto(guardado));
+    }
+
+    private ClientProfileResponseDTO mapToClientDto(ClientEntity client) {
+        return new ClientProfileResponseDTO(
+                client.getClienteId(),
+                client.getFirstName(),
+                client.getLastName(),
+                client.getEmail(),
+                client.getPhoneNumber(),
+                client.getCountry(),
+                client.getFechaNacimiento(),
+                client.getPerfil() != null ? client.getPerfil().getId() : null,
+                client.getPerfil() != null ? client.getPerfil().getUsuario() : null
+        );
     }
 }

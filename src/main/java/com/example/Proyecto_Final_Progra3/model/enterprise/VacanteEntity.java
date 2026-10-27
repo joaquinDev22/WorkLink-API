@@ -1,5 +1,6 @@
 package com.example.Proyecto_Final_Progra3.model.enterprise;
 
+import com.example.Proyecto_Final_Progra3.util.UuidV7Generator;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,7 +25,7 @@ public class VacanteEntity {
 
     @Builder.Default
     @Column(name = "uuid", nullable = false, unique = true, updatable = false)
-    private UUID uuid = UUID.randomUUID();
+    private UUID uuid = UuidV7Generator.generate();
 
     @Column(nullable = false, length = 50)
     private String puesto;

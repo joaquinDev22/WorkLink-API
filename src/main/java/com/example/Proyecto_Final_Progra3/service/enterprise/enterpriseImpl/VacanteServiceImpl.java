@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -93,6 +94,13 @@ public class VacanteServiceImpl implements IVacanteService {
         return vacanteRepository.findById(id)
                 .map(vacanteMapper::toDto)
                 .orElseThrow(() -> new ResourceNotFoundException("Vacante no encontrada con ID: " + id));
+    }
+
+    @Override
+    public VacanteResponseDTO buscarPorUuid(UUID uuid) {
+        return vacanteRepository.findByUuid(uuid)
+                .map(vacanteMapper::toDto)
+                .orElseThrow(() -> new ResourceNotFoundException("Vacante no encontrada con UUID: " + uuid));
     }
 
     @Override

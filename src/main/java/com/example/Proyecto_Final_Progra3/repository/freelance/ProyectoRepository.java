@@ -8,9 +8,12 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface ProyectoRepository extends JpaRepository<ProyectoEntity, Integer> {
+    Optional<ProyectoEntity> findByUuid(UUID uuid);
     List<ProyectoEntity> findByClient_ClienteId(Integer clientId);
     List<ProyectoEntity> findByFreelancer_EmployeeId(Integer employeeId);
 
@@ -23,4 +26,3 @@ public interface ProyectoRepository extends JpaRepository<ProyectoEntity, Intege
     @Query("SELECT COALESCE(SUM(p.presupuestoMax), 0) FROM ProyectoEntity p WHERE p.freelancer.employeeId = :employeeId AND p.estado IN :estados")
     Double sumPresupuestoByFreelancerAndEstados(@Param("employeeId") Integer employeeId, @Param("estados") List<EstadoProyecto> estados);
 }
-

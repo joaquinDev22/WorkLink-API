@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,15 +36,17 @@ public class PostulacionProyectoController {
     @PostMapping("/me")
     public ResponseEntity<PostulacionProyectoResponseDTO> enviarMiPropuesta(
             @PathVariable Integer proyectoId,
-            org.springframework.security.core.Authentication authentication,
+            Authentication authentication,
             @Valid @RequestBody PostulacionProyectoRequestDTO dto) {
         return ResponseEntity.ok(postulacionService.postularseMe(authentication.getName(), proyectoId, dto));
     }
 
     @Parameter(name = "proyectoId", description = "Identificador único del proyecto freelance", example = "1")
-    @Operation(summary = "Listar propuestas de un proyecto", description = "Obtiene todas las propuestas enviadas por freelancers para un proyecto específico.")
+    @Operation(summary = "Listar propuestas de un proyecto", description = "Obtiene las propuestas enviadas: el cliente ve todas, los freelancers solo la suya.")
     @GetMapping
-    public ResponseEntity<List<PostulacionProyectoResponseDTO>> listarPropuestas(@PathVariable Integer proyectoId) {
-        return ResponseEntity.ok(postulacionService.listarPostulacionesPorProyecto(proyectoId));
+    public ResponseEntity<List<PostulacionProyectoResponseDTO>> listarPropuestas(
+            @PathVariable Integer proyectoId,
+            Authentication authentication) {
+        return ResponseEntity.ok(postulacionService.listarPostulacionesPorProyecto(proyectoId, authentication.getName()));
     }
 }

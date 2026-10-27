@@ -70,7 +70,26 @@ public class PostulacionProyectoServiceImpl implements IPostulacionProyectoServi
     }
 
     @Override
-    public List<PostulacionProyectoResponseDTO> listarPostulacionesPorProyecto(Integer proyectoId) {
-        return postulacionProyectoMapper.toDtoList(postulacionRepository.findByProyecto_Id(proyectoId));
+    public List<PostulacionProyectoResponseDTO> listarPostulacionesPorProyecto(Integer proyectoId, String username) {
+        ProyectoEntity proyecto = proyectoRepository.findById(proyectoId)
+                .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado con ID: " + proyectoId));
+
+        boolean esClienteTitular = proyecto.getClient() != null && 
+                                   proyecto.getClient().getPerfil().getUsuario().equals(username);
+
+        List<PostulacionProyectoEntity> postulaciones = postulacionRepository.findByProyecto_Id(proyectoId);
+
+        // Control de Acceso: El cliente titular ve todas las propuestas
+        if (esClienteTitular) {
+            return postulacionProyectoMapper.toDtoList(postulaciones);
+        }
+
+        // Si es un freelancer, solo puede ver su propia propuesta para evitar espionaje de tarifas
+        return postulaciones.stream()
+                .filter(p -> p.getEmployee() != null && 
+                             p.getEmployee().getPerfil() != null && 
+                             p.getEmployee().getPerfil().getUsuario().equals(username))
+                .map(postulacionProyectoMapper::toDto)
+                .toList();
     }
 }

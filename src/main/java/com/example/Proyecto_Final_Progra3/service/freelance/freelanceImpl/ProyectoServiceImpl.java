@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -130,6 +131,13 @@ public class ProyectoServiceImpl implements IProyectoService {
     }
 
     @Override
+    public ProyectoResponseDTO buscarPorUuid(UUID uuid) {
+        return proyectoRepository.findByUuid(uuid)
+                .map(proyectoMapper::toDto)
+                .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado con UUID: " + uuid));
+    }
+
+    @Override
     public List<ProyectoResponseDTO> listarTodos() {
         return proyectoMapper.toDtoList(proyectoRepository.findAll());
     }
@@ -154,5 +162,29 @@ public class ProyectoServiceImpl implements IProyectoService {
                 .orElseThrow(() -> new ResourceNotFoundException("Freelancer no encontrado para el usuario: " + username));
 
         return proyectoMapper.toDtoList(proyectoRepository.findByFreelancer_EmployeeId(employee.getEmployeeId()));
+    }
+
+    @Override
+    @Transactional
+    public ProyectoResponseDTO asignarFreelancer(Integer proyectoId, Integer employeeId, String username) {
+        ProyectoEntity proyecto = proyectoRepository.findById(proyectoId)
+                .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado con ID: " + proyectoId));
+
+        if (!proyecto.getClient().getPerfil().getUsuario().equals(username)) {
+            throw new UnauthorizedAccessException("No tienes permiso para adjudicar este proyecto");
+        }
+
+        if (proyecto.getEstado() != EstadoProyecto.BUSCANDO_TALENTO) {
+            throw new BusinessRuleException("Solo se pueden asignar propuestas a proyectos en estado BUSCANDO_TALENTO");
+        }
+
+        EmployeeEntity freelancer = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Freelancer no encontrado con ID: " + employeeId));
+
+        proyecto.setFreelancer(freelancer);
+        proyecto.setEstado(EstadoProyecto.EN_PROGRESO);
+
+        ProyectoEntity guardado = proyectoRepository.save(proyecto);
+        return proyectoMapper.toDto(guardado);
     }
 }

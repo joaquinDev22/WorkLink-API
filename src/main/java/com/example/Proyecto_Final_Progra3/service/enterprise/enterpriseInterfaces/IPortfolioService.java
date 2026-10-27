@@ -3,5 +3,5 @@ package com.example.Proyecto_Final_Progra3.service.enterprise.enterpriseInterfac
 import org.springframework.web.multipart.MultipartFile;
 
 public interface IPortfolioService {
-    void guardarCV(Integer employeeId, MultipartFile file);
+    void guardarCV(Integer employeeId, String username, MultipartFile file);
 }

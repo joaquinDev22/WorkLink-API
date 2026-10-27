@@ -3,6 +3,7 @@ package com.example.Proyecto_Final_Progra3.model.freelance.proyecto;
 import com.example.Proyecto_Final_Progra3.model.employee.EmployeeEntity;
 import com.example.Proyecto_Final_Progra3.model.freelance.ClientEntity;
 import com.example.Proyecto_Final_Progra3.model.freelance.enums.EstadoProyecto;
+import com.example.Proyecto_Final_Progra3.util.UuidV7Generator;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -28,7 +29,7 @@ public class ProyectoEntity {
 
     @Builder.Default
     @Column(name = "uuid", nullable = false, unique = true, updatable = false)
-    private UUID uuid = UUID.randomUUID();
+    private UUID uuid = UuidV7Generator.generate();
 
     @Column(name = "area_proyecto", nullable = false, length = 50)
     private String area;

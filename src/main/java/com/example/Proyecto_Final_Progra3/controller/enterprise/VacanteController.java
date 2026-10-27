@@ -9,9 +9,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/vacantes")
@@ -30,16 +32,23 @@ public class VacanteController {
     @Operation(summary = "Crear mi vacante", description = "Permite a la empresa autenticada crear una nueva oferta laboral asociada a su cuenta.")
     @PostMapping("/me")
     public ResponseEntity<VacanteResponseDTO> crearMiVacante(
-            org.springframework.security.core.Authentication authentication, 
+            Authentication authentication, 
             @Valid @RequestBody VacanteRequestDTO dto) {
         return ResponseEntity.ok(vacanteService.crearMiVacante(authentication.getName(), dto));
     }
 
     @Parameter(name = "id", description = "Identificador único de la vacante", example = "1")
-    @Operation(summary = "Buscar vacante por ID", description = "Obtiene la información detallada de una vacante a partir de su identificador.")
+    @Operation(summary = "Buscar vacante por ID", description = "Obtiene la información detallada de una vacante a partir de su identificador numérico.")
     @GetMapping("/{id}")
     public ResponseEntity<VacanteResponseDTO> buscarPorId(@PathVariable Integer id) {
         return ResponseEntity.ok(vacanteService.buscarPorId(id));
+    }
+
+    @Parameter(name = "uuid", description = "Identificador seguro UUID v7 de la vacante", example = "0192df80-0000-7000-8000-000000000000")
+    @Operation(summary = "Buscar vacante por UUID v7", description = "Obtiene la información pública de la vacante protegiendo contra enumeración.")
+    @GetMapping("/uuid/{uuid}")
+    public ResponseEntity<VacanteResponseDTO> buscarPorUuid(@PathVariable UUID uuid) {
+        return ResponseEntity.ok(vacanteService.buscarPorUuid(uuid));
     }
 
     @Operation(summary = "Listar vacantes", description = "Obtiene la lista completa de vacantes publicadas en la plataforma.")
@@ -50,7 +59,7 @@ public class VacanteController {
 
     @Operation(summary = "Listar mis vacantes", description = "Obtiene todas las vacantes publicadas por la empresa autenticada.")
     @GetMapping("/me")
-    public ResponseEntity<List<VacanteResponseDTO>> listarMisVacantes(org.springframework.security.core.Authentication authentication) {
+    public ResponseEntity<List<VacanteResponseDTO>> listarMisVacantes(Authentication authentication) {
         return ResponseEntity.ok(vacanteService.listarMisVacantes(authentication.getName()));
     }
 
@@ -59,7 +68,7 @@ public class VacanteController {
     @PutMapping("/{id}")
     public ResponseEntity<VacanteResponseDTO> actualizarVacante(
             @PathVariable Integer id,
-            org.springframework.security.core.Authentication authentication,
+            Authentication authentication,
             @Valid @RequestBody VacanteRequestDTO dto) {
         return ResponseEntity.ok(vacanteService.actualizarVacante(id, authentication.getName(), dto));
     }
@@ -69,7 +78,7 @@ public class VacanteController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarVacante(
             @PathVariable Integer id,
-            org.springframework.security.core.Authentication authentication) {
+            Authentication authentication) {
         vacanteService.eliminarVacante(id, authentication.getName());
         return ResponseEntity.noContent().build();
     }
