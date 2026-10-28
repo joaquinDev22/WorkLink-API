@@ -118,7 +118,9 @@ public class AuthServiceImpl implements IAuthService {
 
         PerfilEntity perfil = (PerfilEntity) authentication.getPrincipal();
 
-        assert perfil != null;
+        if (perfil == null) {
+            throw new UnauthorizedAccessException("Autenticación fallida: perfil nulo");
+        }
 
         if (!perfil.is_active()) {
             throw new UnauthorizedAccessException("El perfil de usuario se encuentra desactivado.");

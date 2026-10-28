@@ -4,7 +4,7 @@ import com.example.Proyecto_Final_Progra3.dto.requestdto.EntrevistaRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.EntrevistaResponseDTO;
 import com.example.Proyecto_Final_Progra3.service.enterprise.enterpriseInterfaces.IEntrevistaService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Tag;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -30,7 +30,7 @@ public class EntrevistaController {
 
     @Operation(summary = "Agendar entrevista", description = "Permite al recruiter o empresa programar una nueva entrevista con un postulante vinculada a una postulación.")
     @PostMapping
-    public ResponseEntity<EntrevistaResponseDTO> agendarEntrevista(@Valid @RequestBody EntrevistaRequestDTO dto) {
-        return new ResponseEntity<>(entrevistaService.agendarEntrevista(dto), HttpStatus.CREATED);
+    public ResponseEntity<EntrevistaResponseDTO> agendarEntrevista(Authentication authentication, @Valid @RequestBody EntrevistaRequestDTO dto) {
+        return new ResponseEntity<>(entrevistaService.agendarEntrevista(dto, authentication.getName()), HttpStatus.CREATED);
     }
 }

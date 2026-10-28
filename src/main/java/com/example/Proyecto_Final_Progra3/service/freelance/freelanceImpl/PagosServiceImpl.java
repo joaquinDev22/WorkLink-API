@@ -32,6 +32,10 @@ public class PagosServiceImpl implements IPagosService {
     private final PagosMapper pagosMapper;
     private final MercadoPagoAdapter mercadoPagoAdapter;
 
+    @org.springframework.beans.factory.annotation.Autowired
+    @org.springframework.context.annotation.Lazy
+    private PagosServiceImpl self;
+
     @Override
     @Transactional
     public PagosResponseDTO registrarPago(Integer proyectoId, PagosRequestDTO dto) {
@@ -89,7 +93,7 @@ public class PagosServiceImpl implements IPagosService {
                     String externalRef = payment.getExternalReference();
                     if (externalRef != null && !externalRef.isBlank()) {
                         Integer proyectoId = Integer.valueOf(externalRef);
-                        guardarPagoConfirmado(proyectoId, payment);
+                        (self != null ? self : this).guardarPagoConfirmado(proyectoId, payment);
                     }
                 } else {
                     log.info("Pago {} en Mercado Pago recibido con estado: {}", paymentId, payment.getStatus());
@@ -108,7 +112,7 @@ public class PagosServiceImpl implements IPagosService {
             return;
         }
 
-        Integer monto = payment.getTransactionAmount() != null ? payment.getTransactionAmount().intValue() : 0;
+        BigDecimal monto = payment.getTransactionAmount() != null ? payment.getTransactionAmount() : BigDecimal.ZERO;
 
         PagosEntity pago = new PagosEntity();
         pago.setMoneda(Moneda.PESOS);

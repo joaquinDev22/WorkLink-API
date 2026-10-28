@@ -6,6 +6,7 @@ import com.example.Proyecto_Final_Progra3.exceptions.domain.ResourceNotFoundExce
 import com.example.Proyecto_Final_Progra3.exceptions.domain.UnauthorizedAccessException;
 import com.example.Proyecto_Final_Progra3.mappers.PostulacionProyectoMapper;
 import com.example.Proyecto_Final_Progra3.model.PerfilEntity;
+import com.example.Proyecto_Final_Progra3.model.freelance.enums.EstadoPostulacionProyecto;
 import com.example.Proyecto_Final_Progra3.model.employee.EmployeeEntity;
 import com.example.Proyecto_Final_Progra3.model.freelance.proyecto.PostulacionProyectoEntity;
 import com.example.Proyecto_Final_Progra3.model.freelance.proyecto.ProyectoEntity;
@@ -62,6 +63,7 @@ public class PostulacionProyectoServiceImpl implements IPostulacionProyectoServi
         postulacion.setDescripcion(dto.descripcion());
         postulacion.setCosto(dto.costo());
         postulacion.setFechaPostulacion(LocalDate.now());
+        postulacion.setEstado(EstadoPostulacionProyecto.PENDIENTE);
         postulacion.setEmployee(employee);
         postulacion.setProyecto(proyecto);
 

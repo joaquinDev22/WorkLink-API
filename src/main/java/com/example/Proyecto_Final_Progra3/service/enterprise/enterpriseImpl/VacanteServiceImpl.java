@@ -105,7 +105,7 @@ public class VacanteServiceImpl implements IVacanteService {
 
     @Override
     public List<VacanteResponseDTO> listarTodas() {
-        return vacanteMapper.toDtoList(vacanteRepository.findAll());
+        return vacanteMapper.toDtoList(vacanteRepository.findByActivaTrue());
     }
 
     @Override
@@ -168,6 +168,7 @@ public class VacanteServiceImpl implements IVacanteService {
                 .orElseThrow(() -> new ResourceNotFoundException("Vacante no encontrada con ID: " + id));
 
         validarPropiedadVacante(vacante, username);
-        vacanteRepository.delete(vacante);
+        vacante.setActiva(false);
+        vacanteRepository.save(vacante);
     }
 }

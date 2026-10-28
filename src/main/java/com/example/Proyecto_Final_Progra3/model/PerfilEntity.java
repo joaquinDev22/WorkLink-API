@@ -43,10 +43,12 @@ public class PerfilEntity implements UserDetails {
     private boolean is_active = true;
 
     @Lob
+    @Basic(fetch = FetchType.LAZY)
     @Column(name = "foto_perfil", columnDefinition = "LONGBLOB")
     private byte[] fotoPerfil;
 
     @Lob
+    @Basic(fetch = FetchType.LAZY)
     @Column(name = "banner_perfil", columnDefinition = "LONGBLOB")
     private byte[] bannerPerfil;
 

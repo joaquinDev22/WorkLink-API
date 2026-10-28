@@ -15,7 +15,7 @@ import com.example.Proyecto_Final_Progra3.repository.freelance.PostulacionProyec
 import com.example.Proyecto_Final_Progra3.repository.freelance.ProyectoRepository;
 import com.example.Proyecto_Final_Progra3.service.freelance.freelanceInterfaces.IProyectoService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Tag;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;

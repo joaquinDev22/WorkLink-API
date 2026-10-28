@@ -38,6 +38,10 @@ public class GoogleAuthServiceImpl implements IGoogleAuthService {
     private final IJwtService jwtService;
     private final PasswordEncoder passwordEncoder;
 
+    @org.springframework.beans.factory.annotation.Autowired
+    @org.springframework.context.annotation.Lazy
+    private GoogleAuthServiceImpl self;
+
     @Value("${google.client-id}")
     private String googleClientId;
 
@@ -53,7 +57,7 @@ public class GoogleAuthServiceImpl implements IGoogleAuthService {
         if (familyName == null) familyName = "Google";
 
         // Transacción acotada para sincronización/búsqueda en BD
-        PerfilEntity perfil = findOrCreatePerfil(email, givenName, familyName);
+        PerfilEntity perfil = (self != null ? self : this).findOrCreatePerfil(email, givenName, familyName);
 
         if (!perfil.is_active()) {
             throw new UnauthorizedAccessException("El perfil de usuario se encuentra desactivado.");

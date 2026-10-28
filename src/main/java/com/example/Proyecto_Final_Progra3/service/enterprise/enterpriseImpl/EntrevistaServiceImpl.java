@@ -3,6 +3,7 @@ package com.example.Proyecto_Final_Progra3.service.enterprise.enterpriseImpl;
 import com.example.Proyecto_Final_Progra3.dto.requestdto.EntrevistaRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.EntrevistaResponseDTO;
 import com.example.Proyecto_Final_Progra3.exceptions.domain.ResourceNotFoundException;
+import com.example.Proyecto_Final_Progra3.exceptions.domain.UnauthorizedAccessException;
 import com.example.Proyecto_Final_Progra3.mappers.EntrevistaMapper;
 import com.example.Proyecto_Final_Progra3.model.PerfilEntity;
 import com.example.Proyecto_Final_Progra3.model.enterprise.EmpresaEntity;
@@ -70,9 +71,32 @@ public class EntrevistaServiceImpl implements IEntrevistaService {
 
     @Override
     @Transactional
-    public EntrevistaResponseDTO agendarEntrevista(EntrevistaRequestDTO dto) {
+    public EntrevistaResponseDTO agendarEntrevista(EntrevistaRequestDTO dto, String username) {
         PostulacionVacanteEntity postulacion = postulacionVacanteRepository.findById(dto.postulacionId())
                 .orElseThrow(() -> new ResourceNotFoundException("Postulación no encontrada con ID: " + dto.postulacionId()));
+
+        Integer empresaPostulacionId = postulacion.getVacante() != null && postulacion.getVacante().getEmpresa() != null
+                ? postulacion.getVacante().getEmpresa().getId()
+                : null;
+
+        boolean autorizado = false;
+        Optional<EmpresaEntity> empresaOpt = empresaRepository.findByPerfilUsuario(username);
+        if (empresaOpt.isPresent() && empresaOpt.get().getId().equals(empresaPostulacionId)) {
+            autorizado = true;
+        } else {
+            Optional<PerfilEntity> perfilOpt = perfilRepository.findByUsuario(username);
+            if (perfilOpt.isPresent()) {
+                Optional<RecruiterEntity> recruiterOpt = recruiterRepository.findByPerfil(perfilOpt.get());
+                if (recruiterOpt.isPresent() && recruiterOpt.get().getEmpresa() != null &&
+                    recruiterOpt.get().getEmpresa().getId().equals(empresaPostulacionId)) {
+                    autorizado = true;
+                }
+            }
+        }
+
+        if (!autorizado) {
+            throw new UnauthorizedAccessException("No tienes autorización para agendar entrevistas en esta postulación");
+        }
 
         EntrevistaEntity entrevista = EntrevistaEntity.builder()
                 .postulacion(postulacion)

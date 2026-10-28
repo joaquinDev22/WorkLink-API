@@ -14,6 +14,7 @@ public interface PostulacionProyectoMapper {
 
     @Mapping(target = "postulacionId", source = "id")
     @Mapping(target = "costoPropuesto", source = "costo")
+    @Mapping(target = "estado", source = "estado")
     @Mapping(target = "empleadoId", source = "employee.employeeId")
     @Mapping(target = "nombreEmpleado", source = "entity", qualifiedByName = "mapNombreEmpleado")
     @Mapping(target = "proyectoId", source = "proyecto.id")

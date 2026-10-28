@@ -5,6 +5,7 @@ import com.example.Proyecto_Final_Progra3.model.freelance.enums.MedioDePago;
 import com.example.Proyecto_Final_Progra3.model.freelance.enums.Moneda;
 import jakarta.persistence.*;
 import lombok.*;
+import java.math.BigDecimal;
 
 @Getter
 @Setter
@@ -26,7 +27,7 @@ public class PagosEntity {
     private Moneda moneda;
 
     @Column(nullable = false)
-    private Integer monto;
+    private BigDecimal monto;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "medio_de_pago", nullable = false)

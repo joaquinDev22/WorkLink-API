@@ -12,5 +12,6 @@ import java.util.UUID;
 public interface VacanteRepository extends JpaRepository<VacanteEntity, Integer> {
     Optional<VacanteEntity> findByUuid(UUID uuid);
     List<VacanteEntity> findByEmpresa_Id(Integer empresaId);
+    List<VacanteEntity> findByActivaTrue();
     Long countByEmpresa_Id(Integer empresaId);
 }

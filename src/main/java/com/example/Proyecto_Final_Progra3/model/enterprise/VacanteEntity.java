@@ -50,6 +50,10 @@ public class VacanteEntity {
     
     private String salario;
 
+    @Builder.Default
+    @Column(name = "activa", nullable = false)
+    private boolean activa = true;
+
     @ElementCollection
     @CollectionTable(name = "vacante_etiquetas", joinColumns = @JoinColumn(name = "vacante_id"))
     @Column(name = "etiqueta")

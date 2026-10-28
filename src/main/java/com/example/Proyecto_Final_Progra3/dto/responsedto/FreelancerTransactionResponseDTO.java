@@ -1,6 +1,7 @@
 package com.example.Proyecto_Final_Progra3.dto.responsedto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.math.BigDecimal;
 
 @Schema(description = "Detalle de una transacción o pago recibido por el freelancer persistido en base de datos")
 public record FreelancerTransactionResponseDTO(
@@ -11,7 +12,7 @@ public record FreelancerTransactionResponseDTO(
         String currency,
 
         @Schema(description = "Monto de la transacción", example = "500")
-        Integer amount,
+        BigDecimal amount,
 
         @Schema(description = "Medio de pago utilizado", example = "BILLETERA_VIRTUAL")
         String paymentMethod,

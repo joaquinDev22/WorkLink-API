@@ -337,7 +337,7 @@ public class PerfilUsuarioServiceImpl implements IPerfilUsuarioService {
         EmployeeEntity emp = employeeRepository.findByPerfil(perfil)
                 .orElseThrow(() -> new ResourceNotFoundException("No se encontró el registro de empleado."));
                 
-        portfolioService.guardarCV(emp.getEmployeeId(), file);
+        portfolioService.guardarCV(emp.getEmployeeId(), username, file);
     }
 
     @Override

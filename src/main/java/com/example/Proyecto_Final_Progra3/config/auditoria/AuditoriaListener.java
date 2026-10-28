@@ -57,7 +57,7 @@ public class AuditoriaListener {
 
             repository.save(auditoria);
 
-        } catch (Exception e) {
+        } catch (Throwable e) {
             log.error("Error al registrar la auditoría para la entidad {}: {}", target.getClass().getSimpleName(), e.getMessage(), e);
         }
     }

@@ -14,6 +14,7 @@ import com.example.Proyecto_Final_Progra3.model.enterprise.VacanteEntity;
 import com.example.Proyecto_Final_Progra3.repository.EmployeeRepository;
 import com.example.Proyecto_Final_Progra3.repository.PerfilRepository;
 import com.example.Proyecto_Final_Progra3.repository.enterprise.PostulacionVacanteRepository;
+import com.example.Proyecto_Final_Progra3.repository.enterprise.RecruiterRepository;
 import com.example.Proyecto_Final_Progra3.repository.enterprise.VacanteRepository;
 import com.example.Proyecto_Final_Progra3.service.enterprise.enterpriseInterfaces.IPostulacionVacanteService;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,7 @@ public class PostulacionVacanteServiceImpl implements IPostulacionVacanteService
     private final VacanteRepository vacanteRepository;
     private final EmployeeRepository employeeRepository;
     private final PerfilRepository perfilRepository;
+    private final RecruiterRepository recruiterRepository;
     private final PostulacionVacanteMapper postulacionVacanteMapper;
 
     @Override
@@ -102,7 +104,7 @@ public class PostulacionVacanteServiceImpl implements IPostulacionVacanteService
         if (vacante.getEmpresa() != null && vacante.getEmpresa().getPerfil() != null &&
             vacante.getEmpresa().getPerfil().getUsuario().equals(username)) {
             autorizado = true;
-        } else if ("RECRUITER".equals(perfil.getRol().getNombre()) || "EMPRESA".equals(perfil.getRol().getNombre())) {
+        } else if (vacante.getEmpresa() != null && recruiterRepository.findByPerfil(perfil).map(r -> r.getEmpresa() != null && r.getEmpresa().getId().equals(vacante.getEmpresa().getId())).orElse(false)) {
             autorizado = true;
         }
 
