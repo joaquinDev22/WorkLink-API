@@ -31,7 +31,10 @@ public class ProyectoEntity {
     @Column(name = "uuid", nullable = false, unique = true, updatable = false)
     private UUID uuid = UuidV7Generator.generate();
 
-    @Column(name = "area_proyecto", nullable = false, length = 50)
+    @Column(name = "nombre_proyecto", nullable = false, length = 30)
+    private String nombreProyecto;
+
+    @Column(name = "area_proyecto", nullable = false, length = 10)
     private String area;
 
     @Column(nullable = false, length = 1000)

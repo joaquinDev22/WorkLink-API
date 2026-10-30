@@ -97,7 +97,8 @@ CREATE TABLE experiencia (
 CREATE TABLE proyecto (
     proyecto_id INT AUTO_INCREMENT PRIMARY KEY,
     uuid CHAR(36) NOT NULL UNIQUE DEFAULT (UUID()),
-    area_proyecto VARCHAR(50) NOT NULL,
+    nombre_proyecto VARCHAR(30) NOT NULL,
+    area_proyecto VARCHAR(10) NOT NULL,
     descripcion VARCHAR(255) NOT NULL,
     fecha_creacion DATE NOT NULL DEFAULT (CURRENT_DATE),
     presupuesto_max DECIMAL(10,2) NOT NULL,

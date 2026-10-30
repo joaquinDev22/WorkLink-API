@@ -8,6 +8,7 @@ import java.util.UUID;
 public record ProyectoResponseDTO(
         Integer proyectoId,
         UUID uuid,
+        String nombreProyecto,
         String area,
         String descripcion,
         LocalDate fechaPublicacion,
