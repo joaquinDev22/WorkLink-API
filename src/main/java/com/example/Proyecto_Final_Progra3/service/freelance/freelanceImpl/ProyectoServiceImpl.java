@@ -67,6 +67,7 @@ public class ProyectoServiceImpl implements IProyectoService {
                 .orElseThrow(() -> new UnauthorizedAccessException("Solo los clientes pueden crear proyectos"));
 
         ProyectoRequestDTO dtoConCliente = new ProyectoRequestDTO(
+                dto.nombreProyecto(),
                 dto.area(),
                 dto.descripcion(),
                 dto.presupuestoMax(),

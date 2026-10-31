@@ -12,6 +12,7 @@ import com.example.Proyecto_Final_Progra3.model.employee.EmployeeHabilidadEntity
 import com.example.Proyecto_Final_Progra3.model.employee.EmployeeHabilidadId;
 import com.example.Proyecto_Final_Progra3.model.employee.HabilidadEntity;
 import com.example.Proyecto_Final_Progra3.model.enterprise.EmpresaEntity;
+import com.example.Proyecto_Final_Progra3.model.enterprise.PortfolioEntity;
 import com.example.Proyecto_Final_Progra3.model.enterprise.RecruiterEntity;
 import com.example.Proyecto_Final_Progra3.model.freelance.ClientEntity;
 import com.example.Proyecto_Final_Progra3.repository.EmployeeRepository;
@@ -21,6 +22,7 @@ import com.example.Proyecto_Final_Progra3.repository.bootcamp.InstructorReposito
 import com.example.Proyecto_Final_Progra3.repository.employee.EmployeeHabilidadRepository;
 import com.example.Proyecto_Final_Progra3.repository.employee.HabilidadRepository;
 import com.example.Proyecto_Final_Progra3.repository.enterprise.EmpresaRepository;
+import com.example.Proyecto_Final_Progra3.repository.enterprise.PortfolioRepository;
 import com.example.Proyecto_Final_Progra3.repository.enterprise.RecruiterRepository;
 import com.example.Proyecto_Final_Progra3.repository.freelance.ClientRepository;
 import com.example.Proyecto_Final_Progra3.service.enterprise.enterpriseInterfaces.IPortfolioService;
@@ -47,6 +49,7 @@ public class PerfilUsuarioServiceImpl implements IPerfilUsuarioService {
     private final InstructorRepository instructorRepository;
     private final RecruiterRepository recruiterRepository;
     private final IPortfolioService portfolioService;
+    private final PortfolioRepository portfolioRepository;
     
     private final ProyectoPerfilRepository proyectoPerfilRepository;
     private final HabilidadRepository habilidadRepository;
@@ -82,6 +85,11 @@ public class PerfilUsuarioServiceImpl implements IPerfilUsuarioService {
                     return hd;
                 }).collect(Collectors.toList());
                 dto.setHabilidades(habs);
+                
+                boolean tieneCv = portfolioRepository.findByEmployee_EmployeeId(emp.getEmployeeId())
+                        .map(p -> p.getCv() != null && p.getCv().length > 0)
+                        .orElse(false);
+                dto.setTieneCv(tieneCv);
             }
         } else if ("CLIENTE".equals(rol)) {
             ClientEntity client = clientRepository.findByPerfil(perfil).orElse(null);
@@ -338,6 +346,29 @@ public class PerfilUsuarioServiceImpl implements IPerfilUsuarioService {
                 .orElseThrow(() -> new ResourceNotFoundException("No se encontró el registro de empleado."));
                 
         portfolioService.guardarCV(emp.getEmployeeId(), username, file);
+    }
+
+    @Override
+    public byte[] getMyCV(String username) {
+        PerfilEntity perfil = perfilRepository.findByUsuario(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + username));
+
+        String rol = perfil.getRol().getNombre().toUpperCase();
+        if (!"EMPLOYEE".equals(rol) && !"FREELANCER".equals(rol) && !"POSTULANTE".equals(rol)) {
+            throw new UnauthorizedAccessException("Solo los postulantes y freelancers poseen currículum vitae.");
+        }
+
+        EmployeeEntity emp = employeeRepository.findByPerfil(perfil)
+                .orElseThrow(() -> new ResourceNotFoundException("No se encontró el registro de empleado asociado."));
+
+        PortfolioEntity portfolio = portfolioRepository.findByEmployee_EmployeeId(emp.getEmployeeId())
+                .orElseThrow(() -> new ResourceNotFoundException("El usuario no posee ningún CV registrado."));
+
+        if (portfolio.getCv() == null || portfolio.getCv().length == 0) {
+            throw new ResourceNotFoundException("El usuario no posee ningún archivo de CV adjunto.");
+        }
+
+        return portfolio.getCv();
     }
 
     @Override
