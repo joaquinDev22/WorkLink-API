@@ -42,6 +42,7 @@ public class ProyectoServiceImpl implements IProyectoService {
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado con ID: " + dto.clienteId()));
 
         ProyectoEntity proyecto = new ProyectoEntity();
+        proyecto.setNombreProyecto(dto.nombreProyecto());
         proyecto.setArea(dto.area());
         proyecto.setDescripcion(dto.descripcion());
         proyecto.setFechaPublicacion(LocalDate.now());
@@ -67,6 +68,7 @@ public class ProyectoServiceImpl implements IProyectoService {
                 .orElseThrow(() -> new UnauthorizedAccessException("Solo los clientes pueden crear proyectos"));
 
         ProyectoRequestDTO dtoConCliente = new ProyectoRequestDTO(
+                dto.nombreProyecto(),
                 dto.area(),
                 dto.descripcion(),
                 dto.presupuestoMax(),
@@ -111,6 +113,7 @@ public class ProyectoServiceImpl implements IProyectoService {
             throw new BusinessRuleException("Solo se pueden modificar proyectos que se encuentren en estado BUSCANDO_TALENTO");
         }
 
+        proyecto.setNombreProyecto(dto.nombreProyecto());
         proyecto.setArea(dto.area());
         proyecto.setDescripcion(dto.descripcion());
         proyecto.setPresupuestoMin(dto.presupuestoMin());
