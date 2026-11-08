@@ -3,7 +3,6 @@ package com.example.Proyecto_Final_Progra3.service.freelance.freelanceImpl;
 import com.example.Proyecto_Final_Progra3.dto.requestdto.CalificacionProyectoRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.CalificacionProyectoResponseDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.ReputacionPerfilResponseDTO;
-import com.example.Proyecto_Final_Progra3.exceptions.domain.BusinessRuleException;
 import com.example.Proyecto_Final_Progra3.exceptions.domain.ResourceNotFoundException;
 import com.example.Proyecto_Final_Progra3.exceptions.domain.UnauthorizedAccessException;
 import com.example.Proyecto_Final_Progra3.model.CalificacionUsuarioEntity;
@@ -39,8 +38,10 @@ public class CalificacionProyectoServiceImpl implements ICalificacionProyectoSer
                 .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado con ID: " + proyectoId));
 
         boolean esCliente = proyecto.getClient() != null && 
+                            proyecto.getClient().getPerfil() != null &&
                             proyecto.getClient().getPerfil().getUsuario().equals(username);
         boolean esFreelancer = proyecto.getFreelancer() != null && 
+                               proyecto.getFreelancer().getPerfil() != null &&
                                proyecto.getFreelancer().getPerfil().getUsuario().equals(username);
 
         if (!esCliente && !esFreelancer) {
@@ -58,9 +59,12 @@ public class CalificacionProyectoServiceImpl implements ICalificacionProyectoSer
         CalificacionProyectoEntity guardada = calificacionProyectoRepository.save(calificacion);
 
         // Asociar la calificación a la reputación del otro participante (calificacion_usuario)
-        PerfilEntity perfilDestino = esCliente 
-                ? proyecto.getFreelancer().getPerfil() 
-                : proyecto.getClient().getPerfil();
+        PerfilEntity perfilDestino = null;
+        if (esCliente && proyecto.getFreelancer() != null) {
+            perfilDestino = proyecto.getFreelancer().getPerfil();
+        } else if (esFreelancer && proyecto.getClient() != null) {
+            perfilDestino = proyecto.getClient().getPerfil();
+        }
 
         if (perfilDestino != null) {
             CalificacionUsuarioEntity calificacionUsuario = CalificacionUsuarioEntity.builder()
@@ -94,7 +98,11 @@ public class CalificacionProyectoServiceImpl implements ICalificacionProyectoSer
                 .toList();
 
         double promedio = resenas.isEmpty() ? 0.0 : 
-                resenas.stream().mapToInt(CalificacionProyectoResponseDTO::puntaje).average().orElse(0.0);
+                resenas.stream()
+                        .filter(r -> r != null && r.puntaje() != null)
+                        .mapToInt(r -> r.puntaje())
+                        .average()
+                        .orElse(0.0);
 
         // Redondear a 1 decimal
         double promedioRedondeado = Math.round(promedio * 10.0) / 10.0;

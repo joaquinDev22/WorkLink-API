@@ -15,6 +15,7 @@ public class PerfilDetailServiceImpl implements IPerfilDetailService {
     @Override
     public UserDetails loadUserByUsername(String username) {
         return perfilRepository.findByUsuario(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
+                .or(() -> perfilRepository.findByEmail(username))
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario o email no encontrado: " + username));
     }
 }

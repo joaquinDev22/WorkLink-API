@@ -86,7 +86,7 @@ public class ProyectoServiceImpl implements IProyectoService {
         ProyectoEntity proyecto = proyectoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado con ID: " + id));
 
-        if (!proyecto.getClient().getPerfil().getUsuario().equals(username)) {
+        if (proyecto.getClient() == null || proyecto.getClient().getPerfil() == null || !proyecto.getClient().getPerfil().getUsuario().equals(username)) {
             throw new UnauthorizedAccessException("No tienes permiso para cancelar este proyecto");
         }
 
@@ -104,7 +104,7 @@ public class ProyectoServiceImpl implements IProyectoService {
         ProyectoEntity proyecto = proyectoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado con ID: " + id));
 
-        if (!proyecto.getClient().getPerfil().getUsuario().equals(username)) {
+        if (proyecto.getClient() == null || proyecto.getClient().getPerfil() == null || !proyecto.getClient().getPerfil().getUsuario().equals(username)) {
             throw new UnauthorizedAccessException("No tienes permiso para modificar este proyecto");
         }
 
@@ -171,7 +171,7 @@ public class ProyectoServiceImpl implements IProyectoService {
         ProyectoEntity proyecto = proyectoRepository.findById(proyectoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado con ID: " + proyectoId));
 
-        if (!proyecto.getClient().getPerfil().getUsuario().equals(username)) {
+        if (proyecto.getClient() == null || proyecto.getClient().getPerfil() == null || !proyecto.getClient().getPerfil().getUsuario().equals(username)) {
             throw new UnauthorizedAccessException("No tienes permiso para adjudicar este proyecto");
         }
 

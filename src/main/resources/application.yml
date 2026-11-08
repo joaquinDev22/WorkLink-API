@@ -13,8 +13,8 @@ spring:
       enabled: true
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/bd_proyecto_final?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
-    username: ${DB_USER:root}
-    password: ${DB_PASSWORD:root}
+    username: ${DB_USER:${SPRING_DATASOURCE_USERNAME:root}}
+    password: ${DB_PASSWORD:${SPRING_DATASOURCE_PASSWORD:root}}
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       maximum-pool-size: 30
@@ -31,6 +31,8 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
+        type:
+          preferred_uuid_jdbc_type: CHAR
         format_sql: false
         default_batch_fetch_size: 50
         jdbc.batch_size: 50
@@ -46,6 +48,6 @@ mercadopago:
   webhook-url: ${MERCADOPAGO_WEBHOOK_URL:https://worklink.com/api/v1/pagos/webhook}
 
 google:
-  client-id: ${GOOGLE_CLIENT_ID:your-google-client-id.apps.googleusercontent.com}
+  client-id: ${GOOGLE_CLIENT_ID:676138277883-sls4toa9mp0k3b77p0meijfi6r33vuo5.apps.googleusercontent.com}
 
 

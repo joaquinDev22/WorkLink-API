@@ -8,6 +8,7 @@ import com.example.Proyecto_Final_Progra3.exceptions.domain.UnauthorizedAccessEx
 import com.example.Proyecto_Final_Progra3.mappers.EmpresaMapper;
 import com.example.Proyecto_Final_Progra3.model.PerfilEntity;
 import com.example.Proyecto_Final_Progra3.model.enterprise.EmpresaEntity;
+import com.example.Proyecto_Final_Progra3.model.enterprise.RecruiterEntity;
 import com.example.Proyecto_Final_Progra3.repository.PerfilRepository;
 import com.example.Proyecto_Final_Progra3.repository.enterprise.*;
 import com.example.Proyecto_Final_Progra3.service.enterprise.enterpriseInterfaces.IEmpresaService;
@@ -30,6 +31,7 @@ public class EmpresaServiceImpl implements IEmpresaService {
     private final VacanteRepository vacanteRepository;
     private final PostulacionRepository postulacionRepository;
     private final EntrevistaRepository entrevistaRepository;
+    private final RecruiterRepository recruiterRepository;
 
     @Override
     @Transactional
@@ -52,7 +54,7 @@ public class EmpresaServiceImpl implements IEmpresaService {
                 .orElseThrow(() -> new ResourceNotFoundException("Empresa no encontrada con ID: " + id));
 
         // Validación anti-IDOR: solo la empresa titular puede editar su perfil
-        if (empresa.getPerfil() != null && !empresa.getPerfil().getUsuario().equals(username)) {
+        if (empresa.getPerfil() == null || !empresa.getPerfil().getUsuario().equals(username)) {
             throw new UnauthorizedAccessException("No tienes permiso para modificar la información de esta empresa");
         }
 
@@ -98,17 +100,37 @@ public class EmpresaServiceImpl implements IEmpresaService {
                 .orElseThrow(() -> new ResourceNotFoundException("Empresa no encontrada con ID: " + idEmpresa));
 
         // Validación anti-IDOR
-        if (empresa.getPerfil() != null && !empresa.getPerfil().getUsuario().equals(username)) {
+        if (empresa.getPerfil() == null || !empresa.getPerfil().getUsuario().equals(username)) {
             throw new UnauthorizedAccessException("No tienes permiso para eliminar esta empresa");
         }
 
         empresaRepository.delete(empresa);
     }
 
+    private EmpresaEntity resolverEmpresaPorUsuario(String username) {
+        PerfilEntity perfil = perfilRepository.findByUsuario(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + username));
+        EmpresaEntity empresa = empresaRepository.findByPerfil(perfil).orElse(null);
+        if (empresa == null) {
+            RecruiterEntity recruiter = recruiterRepository.findByPerfil(perfil).orElse(null);
+            if (recruiter != null) {
+                empresa = recruiter.getEmpresa();
+            }
+        }
+        if (empresa == null) {
+            throw new ResourceNotFoundException("No se encontró una empresa asociada al usuario: " + username);
+        }
+        return empresa;
+    }
+
     @Override
-    public DashboardStatsResponseDTO getDashboardStats(String username){
-        EmpresaEntity empresa = empresaRepository.findByPerfilUsuario(username)
-                .orElseThrow(() -> new ResourceNotFoundException("Empresa no encontrada para el usuario: " + username));
+    public EmpresaResponseDTO buscarMiEmpresa(String username) {
+        return mapper.toDto(resolverEmpresaPorUsuario(username));
+    }
+
+    @Override
+    public DashboardStatsResponseDTO getDashboardStats(String username) {
+        EmpresaEntity empresa = resolverEmpresaPorUsuario(username);
 
         Long totalVacantes = vacanteRepository.countByEmpresa_Id(empresa.getId());
         Long totalPostulaciones = postulacionRepository.countByVacante_Empresa_Id(empresa.getId());

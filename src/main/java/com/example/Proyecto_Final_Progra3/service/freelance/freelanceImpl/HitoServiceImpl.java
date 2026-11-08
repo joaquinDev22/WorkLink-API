@@ -31,7 +31,7 @@ public class HitoServiceImpl implements IHitoService {
         ProyectoEntity proyecto = proyectoRepository.findById(proyectoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado con ID: " + proyectoId));
 
-        if (!proyecto.getClient().getPerfil().getUsuario().equals(username)) {
+        if (proyecto.getClient() == null || proyecto.getClient().getPerfil() == null || !proyecto.getClient().getPerfil().getUsuario().equals(username)) {
             throw new UnauthorizedAccessException("Solo el cliente propietario puede crear hitos en este proyecto");
         }
 
@@ -66,8 +66,13 @@ public class HitoServiceImpl implements IHitoService {
         }
 
         ProyectoEntity proyecto = hito.getProyecto();
-        boolean esCliente = proyecto.getClient().getPerfil().getUsuario().equals(username);
-        boolean esFreelancer = proyecto.getFreelancer() != null && 
+        boolean esCliente = proyecto != null && 
+                            proyecto.getClient() != null && 
+                            proyecto.getClient().getPerfil() != null && 
+                            proyecto.getClient().getPerfil().getUsuario().equals(username);
+        boolean esFreelancer = proyecto != null && 
+                               proyecto.getFreelancer() != null && 
+                               proyecto.getFreelancer().getPerfil() != null && 
                                proyecto.getFreelancer().getPerfil().getUsuario().equals(username);
 
         if (!esCliente && !esFreelancer) {

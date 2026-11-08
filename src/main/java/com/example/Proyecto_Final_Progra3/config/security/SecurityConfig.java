@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -51,11 +50,11 @@ public class SecurityConfig {
                             .requestMatchers(HttpMethod.GET, "/api/v1/perfiles/*/calificaciones").permitAll()
                             
                             // Rutas protegidas con roles estrictos
-                            .requestMatchers("/api/v1/empresas/**").hasRole("EMPRESA")
+                            .requestMatchers("/api/v1/empresas/**").hasAnyRole("EMPRESA", "RECRUITER")
                             .requestMatchers("/api/v1/vacantes/**").hasAnyRole("EMPRESA", "RECRUITER", "POSTULANTE", "EMPLOYEE", "FREELANCER")
                             .requestMatchers("/api/v1/recruiter/**").hasAnyRole("EMPRESA", "RECRUITER")
                             .requestMatchers("/api/v1/freelancer/**", "/api/v1/freelance/**", "/api/v1/portfolio/**").hasAnyRole("EMPLOYEE", "FREELANCER", "CLIENTE")
-                            .requestMatchers("/api/v1/instructores/**", "/api/v1/bootcamps/**", "/api/v1/calificaciones/**", "/api/v1/certificados/**", "/api/v1/inscripciones/**").hasRole("INSTRUCTOR")
+                            .requestMatchers("/api/v1/instructores/**", "/api/v1/bootcamps/**", "/api/v1/calificaciones/**", "/api/v1/certificados/**", "/api/v1/inscripciones/**").hasAnyRole("INSTRUCTOR", "EMPLOYEE", "FREELANCER", "POSTULANTE")
                             .requestMatchers("/api/v1/client/**").hasRole("CLIENTE")
                             .anyRequest().authenticated()
                     )

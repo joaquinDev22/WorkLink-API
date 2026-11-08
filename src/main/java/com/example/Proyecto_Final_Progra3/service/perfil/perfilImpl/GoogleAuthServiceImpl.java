@@ -6,9 +6,13 @@ import com.example.Proyecto_Final_Progra3.exceptions.domain.UnauthorizedAccessEx
 import com.example.Proyecto_Final_Progra3.model.PerfilEntity;
 import com.example.Proyecto_Final_Progra3.model.RolEntity;
 import com.example.Proyecto_Final_Progra3.model.employee.EmployeeEntity;
+import com.example.Proyecto_Final_Progra3.model.enterprise.EmpresaEntity;
+import com.example.Proyecto_Final_Progra3.model.freelance.ClientEntity;
 import com.example.Proyecto_Final_Progra3.repository.EmployeeRepository;
 import com.example.Proyecto_Final_Progra3.repository.PerfilRepository;
 import com.example.Proyecto_Final_Progra3.repository.RolRepository;
+import com.example.Proyecto_Final_Progra3.repository.enterprise.EmpresaRepository;
+import com.example.Proyecto_Final_Progra3.repository.freelance.ClientRepository;
 import com.example.Proyecto_Final_Progra3.service.perfil.perfilInterfaces.IGoogleAuthService;
 import com.example.Proyecto_Final_Progra3.service.perfil.perfilInterfaces.IJwtService;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
@@ -35,6 +39,8 @@ public class GoogleAuthServiceImpl implements IGoogleAuthService {
     private final PerfilRepository perfilRepository;
     private final RolRepository rolRepository;
     private final EmployeeRepository employeeRepository;
+    private final EmpresaRepository empresaRepository;
+    private final ClientRepository clientRepository;
     private final IJwtService jwtService;
     private final PasswordEncoder passwordEncoder;
 
@@ -53,11 +59,11 @@ public class GoogleAuthServiceImpl implements IGoogleAuthService {
         String email = payload.getEmail();
         String givenName = (String) payload.get("given_name");
         String familyName = (String) payload.get("family_name");
-        if (givenName == null) givenName = "Usuario";
-        if (familyName == null) familyName = "Google";
+        if (givenName == null || givenName.isBlank()) givenName = "Usuario";
+        if (familyName == null || familyName.isBlank()) familyName = "Google";
 
         // Transacción acotada para sincronización/búsqueda en BD
-        PerfilEntity perfil = (self != null ? self : this).findOrCreatePerfil(email, givenName, familyName);
+        PerfilEntity perfil = (self != null ? self : this).findOrCreatePerfil(email, givenName, familyName, request.rol());
 
         if (!perfil.is_active()) {
             throw new UnauthorizedAccessException("El perfil de usuario se encuentra desactivado.");
@@ -95,7 +101,7 @@ public class GoogleAuthServiceImpl implements IGoogleAuthService {
     }
 
     @Transactional
-    public PerfilEntity findOrCreatePerfil(String email, String givenName, String familyName) {
+    public PerfilEntity findOrCreatePerfil(String email, String givenName, String familyName, String rolDeseado) {
         Optional<PerfilEntity> existente = perfilRepository.findByEmail(email);
         if (existente.isPresent()) {
             return existente.get();
@@ -103,16 +109,23 @@ public class GoogleAuthServiceImpl implements IGoogleAuthService {
 
         // Generar nombre de usuario único a partir del email
         String baseUsuario = email.split("@")[0].replaceAll("[^a-zA-Z0-9]", "");
+        if (baseUsuario.isBlank()) {
+            baseUsuario = "user";
+        }
         String usuario = baseUsuario;
         int count = 1;
         while (perfilRepository.existsByUsuario(usuario)) {
             usuario = baseUsuario + count++;
         }
 
-        RolEntity rol = rolRepository.findByNombre("EMPLOYEE");
+        String rolNombre = (rolDeseado != null && !rolDeseado.isBlank()) ? rolDeseado.toUpperCase() : "POSTULANTE";
+        RolEntity rol = rolRepository.findByNombre(rolNombre);
+        if (rol == null && "POSTULANTE".equalsIgnoreCase(rolNombre)) {
+            rol = rolRepository.findByNombre("EMPLOYEE");
+        }
         if (rol == null) {
             rol = new RolEntity();
-            rol.setNombre("EMPLOYEE");
+            rol.setNombre(rolNombre);
             rol = rolRepository.save(rol);
         }
 
@@ -126,16 +139,47 @@ public class GoogleAuthServiceImpl implements IGoogleAuthService {
 
         PerfilEntity perfilGuardado = perfilRepository.save(nuevoPerfil);
 
-        // Crear entidad Employee asociada por defecto
-        EmployeeEntity employee = new EmployeeEntity();
-        employee.setNombre(givenName);
-        employee.setApellido(familyName);
-        employee.setEmail(email);
-        employee.setFechaNacimiento(LocalDate.of(2000, 1, 1));
-        employee.setPerfil(perfilGuardado);
-        employeeRepository.save(employee);
+        // Crear o asociar entidad vinculada según el rol asignado
+        if ("EMPRESA".equalsIgnoreCase(rol.getNombre())) {
+            EmpresaEntity empresa = empresaRepository.findByPerfil(perfilGuardado)
+                    .orElseGet(() -> {
+                        EmpresaEntity e = new EmpresaEntity();
+                        e.setNombre(givenName + " " + familyName);
+                        e.setDescripcion("Perfil corporativo en WorkLink");
+                        e.setSitio_web("https://worklink.com");
+                        e.setUbicacion("Argentina");
+                        e.setPerfil(perfilGuardado);
+                        return e;
+                    });
+            empresaRepository.save(empresa);
+        } else if ("CLIENTE".equalsIgnoreCase(rol.getNombre())) {
+            ClientEntity client = clientRepository.findByPerfil(perfilGuardado)
+                    .orElseGet(() -> clientRepository.findByEmail(email).orElseGet(() -> {
+                        ClientEntity c = new ClientEntity();
+                        c.setFirstName(givenName);
+                        c.setLastName(familyName);
+                        c.setEmail(email);
+                        c.setPhoneNumber("+5491100000000");
+                        c.setCountry("Argentina");
+                        c.setFechaNacimiento(LocalDate.of(2000, 1, 1));
+                        return c;
+                    }));
+            client.setPerfil(perfilGuardado);
+            clientRepository.save(client);
+        } else {
+            EmployeeEntity employee = employeeRepository.findByPerfil(perfilGuardado)
+                    .orElseGet(() -> employeeRepository.findByEmail(email).orElseGet(() -> {
+                        EmployeeEntity e = new EmployeeEntity();
+                        e.setEmail(email);
+                        return e;
+                    }));
+            employee.setNombre(givenName);
+            employee.setApellido(familyName);
+            employee.setFechaNacimiento(employee.getFechaNacimiento() != null ? employee.getFechaNacimiento() : LocalDate.of(2000, 1, 1));
+            employee.setPerfil(perfilGuardado);
+            employeeRepository.save(employee);
+        }
 
         return perfilGuardado;
     }
 }
-

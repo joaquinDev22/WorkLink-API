@@ -40,7 +40,7 @@ public class PortfolioServiceImpl implements IPortfolioService {
                 .orElseThrow(() -> new ResourceNotFoundException("Empleado no encontrado con ID: " + employeeId));
 
         // Validación anti-IDOR: solo el titular puede subir/pisar su propio CV
-        if (employee.getPerfil() != null && !employee.getPerfil().getUsuario().equals(username)) {
+        if (employee.getPerfil() == null || !employee.getPerfil().getUsuario().equals(username)) {
             throw new UnauthorizedAccessException("No tienes permiso para actualizar el currículum de otro postulante");
         }
 

@@ -77,6 +77,7 @@ public class PostulacionProyectoServiceImpl implements IPostulacionProyectoServi
                 .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado con ID: " + proyectoId));
 
         boolean esClienteTitular = proyecto.getClient() != null && 
+                                   proyecto.getClient().getPerfil() != null &&
                                    proyecto.getClient().getPerfil().getUsuario().equals(username);
 
         List<PostulacionProyectoEntity> postulaciones = postulacionRepository.findByProyecto_Id(proyectoId);

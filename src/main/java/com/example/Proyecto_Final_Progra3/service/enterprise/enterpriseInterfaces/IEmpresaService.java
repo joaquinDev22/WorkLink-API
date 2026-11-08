@@ -14,5 +14,6 @@ public interface IEmpresaService {
     EmpresaResponseDTO buscarEmpresaXuuid(UUID uuid);
     List<EmpresaResponseDTO> buscarEmpresasXidPerfil(int idPerfil);
     void eliminarEmpresa(Integer idEmpresa, String username);
+    EmpresaResponseDTO buscarMiEmpresa(String username);
     DashboardStatsResponseDTO getDashboardStats(String username);
 }

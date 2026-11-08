@@ -9,6 +9,13 @@ public record GoogleLoginRequestDTO(
         @NotNull(message = "El idToken no puede ser nulo")
         @NotBlank(message = "El idToken no puede estar vacío")
         @Schema(description = "Token de identidad JWT emitido por los servidores de Google Identity Services", example = "eyJhbGciOiJSUzI1NiIsImtpZCI6...")
-        String idToken
-) {}
+        String idToken,
+
+        @Schema(description = "Rol seleccionado por el usuario (POSTULANTE, FREELANCER, EMPRESA, CLIENTE)", example = "POSTULANTE")
+        String rol
+) {
+    public GoogleLoginRequestDTO(String idToken) {
+        this(idToken, null);
+    }
+}
 

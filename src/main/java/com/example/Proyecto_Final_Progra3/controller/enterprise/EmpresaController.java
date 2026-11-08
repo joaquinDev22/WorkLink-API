@@ -24,6 +24,12 @@ import java.util.UUID;
 public class EmpresaController {
     private final IEmpresaService empresaService;
 
+    @Operation(summary = "Obtener mi empresa", description = "Obtiene los datos de la empresa vinculada al usuario autenticado.")
+    @GetMapping("/my")
+    public ResponseEntity<EmpresaResponseDTO> obtenerMiEmpresa(Authentication authentication) {
+        return ResponseEntity.ok(empresaService.buscarMiEmpresa(authentication.getName()));
+    }
+
     @Operation(summary = "Crear empresa", description = "Crea una nueva empresa en el sistema.")
     @PostMapping
     public ResponseEntity<EmpresaResponseDTO> crearEmpresa(@Valid @RequestBody EmpresaRequestDTO dto) {

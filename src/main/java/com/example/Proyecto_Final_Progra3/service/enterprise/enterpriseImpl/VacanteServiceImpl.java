@@ -119,6 +119,10 @@ public class VacanteServiceImpl implements IVacanteService {
                 .orElseThrow(() -> new UnauthorizedAccessException("Solo las empresas o recruiters tienen vacantes propias"));
             empresa = recruiter.getEmpresa();
         }
+
+        if (empresa == null) {
+            throw new ResourceNotFoundException("No se encontró una empresa asociada al usuario: " + username);
+        }
         
         return vacanteMapper.toDtoList(vacanteRepository.findByEmpresa_Id(empresa.getId()));
     }
@@ -134,7 +138,7 @@ public class VacanteServiceImpl implements IVacanteService {
             empresa = recruiter.getEmpresa();
         }
 
-        if (empresa == null || !vacante.getEmpresa().getId().equals(empresa.getId())) {
+        if (empresa == null || vacante.getEmpresa() == null || !vacante.getEmpresa().getId().equals(empresa.getId())) {
             throw new UnauthorizedAccessException("No tienes permiso para modificar o eliminar esta vacante");
         }
     }
