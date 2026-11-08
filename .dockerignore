@@ -1,7 +1,6 @@
 .git
 .gitignore
 .idea
-.mvn
 target/
 *.log
 *.md

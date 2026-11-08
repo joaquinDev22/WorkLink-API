@@ -4,17 +4,15 @@
 FROM maven:3.9.6-eclipse-temurin-21-alpine AS builder
 WORKDIR /app
 
-# Copy dependency definition and wrapper
+# Copy dependency definition
 COPY pom.xml .
-COPY mvnw .
-COPY .mvn .mvn
 
 # Pre-fetch dependencies to leverage Docker cache
-RUN ./mvnw dependency:go-offline -B
+RUN mvn dependency:go-offline -B
 
 # Copy source code and build final executable JAR
 COPY src ./src
-RUN ./mvnw clean package -DskipTests
+RUN mvn clean package -DskipTests
 
 # ==========================================
 # Stage 2: Lightweight Runtime Environment

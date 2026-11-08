@@ -181,6 +181,7 @@ CREATE TABLE vacante (
     tipo_ubicacion VARCHAR(50),
     tipo_vacante VARCHAR(50),
     salario VARCHAR(50),
+    activa BOOLEAN NOT NULL DEFAULT TRUE,
     empresa_id INT NOT NULL,
     FOREIGN KEY (empresa_id) REFERENCES empresa(empresa_id) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT chk_vacante_fechas CHECK (fecha_fin >= fecha_publicacion)
@@ -195,7 +196,7 @@ CREATE TABLE vacante_etiquetas (
 CREATE TABLE postulacion_vacante (
     postulacion_id INT AUTO_INCREMENT PRIMARY KEY,
     fecha_postulacion DATE NOT NULL DEFAULT (CURRENT_DATE),
-    estado_postulacion ENUM('PENDIENTE','VISUALIZADO','RECHAZADO') DEFAULT 'PENDIENTE',
+    estado_postulacion ENUM('PENDIENTE','VISUALIZADO','ENTREVISTA_AGENDADA','RECHAZADO') DEFAULT 'PENDIENTE',
     cv LONGBLOB NOT NULL,
     mensaje VARCHAR(255),
     vacante_id INT NOT NULL,
@@ -203,6 +204,15 @@ CREATE TABLE postulacion_vacante (
     FOREIGN KEY (vacante_id) REFERENCES vacante(vacante_id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (postulante_id) REFERENCES employee(employee_id) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT uq_postulacion_vacante UNIQUE (vacante_id, postulante_id)
+) ENGINE=InnoDB;
+
+CREATE TABLE entrevista (
+    entrevista_id INT AUTO_INCREMENT PRIMARY KEY,
+    postulacion_id INT NOT NULL,
+    fecha DATE NOT NULL,
+    hora TIME NOT NULL,
+    link VARCHAR(255),
+    FOREIGN KEY (postulacion_id) REFERENCES postulacion_vacante(postulacion_id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
 CREATE TABLE vacante_habilidad (
@@ -221,6 +231,17 @@ CREATE TABLE portfolio (
     descripcion VARCHAR(255) NOT NULL,
     employee_id INT NOT NULL UNIQUE,
     FOREIGN KEY (employee_id) REFERENCES employee(employee_id) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE proyecto_perfil (
+    proyecto_perfil_id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(150) NOT NULL,
+    descripcion VARCHAR(1000),
+    link VARCHAR(250),
+    imagen LONGBLOB,
+    perfil_id INT NOT NULL,
+    fecha_creacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (perfil_id) REFERENCES perfil(perfil_id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
 -- ===================================================================================
@@ -667,12 +688,12 @@ INSERT INTO rol (nombre_rol) VALUES
 
 -- 1. perfiles iniciales
 INSERT INTO perfil (usuario, email, password, is_active, rol_id) VALUES
-('AnaRecruiter', 'ana.recruiter@ejemplo.com', '$2a$10$e8Za3...', TRUE, 6),
-('DevFreelancer', 'freelancer@ejemplo.com', '$2a$10$e8Za3...', TRUE, 4),
-('ClienteGlobal', 'cliente@global.com', '$2a$10$e8Za3...', TRUE, 2),
-('TechCorp', 'empresa@techcorp.com', '$2a$10$e8Za3...', TRUE, 1),
-('CandidatoIT', 'candidato@it.com', '$2a$10$e8Za3...', TRUE, 5),
-('ProfeBootcamp', 'profe@bootcamp.com', '$2a$10$e8Za3...', TRUE, 3);
+('AnaRecruiter', 'ana.recruiter@ejemplo.com', '$2a$10$u6H6dHwPd/sxic3NosWUxeQIDmbO/ZZJSHkuGGUt8Ey1ihwXwfyTu', TRUE, 6),
+('DevFreelancer', 'freelancer@ejemplo.com', '$2a$10$u6H6dHwPd/sxic3NosWUxeQIDmbO/ZZJSHkuGGUt8Ey1ihwXwfyTu', TRUE, 4),
+('ClienteGlobal', 'cliente@global.com', '$2a$10$u6H6dHwPd/sxic3NosWUxeQIDmbO/ZZJSHkuGGUt8Ey1ihwXwfyTu', TRUE, 2),
+('TechCorp', 'empresa@techcorp.com', '$2a$10$u6H6dHwPd/sxic3NosWUxeQIDmbO/ZZJSHkuGGUt8Ey1ihwXwfyTu', TRUE, 1),
+('CandidatoIT', 'candidato@it.com', '$2a$10$u6H6dHwPd/sxic3NosWUxeQIDmbO/ZZJSHkuGGUt8Ey1ihwXwfyTu', TRUE, 5),
+('ProfeBootcamp', 'profe@bootcamp.com', '$2a$10$u6H6dHwPd/sxic3NosWUxeQIDmbO/ZZJSHkuGGUt8Ey1ihwXwfyTu', TRUE, 3);
 
 -- 2. Entidades vinculadas
 INSERT INTO empresa (nombre, descripcion, sitio_web, ubicacion, tamano, sector, perfil_id) VALUES 
