@@ -13,7 +13,7 @@ import java.util.UUID;
 @Builder
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
-@Table(name="Empresa")
+@Table(name="empresa")
 public class EmpresaEntity {
     @Id 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,7 +22,8 @@ public class EmpresaEntity {
     private Integer id;
 
     @Builder.Default
-    @Column(name = "uuid", nullable = false, unique = true, updatable = false)
+    @org.hibernate.annotations.JdbcTypeCode(java.sql.Types.VARCHAR)
+    @Column(name = "uuid", nullable = false, unique = true, updatable = false, length = 36)
     private UUID uuid = UuidV7Generator.generate();
 
     @Column(nullable = false, length = 100)

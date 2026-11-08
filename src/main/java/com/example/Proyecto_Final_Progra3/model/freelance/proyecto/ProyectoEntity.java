@@ -28,7 +28,8 @@ public class ProyectoEntity {
     private Integer id;
 
     @Builder.Default
-    @Column(name = "uuid", nullable = false, unique = true, updatable = false)
+    @org.hibernate.annotations.JdbcTypeCode(java.sql.Types.VARCHAR)
+    @Column(name = "uuid", nullable = false, unique = true, updatable = false, length = 36)
     private UUID uuid = UuidV7Generator.generate();
 
     @Column(name = "nombre_proyecto", nullable = false, length = 30)

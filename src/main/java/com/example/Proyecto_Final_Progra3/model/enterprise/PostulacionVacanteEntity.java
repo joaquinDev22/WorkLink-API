@@ -1,6 +1,7 @@
 package com.example.Proyecto_Final_Progra3.model.enterprise;
 
 import com.example.Proyecto_Final_Progra3.model.employee.EmployeeEntity;
+import com.example.Proyecto_Final_Progra3.model.enterprise.EstadoPostulacion;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -40,6 +41,6 @@ public class PostulacionVacanteEntity {
     private VacanteEntity vacante;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employee_id", nullable = false)
+    @JoinColumn(name = "postulante_id", nullable = false)
     private EmployeeEntity employee;
 }

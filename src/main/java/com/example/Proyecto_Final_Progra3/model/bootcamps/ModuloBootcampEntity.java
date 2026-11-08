@@ -10,7 +10,7 @@ import lombok.*;
 @Builder
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
-@Table(name = "Modulo_Bootcamp")
+@Table(name = "modulo_bootcamp")
 public class ModuloBootcampEntity {
     @Id 
     @GeneratedValue(strategy = GenerationType.IDENTITY)

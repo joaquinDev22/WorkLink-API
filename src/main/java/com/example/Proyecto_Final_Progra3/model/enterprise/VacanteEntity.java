@@ -24,7 +24,8 @@ public class VacanteEntity {
     private Integer vacanteId;
 
     @Builder.Default
-    @Column(name = "uuid", nullable = false, unique = true, updatable = false)
+    @org.hibernate.annotations.JdbcTypeCode(java.sql.Types.VARCHAR)
+    @Column(name = "uuid", nullable = false, unique = true, updatable = false, length = 36)
     private UUID uuid = UuidV7Generator.generate();
 
     @Column(nullable = false, length = 50)

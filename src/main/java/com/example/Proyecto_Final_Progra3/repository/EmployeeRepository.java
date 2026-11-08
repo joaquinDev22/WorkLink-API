@@ -8,5 +8,6 @@ import java.util.Optional;
 
 public interface EmployeeRepository extends JpaRepository<EmployeeEntity, Integer> {
     Optional<EmployeeEntity> findByPerfil(PerfilEntity perfil);
+    Optional<EmployeeEntity> findByEmail(String email);
 }
 

@@ -13,7 +13,7 @@ import java.time.LocalDate;
 @Builder
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
-@Table(name = "Calificacion_Bootcamp")
+@Table(name = "calificacion_bootcamp")
 public class CalificacionBootcampEntity {
 
     @Id
