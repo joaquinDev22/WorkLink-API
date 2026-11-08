@@ -2,6 +2,7 @@ package com.example.Proyecto_Final_Progra3.service.enterprise.enterpriseImpl;
 
 import com.example.Proyecto_Final_Progra3.dto.requestdto.EntrevistaRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.EntrevistaResponseDTO;
+import com.example.Proyecto_Final_Progra3.events.EntrevistaAgendadaEvent;
 import com.example.Proyecto_Final_Progra3.exceptions.domain.ResourceNotFoundException;
 import com.example.Proyecto_Final_Progra3.exceptions.domain.UnauthorizedAccessException;
 import com.example.Proyecto_Final_Progra3.mappers.EntrevistaMapper;
@@ -17,6 +18,7 @@ import com.example.Proyecto_Final_Progra3.repository.enterprise.PostulacionVacan
 import com.example.Proyecto_Final_Progra3.repository.enterprise.RecruiterRepository;
 import com.example.Proyecto_Final_Progra3.service.enterprise.enterpriseInterfaces.IEntrevistaService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +37,7 @@ public class EntrevistaServiceImpl implements IEntrevistaService {
     private final EmpresaRepository empresaRepository;
     private final PerfilRepository perfilRepository;
     private final RecruiterRepository recruiterRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     public List<EntrevistaResponseDTO> listarEntrevistas() {
@@ -106,6 +109,22 @@ public class EntrevistaServiceImpl implements IEntrevistaService {
                 .build();
 
         EntrevistaEntity guardada = entrevistaRepository.save(entrevista);
+
+        // Patrón GoF Observer: publicar evento de dominio para auditoría y notificaciones desacopladas
+        String postulanteEmail = (postulacion.getEmployee() != null && postulacion.getEmployee().getEmail() != null)
+                ? postulacion.getEmployee().getEmail()
+                : (postulacion.getEmployee() != null && postulacion.getEmployee().getPerfil() != null ? postulacion.getEmployee().getPerfil().getEmail() : "N/A");
+
+        eventPublisher.publishEvent(new EntrevistaAgendadaEvent(
+                guardada.getId(),
+                postulacion.getPostulacionVacanteId(),
+                username,
+                postulanteEmail,
+                guardada.getFecha(),
+                guardada.getHora(),
+                guardada.getLink()
+        ));
+
         return entrevistaMapper.toDto(guardada);
     }
 }
