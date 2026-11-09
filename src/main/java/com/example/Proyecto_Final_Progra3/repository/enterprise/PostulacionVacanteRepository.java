@@ -11,6 +11,7 @@ import java.util.List;
 @Repository
 public interface PostulacionVacanteRepository extends JpaRepository<PostulacionVacanteEntity, Integer> {
     List<PostulacionVacanteEntity> findByVacante_VacanteId(Integer vacanteId);
+    List<PostulacionVacanteEntity> findByVacante_Empresa_Id(Integer empresaId);
     List<PostulacionVacanteEntity> findByEmployee_EmployeeId(Integer employeeId);
 
     @Procedure(procedureName = "sp_postular_vacante")

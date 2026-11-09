@@ -10,5 +10,6 @@ public interface IPostulacionVacanteService {
     PostulacionResponseDTO postularseMe(String username, Integer vacanteId, String mensaje, MultipartFile cv);
     PostulacionResponseDTO postularse(Integer vacanteId, Integer employeeId, String mensaje, MultipartFile cv);
     List<PostulacionResponseDTO> listarPostulantes(Integer vacanteId);
+    List<PostulacionResponseDTO> listarTodas(String username);
     PostulacionResponseDTO cambiarEstado(Integer vacanteId, Integer postulacionId, EstadoPostulacion nuevoEstado, String username);
 }

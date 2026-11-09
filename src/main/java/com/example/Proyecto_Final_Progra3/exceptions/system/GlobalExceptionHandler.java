@@ -178,7 +178,7 @@ public class GlobalExceptionHandler {
                 List.of("El tamaño del archivo supera el límite permitido por el servidor"),
                 LocalDate.now()
         );
-        return new ResponseEntity<>(error, HttpStatus.PAYLOAD_TOO_LARGE);
+        return new ResponseEntity<>(error, HttpStatus.CONTENT_TOO_LARGE);
     }
 
     // HTTP 415 - Tipo de contenido no soportado (Content-Type)

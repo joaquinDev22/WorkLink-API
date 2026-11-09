@@ -8,11 +8,14 @@ import com.example.Proyecto_Final_Progra3.exceptions.domain.UnauthorizedAccessEx
 import com.example.Proyecto_Final_Progra3.mappers.PostulacionVacanteMapper;
 import com.example.Proyecto_Final_Progra3.model.PerfilEntity;
 import com.example.Proyecto_Final_Progra3.model.employee.EmployeeEntity;
+import com.example.Proyecto_Final_Progra3.model.enterprise.EmpresaEntity;
 import com.example.Proyecto_Final_Progra3.model.enterprise.EstadoPostulacion;
 import com.example.Proyecto_Final_Progra3.model.enterprise.PostulacionVacanteEntity;
+import com.example.Proyecto_Final_Progra3.model.enterprise.RecruiterEntity;
 import com.example.Proyecto_Final_Progra3.model.enterprise.VacanteEntity;
 import com.example.Proyecto_Final_Progra3.repository.EmployeeRepository;
 import com.example.Proyecto_Final_Progra3.repository.PerfilRepository;
+import com.example.Proyecto_Final_Progra3.repository.enterprise.EmpresaRepository;
 import com.example.Proyecto_Final_Progra3.repository.enterprise.PostulacionVacanteRepository;
 import com.example.Proyecto_Final_Progra3.repository.enterprise.RecruiterRepository;
 import com.example.Proyecto_Final_Progra3.repository.enterprise.VacanteRepository;
@@ -35,6 +38,7 @@ public class PostulacionVacanteServiceImpl implements IPostulacionVacanteService
     private final VacanteRepository vacanteRepository;
     private final EmployeeRepository employeeRepository;
     private final PerfilRepository perfilRepository;
+    private final EmpresaRepository empresaRepository;
     private final RecruiterRepository recruiterRepository;
     private final PostulacionVacanteMapper postulacionVacanteMapper;
 
@@ -84,6 +88,32 @@ public class PostulacionVacanteServiceImpl implements IPostulacionVacanteService
     @Override
     public List<PostulacionResponseDTO> listarPostulantes(Integer vacanteId) {
         return postulacionVacanteMapper.toDtoList(postulacionRepository.findByVacante_VacanteId(vacanteId));
+    }
+
+    @Override
+    public List<PostulacionResponseDTO> listarTodas(String username) {
+        PerfilEntity perfil = perfilRepository.findByUsuario(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + username));
+
+        // 1. Si es Empresa directa
+        EmpresaEntity empresa = empresaRepository.findByPerfil(perfil).orElse(null);
+        if (empresa != null) {
+            return postulacionVacanteMapper.toDtoList(postulacionRepository.findByVacante_Empresa_Id(empresa.getId()));
+        }
+
+        // 2. Si es Recruiter asociado a una Empresa
+        RecruiterEntity recruiter = recruiterRepository.findByPerfil(perfil).orElse(null);
+        if (recruiter != null && recruiter.getEmpresa() != null) {
+            return postulacionVacanteMapper.toDtoList(postulacionRepository.findByVacante_Empresa_Id(recruiter.getEmpresa().getId()));
+        }
+
+        // 3. Si es Empleado / Postulante personal
+        EmployeeEntity employee = employeeRepository.findByPerfil(perfil).orElse(null);
+        if (employee != null) {
+            return postulacionVacanteMapper.toDtoList(postulacionRepository.findByEmployee_EmployeeId(employee.getEmployeeId()));
+        }
+
+        return List.of();
     }
 
     @Override

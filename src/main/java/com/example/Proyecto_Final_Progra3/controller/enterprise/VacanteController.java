@@ -1,7 +1,9 @@
 package com.example.Proyecto_Final_Progra3.controller.enterprise;
 
 import com.example.Proyecto_Final_Progra3.dto.requestdto.VacanteRequestDTO;
+import com.example.Proyecto_Final_Progra3.dto.responsedto.PostulacionResponseDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.VacanteResponseDTO;
+import com.example.Proyecto_Final_Progra3.service.enterprise.enterpriseInterfaces.IPostulacionVacanteService;
 import com.example.Proyecto_Final_Progra3.service.enterprise.enterpriseInterfaces.IVacanteService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -22,6 +24,19 @@ import java.util.UUID;
 public class VacanteController {
 
     private final IVacanteService vacanteService;
+    private final IPostulacionVacanteService postulacionVacanteService;
+
+    @Parameter(name = "vacanteId", description = "Identificador opcional de la vacante para filtrar postulaciones", example = "1")
+    @Operation(summary = "Listar postulaciones", description = "Obtiene las postulaciones asociadas a una vacante específica o todas las de la empresa/usuario autenticado.")
+    @GetMapping("/postulaciones")
+    public ResponseEntity<List<PostulacionResponseDTO>> listarPostulaciones(
+            @RequestParam(required = false) Integer vacanteId,
+            Authentication authentication) {
+        if (vacanteId != null) {
+            return ResponseEntity.ok(postulacionVacanteService.listarPostulantes(vacanteId));
+        }
+        return ResponseEntity.ok(postulacionVacanteService.listarTodas(authentication.getName()));
+    }
 
     @Operation(summary = "Crear vacante", description = "Permite registrar una nueva oferta laboral en la plataforma.")
     @PostMapping

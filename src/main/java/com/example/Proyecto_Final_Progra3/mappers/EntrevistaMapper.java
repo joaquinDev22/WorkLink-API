@@ -2,19 +2,42 @@ package com.example.Proyecto_Final_Progra3.mappers;
 
 import com.example.Proyecto_Final_Progra3.dto.responsedto.EntrevistaResponseDTO;
 import com.example.Proyecto_Final_Progra3.model.enterprise.EntrevistaEntity;
-import org.mapstruct.*;
+import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.List;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
-public interface EntrevistaMapper {
-    @Mapping(target = "candidateName", expression = "java(entity.getPostulacion() != null && entity.getPostulacion().getEmployee() != null ? entity.getPostulacion().getEmployee().getNombre() : \"Candidato\")")
-    @Mapping(target = "vacancyTitle", expression = "java(entity.getPostulacion() != null && entity.getPostulacion().getVacante() != null ? entity.getPostulacion().getVacante().getPuesto() : \"Vacante\")")
-    @Mapping(target = "date", expression = "java(entity.getFecha() != null ? entity.getFecha().toString() : \"\")")
-    @Mapping(target = "time", expression = "java(entity.getHora() != null ? entity.getHora().toString() : \"\")")
-    @Mapping(target = "link", expression = "java(entity.getLink() != null ? entity.getLink() : \"https://meet.google.com/xyz\")")
-    EntrevistaResponseDTO toDto(EntrevistaEntity entity);
+@Component
+public class EntrevistaMapper {
 
-    List<EntrevistaResponseDTO> toDtoList(List<EntrevistaEntity> all);
+    public EntrevistaResponseDTO toDto(EntrevistaEntity entity) {
+        if (entity == null) {
+            return null;
+        }
+        String candidateName = (entity.getPostulacion() != null && entity.getPostulacion().getEmployee() != null)
+                ? entity.getPostulacion().getEmployee().getNombre()
+                : "Candidato";
+        String vacancyTitle = (entity.getPostulacion() != null && entity.getPostulacion().getVacante() != null)
+                ? entity.getPostulacion().getVacante().getPuesto()
+                : "Vacante";
+        String date = entity.getFecha() != null ? entity.getFecha().toString() : "";
+        String time = entity.getHora() != null ? entity.getHora().toString() : "";
+        String link = entity.getLink() != null ? entity.getLink() : "https://meet.google.com/xyz";
+
+        return new EntrevistaResponseDTO(
+                entity.getId(),
+                candidateName,
+                vacancyTitle,
+                date,
+                time,
+                link
+        );
+    }
+
+    public List<EntrevistaResponseDTO> toDtoList(List<EntrevistaEntity> all) {
+        if (all == null) {
+            return Collections.emptyList();
+        }
+        return all.stream().map(this::toDto).toList();
+    }
 }
-
