@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -148,8 +149,10 @@ public class ProyectoServiceImpl implements IProyectoService {
         PerfilEntity perfil = perfilRepository.findByUsuario(username)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + username));
 
-        ClientEntity client = clientRepository.findByPerfil(perfil)
-                .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado para el usuario: " + username));
+        ClientEntity client = clientRepository.findByPerfil(perfil).orElse(null);
+        if (client == null) {
+            return Collections.emptyList();
+        }
 
         return proyectoMapper.toDtoList(proyectoRepository.findByClient_ClienteId(client.getClienteId()));
     }
@@ -159,8 +162,10 @@ public class ProyectoServiceImpl implements IProyectoService {
         PerfilEntity perfil = perfilRepository.findByUsuario(username)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + username));
 
-        EmployeeEntity employee = employeeRepository.findByPerfil(perfil)
-                .orElseThrow(() -> new ResourceNotFoundException("Freelancer no encontrado para el usuario: " + username));
+        EmployeeEntity employee = employeeRepository.findByPerfil(perfil).orElse(null);
+        if (employee == null) {
+            return Collections.emptyList();
+        }
 
         return proyectoMapper.toDtoList(proyectoRepository.findByFreelancer_EmployeeId(employee.getEmployeeId()));
     }
