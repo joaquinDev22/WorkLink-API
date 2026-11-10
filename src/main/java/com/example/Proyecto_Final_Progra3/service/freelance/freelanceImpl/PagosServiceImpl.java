@@ -3,6 +3,7 @@ package com.example.Proyecto_Final_Progra3.service.freelance.freelanceImpl;
 import com.example.Proyecto_Final_Progra3.dto.requestdto.PagosRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.MercadoPagoPreferenceResponseDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.PagosResponseDTO;
+import com.example.Proyecto_Final_Progra3.events.PagoConfirmadoEvent;
 import com.example.Proyecto_Final_Progra3.exceptions.domain.ResourceNotFoundException;
 import com.example.Proyecto_Final_Progra3.mappers.PagosMapper;
 import com.example.Proyecto_Final_Progra3.model.freelance.enums.MedioDePago;
@@ -12,9 +13,12 @@ import com.example.Proyecto_Final_Progra3.model.freelance.proyecto.ProyectoEntit
 import com.example.Proyecto_Final_Progra3.repository.freelance.PagosRepository;
 import com.example.Proyecto_Final_Progra3.repository.freelance.ProyectoRepository;
 import com.example.Proyecto_Final_Progra3.service.freelance.freelanceInterfaces.IPagosService;
+import com.example.Proyecto_Final_Progra3.service.freelance.strategy.IPagoStrategy;
+import com.example.Proyecto_Final_Progra3.service.freelance.strategy.PagoStrategyFactory;
 import com.mercadopago.resources.payment.Payment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +35,8 @@ public class PagosServiceImpl implements IPagosService {
     private final ProyectoRepository proyectoRepository;
     private final PagosMapper pagosMapper;
     private final MercadoPagoAdapter mercadoPagoAdapter;
+    private final PagoStrategyFactory pagoStrategyFactory;
+    private final ApplicationEventPublisher eventPublisher;
 
     @org.springframework.beans.factory.annotation.Autowired
     @org.springframework.context.annotation.Lazy
@@ -42,13 +48,21 @@ public class PagosServiceImpl implements IPagosService {
         ProyectoEntity proyecto = proyectoRepository.findById(proyectoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado con ID: " + proyectoId));
 
-        PagosEntity pago = new PagosEntity();
-        pago.setMoneda(dto.moneda());
-        pago.setMonto(dto.monto());
-        pago.setMedioDePago(dto.medioDePago());
-        pago.setProyecto(proyecto);
+        // Patrón GoF Strategy + SOLID OCP: resuelve y procesa según el medio de pago
+        IPagoStrategy strategy = pagoStrategyFactory.getStrategy(dto.medioDePago());
+        PagosEntity pago = strategy.procesarPago(proyecto, dto);
 
         PagosEntity guardado = pagosRepository.save(pago);
+
+        // Patrón GoF Observer: notificación desacoplada de evento de dominio
+        eventPublisher.publishEvent(new PagoConfirmadoEvent(
+                guardado.getPagosId(),
+                proyecto.getId(),
+                guardado.getMonto(),
+                guardado.getMoneda() != null ? guardado.getMoneda().name() : "ARS",
+                guardado.getMedioDePago() != null ? guardado.getMedioDePago().name() : "DESCONOCIDO"
+        ));
+
         return pagosMapper.toDto(guardado);
     }
 
@@ -120,7 +134,16 @@ public class PagosServiceImpl implements IPagosService {
         pago.setMedioDePago(MedioDePago.BILLETERA_VIRTUAL);
         pago.setProyecto(proyecto);
 
-        pagosRepository.save(pago);
+        PagosEntity guardado = pagosRepository.save(pago);
         log.info("Pago de Mercado Pago guardado exitosamente para el proyecto ID: {}", proyectoId);
+
+        // Patrón GoF Observer: notificación desacoplada de evento de dominio
+        eventPublisher.publishEvent(new PagoConfirmadoEvent(
+                guardado.getPagosId(),
+                proyectoId,
+                guardado.getMonto(),
+                guardado.getMoneda() != null ? guardado.getMoneda().name() : "ARS",
+                guardado.getMedioDePago() != null ? guardado.getMedioDePago().name() : "BILLETERA_VIRTUAL"
+        ));
     }
 }

@@ -6,6 +6,10 @@ import com.example.Proyecto_Final_Progra3.service.perfil.perfilInterfaces.IPerfi
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -41,6 +45,19 @@ public class PerfilController {
         String username = authentication.getName();
         perfilUsuarioService.uploadMyCV(username, file);
         return ResponseEntity.ok(new MessageResponseDTO("CV subido exitosamente a la base de datos."));
+    }
+
+    @Operation(summary = "Descargar o previsualizar mi CV", description = "Retorna el archivo PDF del currículum vitae del usuario autenticado para previsualización en el navegador o descarga.")
+    @GetMapping("/downloadMyCV")
+    public ResponseEntity<byte[]> downloadMyCV(Authentication authentication) {
+        byte[] pdfBytes = perfilUsuarioService.getMyCV(authentication.getName());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDisposition(ContentDisposition.inline().filename("curriculum.pdf").build());
+        headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
+
+        return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
     }
 
     @Operation(summary = "Subir foto de perfil", description = "Permite cargar o actualizar la foto de perfil del usuario autenticado.")

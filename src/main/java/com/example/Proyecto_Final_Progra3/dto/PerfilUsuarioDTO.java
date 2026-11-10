@@ -32,6 +32,7 @@ public class PerfilUsuarioDTO {
     // Common profile extensions
     private byte[] fotoPerfil;
     private byte[] bannerPerfil;
+    private boolean tieneCv;
     
     private java.util.List<HabilidadDTO> habilidades;
     private java.util.List<ProyectoDTO> proyectos;
