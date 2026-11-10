@@ -63,13 +63,15 @@ public class EntrevistaServiceImpl implements IEntrevistaService {
             }
         }
 
-        if (empresaId == null) {
-            return Collections.emptyList();
+        if (empresaId != null) {
+            // Empresa o Recruiter: listar entrevistas de las vacantes de la empresa
+            List<EntrevistaEntity> entrevistas = entrevistaRepository.findByEmpresaId(empresaId);
+            return entrevistaMapper.toDtoList(entrevistas);
         }
 
-        // 3. Filtrar de forma segura únicamente las entrevistas de esta empresa
-        List<EntrevistaEntity> entrevistas = entrevistaRepository.findByEmpresaId(empresaId);
-        return entrevistaMapper.toDtoList(entrevistas);
+        // 3. Si no es empresa ni recruiter, listar las entrevistas del postulante
+        List<EntrevistaEntity> entrevistasPostulante = entrevistaRepository.findByPostulanteUsuario(username);
+        return entrevistaMapper.toDtoList(entrevistasPostulante);
     }
 
     @Override

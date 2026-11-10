@@ -50,6 +50,7 @@ public class SecurityConfig {
                             .requestMatchers(HttpMethod.GET, "/api/v1/perfiles/*/calificaciones").permitAll()
                             
                             // Rutas protegidas con roles estrictos
+                            .requestMatchers(HttpMethod.GET, "/api/v1/recruiter/entrevistas").hasAnyRole("EMPRESA", "RECRUITER", "POSTULANTE", "EMPLOYEE")
                             .requestMatchers("/api/v1/empresas/**").hasAnyRole("EMPRESA", "RECRUITER")
                             .requestMatchers("/api/v1/vacantes/**").hasAnyRole("EMPRESA", "RECRUITER", "POSTULANTE", "EMPLOYEE", "FREELANCER")
                             .requestMatchers("/api/v1/recruiter/**").hasAnyRole("EMPRESA", "RECRUITER")
