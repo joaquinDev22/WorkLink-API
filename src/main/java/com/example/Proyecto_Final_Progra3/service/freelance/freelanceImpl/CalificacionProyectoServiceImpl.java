@@ -7,9 +7,11 @@ import com.example.Proyecto_Final_Progra3.exceptions.domain.ResourceNotFoundExce
 import com.example.Proyecto_Final_Progra3.exceptions.domain.UnauthorizedAccessException;
 import com.example.Proyecto_Final_Progra3.model.CalificacionUsuarioEntity;
 import com.example.Proyecto_Final_Progra3.model.PerfilEntity;
+import com.example.Proyecto_Final_Progra3.model.employee.EmployeeEntity;
 import com.example.Proyecto_Final_Progra3.model.freelance.proyecto.CalificacionProyectoEntity;
 import com.example.Proyecto_Final_Progra3.model.freelance.proyecto.ProyectoEntity;
 import com.example.Proyecto_Final_Progra3.repository.CalificacionUsuarioRepository;
+import com.example.Proyecto_Final_Progra3.repository.EmployeeRepository;
 import com.example.Proyecto_Final_Progra3.repository.PerfilRepository;
 import com.example.Proyecto_Final_Progra3.repository.freelance.CalificacionProyectoRepository;
 import com.example.Proyecto_Final_Progra3.repository.freelance.ProyectoRepository;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -30,6 +33,7 @@ public class CalificacionProyectoServiceImpl implements ICalificacionProyectoSer
     private final CalificacionUsuarioRepository calificacionUsuarioRepository;
     private final ProyectoRepository proyectoRepository;
     private final PerfilRepository perfilRepository;
+    private final EmployeeRepository employeeRepository;
 
     @Override
     @Transactional
@@ -85,17 +89,34 @@ public class CalificacionProyectoServiceImpl implements ICalificacionProyectoSer
     }
 
     @Override
+    public ReputacionPerfilResponseDTO obtenerReputacionPorUsuario(String username) {
+        PerfilEntity perfil = perfilRepository.findByUsuario(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + username));
+        return obtenerReputacionPerfil(perfil.getId());
+    }
+
+    @Override
     public ReputacionPerfilResponseDTO obtenerReputacionPerfil(Integer perfilId) {
-        if (!perfilRepository.existsById(perfilId)) {
-            throw new ResourceNotFoundException("Perfil no encontrado con ID: " + perfilId);
-        }
+        PerfilEntity perfil = perfilRepository.findById(perfilId)
+                .orElseThrow(() -> new ResourceNotFoundException("Perfil no encontrado con ID: " + perfilId));
 
         List<CalificacionUsuarioEntity> registros = calificacionUsuarioRepository.findByPerfil_Id(perfilId);
 
-        List<CalificacionProyectoResponseDTO> resenas = registros.stream()
+        List<CalificacionProyectoResponseDTO> resenas = new ArrayList<>(registros.stream()
                 .filter(r -> r.getCalificacion() != null)
                 .map(r -> mapToDto(r.getCalificacion()))
-                .toList();
+                .toList());
+
+        // Si no se encontraron reseñas en calificacion_usuario, buscar calificaciones de proyectos asignados
+        if (resenas.isEmpty()) {
+            EmployeeEntity employee = employeeRepository.findByPerfil(perfil).orElse(null);
+            if (employee != null) {
+                List<CalificacionProyectoEntity> califsProyecto = calificacionProyectoRepository.findByFreelancerEmployeeId(employee.getEmployeeId());
+                for (CalificacionProyectoEntity cp : califsProyecto) {
+                    resenas.add(mapToDto(cp));
+                }
+            }
+        }
 
         double promedio = resenas.isEmpty() ? 0.0 : 
                 resenas.stream()
@@ -118,6 +139,7 @@ public class CalificacionProyectoServiceImpl implements ICalificacionProyectoSer
     private CalificacionProyectoResponseDTO mapToDto(CalificacionProyectoEntity entity) {
         return new CalificacionProyectoResponseDTO(
                 entity.getCalificacionId(),
+                entity.getTituloResena(),
                 entity.getPuntaje(),
                 entity.getComentario(),
                 entity.getFechaComentario(),

@@ -64,7 +64,7 @@ public class ProyectoController {
     }
 
     @Operation(summary = "Listar mis proyectos asignados", description = "Obtiene todos los proyectos asignados al freelancer autenticado.")
-    @GetMapping("/me/asignados")
+    @GetMapping({"/me/asignados", "/me/historico", "/historico"})
     public ResponseEntity<List<ProyectoResponseDTO>> listarMisProyectosAsignados(Authentication authentication) {
         return ResponseEntity.ok(proyectoService.listarMisProyectosAsignados(authentication.getName()));
     }

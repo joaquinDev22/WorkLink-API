@@ -10,5 +10,6 @@ public interface ICalificacionProyectoService {
     CalificacionProyectoResponseDTO calificarProyecto(Integer proyectoId, CalificacionProyectoRequestDTO dto, String username);
     List<CalificacionProyectoResponseDTO> listarCalificacionesPorProyecto(Integer proyectoId);
     ReputacionPerfilResponseDTO obtenerReputacionPerfil(Integer perfilId);
+    ReputacionPerfilResponseDTO obtenerReputacionPorUsuario(String username);
 }
 

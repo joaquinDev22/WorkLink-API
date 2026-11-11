@@ -996,6 +996,14 @@ INSERT INTO calificacion_proyecto (calificacion_id, puntaje, titulo_resena, come
 (5, 5, 'Auditoría rigurosa y profesional', 'Mateo encontró brechas que ningún scanner detectaba y nos ayudó a mitigarlas.', '2026-09-08', 12),
 (6, 5, 'LMS de clase mundial', 'Sofía desarrolló una plataforma muy fluida que ya usan más de 2000 estudiantes.', '2026-09-12', 13);
 
+INSERT INTO calificacion_usuario (calificacion_usuario_id, calificacion_id, calificacion_bootcamp_id, perfil_id) VALUES 
+(1, 1, NULL, 8),
+(2, 2, NULL, 2),
+(3, 3, NULL, 29),
+(4, 4, NULL, 30),
+(5, 5, NULL, 27),
+(6, 6, NULL, 26);
+
 INSERT INTO postulacion_proyecto (post_proy_id, descripcion, valor_propuesto, fecha_postulacion, estado_postulacion, employee_id, proyecto_id) VALUES 
 (1, 'Cuento con amplia experiencia en APIs financieras de Spring Boot. Me encantaría desarrollar este portal.', 3200.00, '2026-10-02', 'ACEPTADA', 4, 1),
 (2, 'Especialista en Angular 19 y arquitectura reactiva. Puedo completar el dashboard en 4 semanas.', 2000.00, '2026-10-16', 'ACEPTADA', 4, 2),

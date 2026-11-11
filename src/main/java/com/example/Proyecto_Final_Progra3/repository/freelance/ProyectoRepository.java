@@ -15,7 +15,9 @@ import java.util.UUID;
 public interface ProyectoRepository extends JpaRepository<ProyectoEntity, Integer> {
     Optional<ProyectoEntity> findByUuid(UUID uuid);
     List<ProyectoEntity> findByClient_ClienteId(Integer clientId);
-    List<ProyectoEntity> findByFreelancer_EmployeeId(Integer employeeId);
+
+    @Query("SELECT DISTINCT p FROM ProyectoEntity p LEFT JOIN FETCH p.client LEFT JOIN FETCH p.freelancer WHERE p.freelancer.employeeId = :employeeId")
+    List<ProyectoEntity> findByFreelancer_EmployeeId(@Param("employeeId") Integer employeeId);
 
     long countByClient_ClienteIdAndEstadoIn(Integer clientId, List<EstadoProyecto> estados);
     long countByClient_ClienteIdAndEstado(Integer clientId, EstadoProyecto estado);

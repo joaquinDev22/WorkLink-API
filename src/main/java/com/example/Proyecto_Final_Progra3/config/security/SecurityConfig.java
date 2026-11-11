@@ -49,7 +49,7 @@ public class SecurityConfig {
                             // Solo lectura de feed y detalle individual público (evita wildcard /** que exponía /postulaciones)
                             .requestMatchers(HttpMethod.GET, "/api/v1/vacantes", "/api/v1/vacantes/*").permitAll()
                             .requestMatchers(HttpMethod.GET, "/api/v1/freelance/proyectos", "/api/v1/freelance/proyectos/*").permitAll()
-                            .requestMatchers(HttpMethod.GET, "/api/v1/perfiles/*/calificaciones").permitAll()
+                            .requestMatchers(HttpMethod.GET, "/api/v1/perfiles/*/calificaciones", "/api/v1/perfiles/me/calificaciones", "/api/v1/freelance/calificaciones/me").permitAll()
                             
                             // Rutas protegidas con roles estrictos
                             .requestMatchers(HttpMethod.GET, "/api/v1/recruiter/entrevistas").hasAnyRole("EMPRESA", "RECRUITER", "POSTULANTE", "EMPLOYEE")

@@ -4,6 +4,8 @@ import com.example.Proyecto_Final_Progra3.dto.requestdto.MedioCobroRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.FreelancerFinancesResponseDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.FreelancerTransactionResponseDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.MedioCobroResponseDTO;
+import com.example.Proyecto_Final_Progra3.dto.responsedto.ProyectoResponseDTO;
+import com.example.Proyecto_Final_Progra3.dto.responsedto.ReputacionPerfilResponseDTO;
 import com.example.Proyecto_Final_Progra3.exceptions.domain.ResourceNotFoundException;
 import com.example.Proyecto_Final_Progra3.model.PerfilEntity;
 import com.example.Proyecto_Final_Progra3.model.employee.EmployeeEntity;
@@ -13,7 +15,9 @@ import com.example.Proyecto_Final_Progra3.repository.EmployeeRepository;
 import com.example.Proyecto_Final_Progra3.repository.PerfilRepository;
 import com.example.Proyecto_Final_Progra3.repository.freelance.PagosRepository;
 import com.example.Proyecto_Final_Progra3.repository.freelance.ProyectoRepository;
+import com.example.Proyecto_Final_Progra3.service.freelance.freelanceInterfaces.ICalificacionProyectoService;
 import com.example.Proyecto_Final_Progra3.service.freelance.freelanceInterfaces.IFreelancerMedioCobroService;
+import com.example.Proyecto_Final_Progra3.service.freelance.freelanceInterfaces.IProyectoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -36,6 +40,8 @@ public class FreelancerController {
     private final ProyectoRepository proyectoRepository;
     private final PagosRepository pagosRepository;
     private final IFreelancerMedioCobroService medioCobroService;
+    private final IProyectoService proyectoService;
+    private final ICalificacionProyectoService calificacionService;
 
     private EmployeeEntity obtenerFreelancer(String username) {
         PerfilEntity perfil = perfilRepository.findByUsuario(username)
@@ -84,7 +90,7 @@ public class FreelancerController {
 
     @Operation(summary = "Consultar medios de cobro", description = "Obtiene los datos bancarios o billetera configurados por el freelancer autenticado. Devuelve 204 si aún no configuró.")
     @GetMapping("/medios-cobro")
-    @PreAuthorize("hasRole('FREELANCER')")
+    @PreAuthorize("hasAnyRole('FREELANCER', 'EMPLOYEE', 'POSTULANTE')")
     public ResponseEntity<MedioCobroResponseDTO> getMedioCobro(Authentication authentication) {
         MedioCobroResponseDTO response = medioCobroService.getMedioCobro(authentication.getName());
         if (response == null) {
@@ -95,7 +101,7 @@ public class FreelancerController {
 
     @Operation(summary = "Configurar medio de cobro", description = "Permite registrar o actualizar los datos bancarios o de Mercado Pago del freelancer autenticado (upsert).")
     @PutMapping("/medios-cobro")
-    @PreAuthorize("hasRole('FREELANCER')")
+    @PreAuthorize("hasAnyRole('FREELANCER', 'EMPLOYEE', 'POSTULANTE')")
     public ResponseEntity<MedioCobroResponseDTO> upsertMedioCobro(
             Authentication authentication,
             @Valid @RequestBody MedioCobroRequestDTO request) {
@@ -104,9 +110,23 @@ public class FreelancerController {
 
     @Operation(summary = "Eliminar medio de cobro", description = "Elimina los datos bancarios configurados por el freelancer autenticado.")
     @DeleteMapping("/medios-cobro")
-    @PreAuthorize("hasRole('FREELANCER')")
+    @PreAuthorize("hasAnyRole('FREELANCER', 'EMPLOYEE', 'POSTULANTE')")
     public ResponseEntity<Void> deleteMedioCobro(Authentication authentication) {
         medioCobroService.deleteMedioCobro(authentication.getName());
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Listar proyectos asignados del freelancer", description = "Obtiene todos los proyectos asignados al freelancer autenticado (histórico y activos).")
+    @GetMapping({"/proyectos", "/proyectos/historico", "/proyectos/asignados"})
+    @PreAuthorize("hasAnyRole('FREELANCER', 'EMPLOYEE', 'POSTULANTE')")
+    public ResponseEntity<List<ProyectoResponseDTO>> getMisProyectos(Authentication authentication) {
+        return ResponseEntity.ok(proyectoService.listarMisProyectosAsignados(authentication.getName()));
+    }
+
+    @Operation(summary = "Obtener opiniones y calificaciones del freelancer", description = "Obtiene el promedio y la lista de calificaciones/reseñas históricas recibidas.")
+    @GetMapping({"/opiniones", "/calificaciones"})
+    @PreAuthorize("hasAnyRole('FREELANCER', 'EMPLOYEE', 'POSTULANTE')")
+    public ResponseEntity<ReputacionPerfilResponseDTO> getMisOpiniones(Authentication authentication) {
+        return ResponseEntity.ok(calificacionService.obtenerReputacionPorUsuario(authentication.getName()));
     }
 }

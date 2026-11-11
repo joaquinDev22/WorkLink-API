@@ -20,6 +20,9 @@ public class CalificacionProyectoEntity {
     @EqualsAndHashCode.Include
     private Integer calificacionId;
 
+    @Column(name = "titulo_resena", length = 100)
+    private String tituloResena;
+
     @Column(nullable = false)
     private Integer puntaje;
 
