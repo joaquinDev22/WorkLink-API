@@ -267,6 +267,19 @@ CREATE TABLE metodos_cobro_freelancer (
     FOREIGN KEY (employee_id) REFERENCES employee(employee_id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
+CREATE TABLE freelancer_medios_cobro (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    freelancer_id INT NOT NULL UNIQUE,
+    tipo ENUM('TRANSFERENCIA', 'MERCADOPAGO') NOT NULL,
+    titular VARCHAR(120) NOT NULL,
+    documento_titular VARCHAR(20),
+    cbu_cvu VARCHAR(22),
+    alias VARCHAR(40),
+    mercado_pago_email VARCHAR(150),
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (freelancer_id) REFERENCES perfil(perfil_id) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
 CREATE TABLE metodos_pago_cliente (
     metodos_pago_cliente_id INT AUTO_INCREMENT PRIMARY KEY,
     titular VARCHAR(50) NOT NULL,

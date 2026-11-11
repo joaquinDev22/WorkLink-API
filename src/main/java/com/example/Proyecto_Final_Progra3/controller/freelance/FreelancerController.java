@@ -1,7 +1,9 @@
 package com.example.Proyecto_Final_Progra3.controller.freelance;
 
+import com.example.Proyecto_Final_Progra3.dto.requestdto.MedioCobroRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.FreelancerFinancesResponseDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.FreelancerTransactionResponseDTO;
+import com.example.Proyecto_Final_Progra3.dto.responsedto.MedioCobroResponseDTO;
 import com.example.Proyecto_Final_Progra3.exceptions.domain.ResourceNotFoundException;
 import com.example.Proyecto_Final_Progra3.model.PerfilEntity;
 import com.example.Proyecto_Final_Progra3.model.employee.EmployeeEntity;
@@ -11,14 +13,15 @@ import com.example.Proyecto_Final_Progra3.repository.EmployeeRepository;
 import com.example.Proyecto_Final_Progra3.repository.PerfilRepository;
 import com.example.Proyecto_Final_Progra3.repository.freelance.PagosRepository;
 import com.example.Proyecto_Final_Progra3.repository.freelance.ProyectoRepository;
+import com.example.Proyecto_Final_Progra3.service.freelance.freelanceInterfaces.IFreelancerMedioCobroService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -32,6 +35,7 @@ public class FreelancerController {
     private final EmployeeRepository employeeRepository;
     private final ProyectoRepository proyectoRepository;
     private final PagosRepository pagosRepository;
+    private final IFreelancerMedioCobroService medioCobroService;
 
     private EmployeeEntity obtenerFreelancer(String username) {
         PerfilEntity perfil = perfilRepository.findByUsuario(username)
@@ -76,5 +80,33 @@ public class FreelancerController {
                 .toList();
 
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "Consultar medios de cobro", description = "Obtiene los datos bancarios o billetera configurados por el freelancer autenticado. Devuelve 204 si aún no configuró.")
+    @GetMapping("/medios-cobro")
+    @PreAuthorize("hasRole('FREELANCER')")
+    public ResponseEntity<MedioCobroResponseDTO> getMedioCobro(Authentication authentication) {
+        MedioCobroResponseDTO response = medioCobroService.getMedioCobro(authentication.getName());
+        if (response == null) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "Configurar medio de cobro", description = "Permite registrar o actualizar los datos bancarios o de Mercado Pago del freelancer autenticado (upsert).")
+    @PutMapping("/medios-cobro")
+    @PreAuthorize("hasRole('FREELANCER')")
+    public ResponseEntity<MedioCobroResponseDTO> upsertMedioCobro(
+            Authentication authentication,
+            @Valid @RequestBody MedioCobroRequestDTO request) {
+        return ResponseEntity.ok(medioCobroService.upsertMedioCobro(authentication.getName(), request));
+    }
+
+    @Operation(summary = "Eliminar medio de cobro", description = "Elimina los datos bancarios configurados por el freelancer autenticado.")
+    @DeleteMapping("/medios-cobro")
+    @PreAuthorize("hasRole('FREELANCER')")
+    public ResponseEntity<Void> deleteMedioCobro(Authentication authentication) {
+        medioCobroService.deleteMedioCobro(authentication.getName());
+        return ResponseEntity.noContent().build();
     }
 }
