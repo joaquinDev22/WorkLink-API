@@ -2,6 +2,7 @@ package com.example.Proyecto_Final_Progra3.model;
 
 import com.example.Proyecto_Final_Progra3.model.bootcamps.CalificacionBootcampEntity;
 import com.example.Proyecto_Final_Progra3.model.freelance.proyecto.CalificacionProyectoEntity;
+import com.example.Proyecto_Final_Progra3.model.PerfilEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
