@@ -1,5 +1,10 @@
 server:
   port: ${PORT:8080}
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
+      enabled: true
   compression:
     enabled: true
     mime-types: application/json,application/xml,text/html,text/xml,text/plain
@@ -12,7 +17,7 @@ spring:
     virtual:
       enabled: true
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/bd_proyecto_final?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/bd_proyecto_final?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8&useUnicode=true}
     username: ${DB_USER:${SPRING_DATASOURCE_USERNAME:root}}
     password: ${DB_PASSWORD:${SPRING_DATASOURCE_PASSWORD:root}}
     driver-class-name: com.mysql.cj.jdbc.Driver

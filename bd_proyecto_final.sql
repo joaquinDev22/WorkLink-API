@@ -694,6 +694,7 @@ INSERT INTO perfil (perfil_id, usuario, email, password, ubicacion, descripcion,
 (4, 'TechCorp', 'empresa@techcorp.com', '$2a$10$u6H6dHwPd/sxic3NosWUxeQIDmbO/ZZJSHkuGGUt8Ey1ihwXwfyTu', 'Madrid, España', 'Compañía multinacional líder en soluciones corporativas, transformación digital de alto impacto y consultoría de arquitectura de software.', TRUE, 1),
 (5, 'CandidatoIT', 'candidato@it.com', '$2a$10$u6H6dHwPd/sxic3NosWUxeQIDmbO/ZZJSHkuGGUt8Ey1ihwXwfyTu', 'Córdoba, Argentina', 'Desarrollador Backend apasionado por Java, Spring Boot, Clean Architecture y sistemas distribuidos resilientes.', TRUE, 5),
 (6, 'ProfeBootcamp', 'profe@bootcamp.com', '$2a$10$u6H6dHwPd/sxic3NosWUxeQIDmbO/ZZJSHkuGGUt8Ey1ihwXwfyTu', 'Santiago, Chile', 'Líder técnica y formadora de talento en bootcamps intensivos con foco en ecosistemas JavaScript, Next.js y metodologías ágiles.', TRUE, 3),
+(8, 'joaking102003', 'joaking102003@gmail.com', '$2a$10$u6H6dHwPd/sxic3NosWUxeQIDmbO/ZZJSHkuGGUt8Ey1ihwXwfyTu', 'Tucumán, Argentina', 'Desarrollador Full Stack apasionado por Java, Spring Boot, Angular y arquitecturas escalables.', TRUE, 5),
 (10, 'MercadoLibre', 'careers@mercadolibre.com', '$2a$10$u6H6dHwPd/sxic3NosWUxeQIDmbO/ZZJSHkuGGUt8Ey1ihwXwfyTu', 'Buenos Aires, Argentina', 'El ecosistema de comercio electrónico y servicios financieros líder de América Latina.', TRUE, 1),
 (11, 'Globant', 'hiring@globant.com', '$2a$10$u6H6dHwPd/sxic3NosWUxeQIDmbO/ZZJSHkuGGUt8Ey1ihwXwfyTu', 'Buenos Aires, Argentina', 'Compañía nativa digital enfocada en reinventar los negocios mediante soluciones tecnológicas innovadoras.', TRUE, 1),
 (12, 'Auth0', 'talent@auth0.com', '$2a$10$u6H6dHwPd/sxic3NosWUxeQIDmbO/ZZJSHkuGGUt8Ey1ihwXwfyTu', 'Bellevue, Estados Unidos', 'Plataforma líder en gestión de identidades y autenticación segura para desarrolladores y empresas globales.', TRUE, 1),
@@ -751,6 +752,7 @@ INSERT INTO employee (employee_id, nombre, apellido, email, fecha_nacimiento, fr
 (1, 'Dev', 'Freelancer', 'freelancer@ejemplo.com', '1995-02-15', TRUE, FALSE, 2),
 (2, 'Candidato', 'IT', 'candidato@it.com', '1998-07-22', FALSE, TRUE, 5),
 (3, 'Sofía', 'Martínez', 'sofia.martinez@dev.io', '1994-05-18', TRUE, TRUE, 26),
+(4, 'Joaquín', 'Nieva', 'joaking102003@gmail.com', '2003-10-20', TRUE, TRUE, 8),
 (5, 'Mateo', 'Rodríguez', 'mateo.rodriguez@cloudops.io', '1991-09-23', TRUE, TRUE, 27),
 (6, 'Camila', 'Fernández', 'camila.fernandez@design.io', '1996-01-11', TRUE, FALSE, 28),
 (7, 'Lucas', 'Gómez', 'lucas.gomez@mobileapps.dev', '1993-11-04', TRUE, TRUE, 29),
@@ -770,6 +772,7 @@ INSERT INTO employee_habilidad (employee_id, habilidad_id, nivel) VALUES
 (1, 1, 5), (1, 4, 4), (1, 2, 4),
 (2, 6, 5), (2, 7, 5), (2, 13, 4),
 (3, 1, 5), (3, 4, 5), (3, 2, 4), (3, 15, 5), (3, 9, 5),
+(4, 6, 5), (4, 7, 5), (4, 8, 5), (4, 4, 4), (4, 13, 4),
 (5, 12, 5), (5, 11, 5), (5, 10, 5), (5, 25, 5), (5, 17, 4),
 (6, 3, 5), (6, 9, 5), (6, 1, 4), (6, 4, 4),
 (7, 16, 5), (7, 20, 5), (7, 21, 4), (7, 1, 3),
@@ -781,6 +784,7 @@ INSERT INTO experiencia (titulo, descripcion, fecha_inicio, fecha_fin, employee_
 ('Frontend Developer Senior', 'Desarrollo de interfaces en React para E-commerce.', '2020-01-01', '2023-01-01', 1),
 ('Backend Engineer', 'Creación de APIs REST con Node.js y microservicios.', '2019-05-01', '2024-02-01', 2),
 ('Lead Frontend Engineer', 'Dirección de arquitectura UI con React, Next.js y Tailwind CSS.', '2022-06-01', NULL, 3),
+('Fullstack Developer & Arquitecto de Software', 'Desarrollo de aplicaciones completas con Spring Boot, Angular y bases de datos relacionales.', '2022-01-01', NULL, 4),
 ('DevOps Engineer Senior', 'Automatización de despliegues multi-región en AWS EKS.', '2021-04-01', NULL, 5),
 ('Senior Product Designer', 'Diseño de sistemas de diseño y flujos de usuario complejos.', '2020-08-01', NULL, 6),
 ('Mobile Tech Lead', 'Desarrollo de apps Fintech multiplataforma con Flutter.', '2021-02-01', NULL, 7),
@@ -791,6 +795,7 @@ INSERT INTO experiencia (titulo, descripcion, fecha_inicio, fecha_fin, employee_
 INSERT INTO portfolio (github, linkedin, descripcion, employee_id) VALUES 
 ('https://github.com/devfreelancer', 'https://linkedin.com/in/devfreelancer', 'Portafolio de proyectos React y Web.', 1),
 ('https://github.com/sofiamartinez-dev', 'https://linkedin.com/in/sofiamartinez', 'Portafolio con aplicaciones React, Next.js y componentes Tailwind.', 3),
+('https://github.com/joaking102003', 'https://linkedin.com/in/joaquin-nieva', 'Portafolio de proyectos backend, microservicios y desarrollo web full stack.', 4),
 ('https://github.com/mateo-cloudops', 'https://linkedin.com/in/mateorodriguez', 'Infraestructura como código en Terraform, configuraciones Helm y K8s.', 5),
 ('https://github.com/camila-uxdesign', 'https://linkedin.com/in/camilafernandez', 'Casos de estudio UX/UI y librerías de diseño de componentes.', 6),
 ('https://github.com/lucasgomez-mob', 'https://linkedin.com/in/lucasgomez', 'Aplicaciones móviles publicadas en App Store y Google Play Store.', 7),
@@ -1002,7 +1007,7 @@ INSERT INTO bootcamp (bootcamp_id, titulo, descripcion, fecha_inicio, fecha_fin,
 INSERT INTO bootcamp_etiquetas (bootcamp_id, etiqueta) VALUES 
 (1, 'React'), (1, 'Frontend');
 
-INSERT INTO modulo_bootcamp (titulo, descripcion, link_clase, horario_clase, bootcamp_id) VALUES 
+INSERT INTO modulo_bootcamp (modulo_id, titulo, descripcion, link_clase, horario_clase, bootcamp_id) VALUES 
 (1, 'Introducción a React', 'Conceptos básicos, JSX y componentes.', 'https://zoom.us/clase1', 'Lunes 18:00', 1),
 (2, 'Hooks y Estado', 'useState, useEffect y custom hooks.', 'https://zoom.us/clase2', 'Miércoles 18:00', 1);
 
