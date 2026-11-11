@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,6 +27,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/client")
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 @Tag(name = "Freelance", description = "Gestión de proyectos freelance, postulaciones, hitos, pagos, clientes y freelancers.")
 public class ClientController {
 
@@ -74,11 +76,12 @@ public class ClientController {
         ClientEntity client = clientRepository.findByPerfil(perfil)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado para el usuario: " + authentication.getName()));
 
-        return ResponseEntity.ok(mapToClientDto(client));
+        return ResponseEntity.ok(mapToClientDto(client, perfil));
     }
 
     @Operation(summary = "Actualizar perfil del cliente", description = "Permite modificar datos de contacto y país del cliente autenticado.")
     @PutMapping("/me")
+    @Transactional
     public ResponseEntity<ClientProfileResponseDTO> updateMyClientProfile(
             Authentication authentication,
             @RequestBody ClientProfileRequestDTO dto) {
@@ -95,10 +98,10 @@ public class ClientController {
         if (dto.fechaNacimiento() != null) client.setFechaNacimiento(dto.fechaNacimiento());
 
         ClientEntity guardado = clientRepository.save(client);
-        return ResponseEntity.ok(mapToClientDto(guardado));
+        return ResponseEntity.ok(mapToClientDto(guardado, perfil));
     }
 
-    private ClientProfileResponseDTO mapToClientDto(ClientEntity client) {
+    private ClientProfileResponseDTO mapToClientDto(ClientEntity client, PerfilEntity perfil) {
         return new ClientProfileResponseDTO(
                 client.getClienteId(),
                 client.getFirstName(),
@@ -107,8 +110,8 @@ public class ClientController {
                 client.getPhoneNumber(),
                 client.getCountry(),
                 client.getFechaNacimiento(),
-                client.getPerfil() != null ? client.getPerfil().getId() : null,
-                client.getPerfil() != null ? client.getPerfil().getUsuario() : null
+                perfil != null ? perfil.getId() : (client.getPerfil() != null ? client.getPerfil().getId() : null),
+                perfil != null ? perfil.getUsuario() : (client.getPerfil() != null ? client.getPerfil().getUsuario() : null)
         );
     }
 }
