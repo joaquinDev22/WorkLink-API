@@ -21,8 +21,8 @@ spring:
       enabled: true
   servlet:
     multipart:
-      max-file-size: 5MB      # INC-02: CV en PDF de hasta 5 MB (RF06)
-      max-request-size: 6MB   # 5 MB de archivo + campos del formulario
+      max-file-size: 8MB      # banner de empresa hasta 8 MB; CV y logo se limitan a 5 MB en sus servicios
+      max-request-size: 9MB   # 8 MB de archivo + campos del formulario
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/bd_proyecto_final?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8&useUnicode=true}
     username: ${DB_USER:${SPRING_DATASOURCE_USERNAME:root}}

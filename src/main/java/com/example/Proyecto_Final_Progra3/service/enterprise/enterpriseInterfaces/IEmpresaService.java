@@ -3,6 +3,8 @@ package com.example.Proyecto_Final_Progra3.service.enterprise.enterpriseInterfac
 import com.example.Proyecto_Final_Progra3.dto.requestdto.EmpresaRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.DashboardStatsResponseDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.EmpresaResponseDTO;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -16,4 +18,6 @@ public interface IEmpresaService {
     void eliminarEmpresa(Integer idEmpresa, String username);
     EmpresaResponseDTO buscarMiEmpresa(String username);
     DashboardStatsResponseDTO getDashboardStats(String username);
+    String subirLogo(String username, MultipartFile file);
+    String subirBanner(String username, MultipartFile file);
 }

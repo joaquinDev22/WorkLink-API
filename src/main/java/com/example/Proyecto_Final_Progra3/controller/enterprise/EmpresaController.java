@@ -15,6 +15,9 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -64,5 +67,17 @@ public class EmpresaController {
     @GetMapping("/dashboard")
     public ResponseEntity<DashboardStatsResponseDTO> getDashboardStats(Authentication authentication){
         return ResponseEntity.ok(empresaService.getDashboardStats(authentication.getName()));
+    }
+
+    @Operation(summary = "Subir logo de mi empresa", description = "Guarda el logo (PNG, JPG o WEBP, hasta 5 MB) de la empresa del usuario autenticado.")
+    @PostMapping("/logo")
+    public ResponseEntity<Map<String, String>> subirLogo(Authentication authentication, @RequestParam("file") MultipartFile file) {
+        return ResponseEntity.ok(Map.of("logoUrl", empresaService.subirLogo(authentication.getName(), file)));
+    }
+
+    @Operation(summary = "Subir banner de mi empresa", description = "Guarda el banner (PNG, JPG o WEBP, hasta 8 MB) de la empresa del usuario autenticado.")
+    @PostMapping("/banner")
+    public ResponseEntity<Map<String, String>> subirBanner(Authentication authentication, @RequestParam("file") MultipartFile file) {
+        return ResponseEntity.ok(Map.of("bannerUrl", empresaService.subirBanner(authentication.getName(), file)));
     }
 }

@@ -9,6 +9,8 @@ public record EmpresaResponseDTO(
         String direccion,
         String sitio_web,
         String ubicacion,
-        Integer perfil_id
+        Integer perfil_id,
+        String logo,
+        String banner
 ) {}
 

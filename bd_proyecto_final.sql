@@ -41,6 +41,8 @@ CREATE TABLE empresa (
     ubicacion VARCHAR(100) NOT NULL,
     tamano VARCHAR(50),
     sector VARCHAR(100),
+    logo MEDIUMTEXT,    -- imagen como data URL (data:image/png;base64,...)
+    banner MEDIUMTEXT,  -- imagen como data URL
     perfil_id INT NOT NULL UNIQUE,
     FOREIGN KEY (perfil_id) REFERENCES perfil(perfil_id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;

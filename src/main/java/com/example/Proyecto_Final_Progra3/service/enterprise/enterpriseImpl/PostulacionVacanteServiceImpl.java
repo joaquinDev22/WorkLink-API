@@ -73,6 +73,9 @@ public class PostulacionVacanteServiceImpl implements IPostulacionVacanteService
             if (!"application/pdf".equals(cv.getContentType())) {
                 throw new BadRequestException("El CV debe ser un archivo PDF.");
             }
+            if (cv.getSize() > 5L * 1024 * 1024) {   // RF06: CV hasta 5 MB (el límite global de subida es 8 MB por el banner)
+                throw new BadRequestException("El CV no puede superar los 5 MB.");
+            }
             try {
                 postulacion.setCv(cv.getBytes());
             } catch (IOException e) {

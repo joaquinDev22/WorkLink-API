@@ -35,6 +35,9 @@ public class PortfolioServiceImpl implements IPortfolioService {
         if (file == null || !"application/pdf".equals(file.getContentType())) {
             throw new BadRequestException("El archivo debe ser un formato PDF válido.");
         }
+        if (file.getSize() > 5L * 1024 * 1024) {   // RF06: CV hasta 5 MB (el límite global de subida es 8 MB por el banner)
+            throw new BadRequestException("El CV no puede superar los 5 MB.");
+        }
 
         EmployeeEntity employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Empleado no encontrado con ID: " + employeeId));

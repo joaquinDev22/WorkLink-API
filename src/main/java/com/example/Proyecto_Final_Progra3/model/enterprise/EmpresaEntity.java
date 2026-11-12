@@ -38,6 +38,13 @@ public class EmpresaEntity {
     @Column(length = 150)
     private String ubicacion;
 
+    // Imágenes como data URL ("data:image/png;base64,..."): se muestran directo en <img src>
+    @Column(columnDefinition = "MEDIUMTEXT")
+    private String logo;
+
+    @Column(columnDefinition = "MEDIUMTEXT")
+    private String banner;
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="perfil_id", unique = true)
     private PerfilEntity perfil;

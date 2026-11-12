@@ -17,7 +17,13 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.Proyecto_Final_Progra3.exceptions.domain.BadRequestException;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.Base64;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -143,5 +149,48 @@ public class EmpresaServiceImpl implements IEmpresaService {
         Long contrataciones = 0L;
 
         return new DashboardStatsResponseDTO(totalVacantes, totalPostulaciones, entrevistasPendientes, contrataciones);
+    }
+
+    private static final Set<String> TIPOS_IMAGEN = Set.of("image/png", "image/jpeg", "image/webp");
+
+    @Override
+    @Transactional
+    public String subirLogo(String username, MultipartFile file) {
+        EmpresaEntity empresa = miEmpresa(username);
+        empresa.setLogo(aDataUrl(file, 5, "logo"));
+        return empresaRepository.save(empresa).getLogo();
+    }
+
+    @Override
+    @Transactional
+    public String subirBanner(String username, MultipartFile file) {
+        EmpresaEntity empresa = miEmpresa(username);
+        empresa.setBanner(aDataUrl(file, 8, "banner"));
+        return empresaRepository.save(empresa).getBanner();
+    }
+
+    private EmpresaEntity miEmpresa(String username) {
+        PerfilEntity perfil = perfilRepository.findByUsuario(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + username));
+        return empresaRepository.findByPerfil(perfil)
+                .orElseThrow(() -> new UnauthorizedAccessException("El usuario autenticado no posee una empresa registrada"));
+    }
+
+    // Valida tipo y tamaño y devuelve la imagen como data URL lista para <img src>
+    private static String aDataUrl(MultipartFile file, int maxMb, String campo) {
+        if (file == null || file.isEmpty()) {
+            throw new BadRequestException("No se recibió ningún archivo para el " + campo);
+        }
+        if (!TIPOS_IMAGEN.contains(file.getContentType())) {
+            throw new BadRequestException("El " + campo + " debe ser una imagen PNG, JPG o WEBP (se recibió " + file.getContentType() + ")");
+        }
+        if (file.getSize() > maxMb * 1024L * 1024L) {
+            throw new BadRequestException("El " + campo + " no puede superar los " + maxMb + " MB");
+        }
+        try {
+            return "data:" + file.getContentType() + ";base64," + Base64.getEncoder().encodeToString(file.getBytes());
+        } catch (IOException e) {
+            throw new BadRequestException("No se pudo leer el archivo del " + campo + ": " + e.getMessage());
+        }
     }
 }
