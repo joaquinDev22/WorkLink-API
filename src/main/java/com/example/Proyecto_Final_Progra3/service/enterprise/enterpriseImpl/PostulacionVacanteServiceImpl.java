@@ -54,9 +54,8 @@ public class PostulacionVacanteServiceImpl implements IPostulacionVacanteService
         return postularse(vacanteId, employee.getEmployeeId(), mensaje, cv);
     }
 
-    @Override
-    @Transactional
-    public PostulacionResponseDTO postularse(Integer vacanteId, Integer employeeId, String mensaje, MultipartFile cv) {
+    // Solo se usa desde la versión /me: el endpoint que recibía el id del dueño se eliminó (suplantación)
+    private PostulacionResponseDTO postularse(Integer vacanteId, Integer employeeId, String mensaje, MultipartFile cv) {
         VacanteEntity vacante = vacanteRepository.findById(vacanteId)
                 .orElseThrow(() -> new ResourceNotFoundException("Vacante no encontrada con ID: " + vacanteId));
 
@@ -86,7 +85,10 @@ public class PostulacionVacanteServiceImpl implements IPostulacionVacanteService
     }
 
     @Override
-    public List<PostulacionResponseDTO> listarPostulantes(Integer vacanteId) {
+    public List<PostulacionResponseDTO> listarPostulantes(Integer vacanteId, String username) {
+        VacanteEntity vacante = vacanteRepository.findById(vacanteId)
+                .orElseThrow(() -> new ResourceNotFoundException("Vacante no encontrada con ID: " + vacanteId));
+        validarGestionVacante(vacante, username);
         return postulacionVacanteMapper.toDtoList(postulacionRepository.findByVacante_VacanteId(vacanteId));
     }
 
@@ -126,24 +128,24 @@ public class PostulacionVacanteServiceImpl implements IPostulacionVacanteService
             throw new BusinessRuleException("La postulación no pertenece a la vacante indicada");
         }
 
-        VacanteEntity vacante = postulacion.getVacante();
-        PerfilEntity perfil = perfilRepository.findByUsuario(username)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + username));
-
-        boolean autorizado = false;
-        if (vacante.getEmpresa() != null && vacante.getEmpresa().getPerfil() != null &&
-            vacante.getEmpresa().getPerfil().getUsuario().equals(username)) {
-            autorizado = true;
-        } else if (vacante.getEmpresa() != null && recruiterRepository.findByPerfil(perfil).map(r -> r.getEmpresa() != null && r.getEmpresa().getId().equals(vacante.getEmpresa().getId())).orElse(false)) {
-            autorizado = true;
-        }
-
-        if (!autorizado) {
-            throw new UnauthorizedAccessException("No tienes permisos para modificar el estado de esta postulación");
-        }
+        validarGestionVacante(postulacion.getVacante(), username);
 
         postulacion.setEstado(nuevoEstado);
         PostulacionVacanteEntity guardada = postulacionRepository.save(postulacion);
         return postulacionVacanteMapper.toDto(guardada);
+    }
+
+    // RF19: solo la empresa dueña de la vacante o un recruiter de esa misma empresa gestionan sus postulaciones
+    private void validarGestionVacante(VacanteEntity vacante, String username) {
+        PerfilEntity perfil = perfilRepository.findByUsuario(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + username));
+        boolean esEmpresa = vacante.getEmpresa() != null && vacante.getEmpresa().getPerfil() != null
+                && vacante.getEmpresa().getPerfil().getUsuario().equals(username);
+        boolean esRecruiter = vacante.getEmpresa() != null && recruiterRepository.findByPerfil(perfil)
+                .map(r -> r.getEmpresa() != null && r.getEmpresa().getId().equals(vacante.getEmpresa().getId()))
+                .orElse(false);
+        if (!esEmpresa && !esRecruiter) {
+            throw new UnauthorizedAccessException("Solo la empresa dueña de la vacante o sus recruiters pueden gestionar sus postulaciones");
+        }
     }
 }

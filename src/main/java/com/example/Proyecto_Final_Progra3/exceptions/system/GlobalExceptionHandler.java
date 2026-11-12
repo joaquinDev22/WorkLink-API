@@ -114,17 +114,20 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
-    // HTTP 401 - Acceso No Autorizado / Token Inválido o expirado
+    // HTTP 403 - Autenticado, pero sin permiso sobre este recurso (no es dueño, rol incorrecto)
     @ExceptionHandler(UnauthorizedAccessException.class)
     public ResponseEntity<ErrorResponseDTO> handleUnauthorizedAccessException(UnauthorizedAccessException ex) {
-        ErrorResponseDTO error = new ErrorResponseDTO("No autorizado", List.of(ex.getMessage()), LocalDate.now());
-        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+        // 403 y no 401: el usuario está autenticado pero no tiene permiso; un 401 haría que el front cierre la sesión
+        ErrorResponseDTO error = new ErrorResponseDTO("Acceso denegado", List.of(ex.getMessage()), LocalDate.now());
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
     }
 
     // HTTP 401 - Credenciales Inválidas o Fallo de Autenticación
     @ExceptionHandler({BadCredentialsException.class, AuthenticationException.class})
     public ResponseEntity<ErrorResponseDTO> handleBadCredentials(Exception ex) {
-        String detalle = ex.getMessage() != null ? ex.getMessage() : "Usuario o contraseña incorrectos";
+        String detalle = ex instanceof BadCredentialsException && "Bad credentials".equals(ex.getMessage())
+                ? "Usuario o contraseña incorrectos"
+                : (ex.getMessage() != null ? ex.getMessage() : "No se pudo autenticar la solicitud");
         ErrorResponseDTO error = new ErrorResponseDTO("Autenticación fallida", List.of(detalle), LocalDate.now());
         return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }

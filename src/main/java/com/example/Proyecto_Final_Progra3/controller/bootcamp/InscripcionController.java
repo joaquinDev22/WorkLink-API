@@ -18,16 +18,6 @@ public class InscripcionController {
 
     private final IInscripcionService inscripcionService;
 
-    @Parameter(name = "bootcampId", description = "Identificador del bootcamp", example = "1")
-    @Parameter(name = "employeeId", description = "Identificador del empleado a inscribir", example = "5")
-    @Operation(summary = "Inscribir empleado a bootcamp", description = "Permite registrar la inscripción de un empleado en un bootcamp específico.")
-    @PostMapping("/{bootcampId}/empleados/{employeeId}")
-    public ResponseEntity<InscripcionResponseDTO> realizarInscripcion(
-            @PathVariable Integer bootcampId, 
-            @PathVariable Integer employeeId) {
-        return new ResponseEntity<>(inscripcionService.realizarInscripcion(bootcampId, employeeId), HttpStatus.CREATED);
-    }
-
     @Operation(summary = "Inscribirme a bootcamp", description = "Permite al usuario autenticado inscribirse en un bootcamp disponible.")
     @PostMapping("/me/{bootcampId}")
     public ResponseEntity<InscripcionResponseDTO> realizarMiInscripcion(

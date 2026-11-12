@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.UUID;
 
 public interface IVacanteService {
-    VacanteResponseDTO crearVacante(VacanteRequestDTO dto);
     VacanteResponseDTO crearMiVacante(String username, VacanteRequestDTO dto);
     VacanteResponseDTO buscarPorId(Integer id);
     VacanteResponseDTO buscarPorUuid(UUID uuid);

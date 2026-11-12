@@ -1,5 +1,6 @@
 package com.example.Proyecto_Final_Progra3.config.security;
 
+import com.example.Proyecto_Final_Progra3.model.PerfilEntity;
 import com.example.Proyecto_Final_Progra3.service.perfil.perfilInterfaces.IJwtService;
 import com.example.Proyecto_Final_Progra3.service.perfil.perfilInterfaces.IPerfilDetailService;
 import jakarta.servlet.FilterChain;
@@ -45,7 +46,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = perfilDetailService.loadUserByUsername(username);
 
-                if (jwtService.isTokenValid(token, userDetails)) {
+                // RF08: un perfil dado de baja deja de autenticar aunque su token no haya vencido
+                if (userDetails instanceof PerfilEntity perfil && perfil.is_active()
+                        && jwtService.isTokenValid(token, userDetails)) {
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                             userDetails,
                             null,

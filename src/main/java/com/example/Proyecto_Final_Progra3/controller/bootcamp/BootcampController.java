@@ -21,12 +21,6 @@ public class BootcampController {
 
     private final IBootcampService bootcampService;
 
-    @Operation(summary = "Crear bootcamp", description = "Permite registrar un nuevo bootcamp en la plataforma.")
-    @PostMapping
-    public ResponseEntity<BootcampResponseDTO> crearBootcamp(@Valid @RequestBody BootcampRequestDTO dto) {
-        return new ResponseEntity<>(bootcampService.crearBootcamp(dto), HttpStatus.CREATED);
-    }
-
     @Operation(summary = "Crear mi bootcamp", description = "Permite al usuario autenticado crear un bootcamp asociado a su cuenta.")
     @PostMapping("/me")
     public ResponseEntity<BootcampResponseDTO> crearMiBootcamp(

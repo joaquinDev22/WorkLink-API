@@ -32,8 +32,8 @@ public class InscripcionServiceImpl implements IInscripcionService {
     private final PerfilRepository perfilRepository;
     private final InscripcionMapper mapper;
 
-    @Transactional
-    public InscripcionResponseDTO realizarInscripcion(Integer bootcampId, Integer employeeId) {
+    // Solo se usa desde la versión /me: el endpoint que recibía el id del dueño se eliminó (suplantación)
+    private InscripcionResponseDTO realizarInscripcion(Integer bootcampId, Integer employeeId) {
 
         BootcampEntity bootcamp = bootcampRepository.findById(bootcampId)
                 .orElseThrow(() -> new ResourceNotFoundException("No existe un bootcamp con el ID: " + bootcampId));

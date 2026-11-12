@@ -30,10 +30,10 @@ public class EmpresaController {
         return ResponseEntity.ok(empresaService.buscarMiEmpresa(authentication.getName()));
     }
 
-    @Operation(summary = "Crear empresa", description = "Crea una nueva empresa en el sistema.")
+    @Operation(summary = "Crear empresa", description = "Crea la empresa del usuario autenticado. El perfil se toma del token, no del body.")
     @PostMapping
-    public ResponseEntity<EmpresaResponseDTO> crearEmpresa(@Valid @RequestBody EmpresaRequestDTO dto) {
-        return new ResponseEntity<>(empresaService.crearEmpresa(dto), HttpStatus.CREATED);
+    public ResponseEntity<EmpresaResponseDTO> crearEmpresa(Authentication authentication, @Valid @RequestBody EmpresaRequestDTO dto) {
+        return new ResponseEntity<>(empresaService.crearEmpresa(authentication.getName(), dto), HttpStatus.CREATED);
     }
 
     @Parameter(name = "id", description = "Identificador único de la empresa", example = "1")

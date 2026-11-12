@@ -23,12 +23,6 @@ public class ProyectoController {
 
     private final IProyectoService proyectoService;
 
-    @Operation(summary = "Crear proyecto", description = "Permite registrar un nuevo proyecto freelance en la plataforma.")
-    @PostMapping
-    public ResponseEntity<ProyectoResponseDTO> crearProyecto(@Valid @RequestBody ProyectoRequestDTO dto) {
-        return ResponseEntity.ok(proyectoService.crearProyecto(dto));
-    }
-
     @Operation(summary = "Crear mi proyecto", description = "Permite al cliente autenticado publicar un nuevo proyecto freelance asociado a su cuenta.")
     @PostMapping("/me")
     public ResponseEntity<ProyectoResponseDTO> crearMiProyecto(

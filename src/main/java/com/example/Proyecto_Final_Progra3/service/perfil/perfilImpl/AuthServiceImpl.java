@@ -6,7 +6,6 @@ import com.example.Proyecto_Final_Progra3.dto.responsedto.LoginResponseDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.PerfilResponseDTO;
 import com.example.Proyecto_Final_Progra3.exceptions.domain.BusinessRuleException;
 import com.example.Proyecto_Final_Progra3.exceptions.domain.ResourceNotFoundException;
-import com.example.Proyecto_Final_Progra3.exceptions.domain.UnauthorizedAccessException;
 import com.example.Proyecto_Final_Progra3.mappers.PerfilMapper;
 import com.example.Proyecto_Final_Progra3.model.PerfilEntity;
 import com.example.Proyecto_Final_Progra3.model.RolEntity;
@@ -24,6 +23,8 @@ import com.example.Proyecto_Final_Progra3.service.perfil.perfilInterfaces.IAuthS
 import com.example.Proyecto_Final_Progra3.service.perfil.perfilInterfaces.IJwtService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -54,15 +55,17 @@ public class AuthServiceImpl implements IAuthService {
         if (perfilRepository.findByUsuario(dto.usuario()).isPresent()) {
             throw new BusinessRuleException("El nombre de usuario ya se encuentra registrado");
         }
+        if (perfilRepository.findByEmail(dto.email()).isPresent()) {
+            throw new BusinessRuleException("El email " + dto.email() + " ya se encuentra registrado");
+        }
 
         PerfilEntity perfil = mapper.toEntity(dto);
         perfil.setPassword(passwordEncoder.encode(dto.password()));
 
         RolEntity rol = rolRepository.findByNombre(dto.rol().toUpperCase());
         if (rol == null) {
-            rol = new RolEntity();
-            rol.setNombre(dto.rol().toUpperCase());
-            rolRepository.save(rol);
+            // Nunca se crean roles desde la API: si falta, la base no tiene los datos semilla
+            throw new ResourceNotFoundException("El rol " + dto.rol() + " no está configurado en la base de datos (revisar bd_proyecto_final.sql)");
         }
         perfil.setRol(rol);
 
@@ -119,11 +122,11 @@ public class AuthServiceImpl implements IAuthService {
         PerfilEntity perfil = (PerfilEntity) authentication.getPrincipal();
 
         if (perfil == null) {
-            throw new UnauthorizedAccessException("Autenticación fallida: perfil nulo");
+            throw new BadCredentialsException("Autenticación fallida: no se pudo cargar el perfil");
         }
 
         if (!perfil.is_active()) {
-            throw new UnauthorizedAccessException("El perfil de usuario se encuentra desactivado.");
+            throw new DisabledException("El perfil de usuario se encuentra desactivado.");
         }
         String token = jwtService.generateToken(perfil);
 

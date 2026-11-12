@@ -50,9 +50,8 @@ public class PostulacionProyectoServiceImpl implements IPostulacionProyectoServi
         return postularse(proyectoId, dtoConEmployee);
     }
 
-    @Override
-    @Transactional
-    public PostulacionProyectoResponseDTO postularse(Integer proyectoId, PostulacionProyectoRequestDTO dto) {
+    // Solo se usa desde la versión /me: el endpoint que recibía el id del dueño se eliminó (suplantación)
+    private PostulacionProyectoResponseDTO postularse(Integer proyectoId, PostulacionProyectoRequestDTO dto) {
         ProyectoEntity proyecto = proyectoRepository.findById(proyectoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado con ID: " + proyectoId));
 

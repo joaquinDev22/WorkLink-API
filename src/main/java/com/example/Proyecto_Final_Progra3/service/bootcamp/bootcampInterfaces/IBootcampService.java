@@ -6,7 +6,6 @@ import com.example.Proyecto_Final_Progra3.dto.responsedto.BootcampResponseDTO;
 import java.util.List;
 
 public interface IBootcampService {
-    BootcampResponseDTO crearBootcamp(BootcampRequestDTO dto);
 
     BootcampResponseDTO crearMiBootcamp(String username, BootcampRequestDTO dto);
 

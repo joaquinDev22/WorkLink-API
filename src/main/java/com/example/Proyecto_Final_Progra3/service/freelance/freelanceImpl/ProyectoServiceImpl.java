@@ -36,9 +36,8 @@ public class ProyectoServiceImpl implements IProyectoService {
     private final EmployeeRepository employeeRepository;
     private final ProyectoMapper proyectoMapper;
 
-    @Override
-    @Transactional
-    public ProyectoResponseDTO crearProyecto(ProyectoRequestDTO dto) {
+    // Solo se usa desde la versión /me: el endpoint que recibía el id del dueño se eliminó (suplantación)
+    private ProyectoResponseDTO crearProyecto(ProyectoRequestDTO dto) {
         ClientEntity client = clientRepository.findById(dto.clienteId())
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado con ID: " + dto.clienteId()));
 

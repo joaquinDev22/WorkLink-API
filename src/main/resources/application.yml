@@ -11,19 +11,26 @@ server:
     min-response-size: 1024
 
 spring:
+  config:
+    # Carga el .env local (KEY=VALUE es formato properties). spring-dotenv 4.0 no se engancha en Spring Boot 4.
+    import: optional:file:.env[.properties]
   application:
     name: Proyecto_Final_Progra3
   threads:
     virtual:
       enabled: true
+  servlet:
+    multipart:
+      max-file-size: 5MB      # INC-02: CV en PDF de hasta 5 MB (RF06)
+      max-request-size: 6MB   # 5 MB de archivo + campos del formulario
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/bd_proyecto_final?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8&useUnicode=true}
     username: ${DB_USER:${SPRING_DATASOURCE_USERNAME:root}}
     password: ${DB_PASSWORD:${SPRING_DATASOURCE_PASSWORD:root}}
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
-      maximum-pool-size: 30
-      minimum-idle: 10
+      maximum-pool-size: 15   # RNF04
+      minimum-idle: 5
       idle-timeout: 300000
       max-lifetime: 1800000
       connection-timeout: 20000
@@ -45,8 +52,11 @@ spring:
         order_updates: true
 
 jwt:
-  secret: ${JWT_SECRET:MiClaveSuperSecretaDeMasDe32Caracteres123}
-  expiration: ${JWT_EXPIRATION:86400000}
+  secret: ${JWT_SECRET}                  # sin valor por defecto: si falta, la app no arranca
+  expiration: ${JWT_EXPIRATION:36000000} # 10 h (RNF05)
+
+app:
+  frontend-url: ${FRONTEND_URL:http://localhost:4200}   # URLs de retorno de Mercado Pago (paso 11)
 
 mercadopago:
   access-token: ${MERCADOPAGO_ACCESS_TOKEN:TEST-ACCESS-TOKEN}

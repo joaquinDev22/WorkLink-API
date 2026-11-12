@@ -3,6 +3,7 @@ package com.example.Proyecto_Final_Progra3.service.enterprise.enterpriseImpl;
 import com.example.Proyecto_Final_Progra3.dto.requestdto.EmpresaRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.DashboardStatsResponseDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.EmpresaResponseDTO;
+import com.example.Proyecto_Final_Progra3.exceptions.domain.BusinessRuleException;
 import com.example.Proyecto_Final_Progra3.exceptions.domain.ResourceNotFoundException;
 import com.example.Proyecto_Final_Progra3.exceptions.domain.UnauthorizedAccessException;
 import com.example.Proyecto_Final_Progra3.mappers.EmpresaMapper;
@@ -35,9 +36,13 @@ public class EmpresaServiceImpl implements IEmpresaService {
 
     @Override
     @Transactional
-    public EmpresaResponseDTO crearEmpresa(EmpresaRequestDTO dto) {
-        PerfilEntity perfil = perfilRepository.findById(dto.perfil_id())
-                .orElseThrow(() -> new ResourceNotFoundException("Perfil no encontrado con ID: " + dto.perfil_id()));
+    public EmpresaResponseDTO crearEmpresa(String username, EmpresaRequestDTO dto) {
+        // El perfil sale del token: dto.perfil_id() se ignora para que nadie cree empresas a nombre de otro
+        PerfilEntity perfil = perfilRepository.findByUsuario(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + username));
+        if (empresaRepository.findByPerfil(perfil).isPresent()) {
+            throw new BusinessRuleException("Tu cuenta ya tiene una empresa registrada; editala en lugar de crear otra");
+        }
 
         EmpresaEntity empresa = mapper.toEntity(dto);
         empresa.setPerfil(perfil);

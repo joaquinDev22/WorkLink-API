@@ -33,15 +33,9 @@ public class VacanteController {
             @RequestParam(required = false) Integer vacanteId,
             Authentication authentication) {
         if (vacanteId != null) {
-            return ResponseEntity.ok(postulacionVacanteService.listarPostulantes(vacanteId));
+            return ResponseEntity.ok(postulacionVacanteService.listarPostulantes(vacanteId, authentication.getName()));
         }
         return ResponseEntity.ok(postulacionVacanteService.listarTodas(authentication.getName()));
-    }
-
-    @Operation(summary = "Crear vacante", description = "Permite registrar una nueva oferta laboral en la plataforma.")
-    @PostMapping
-    public ResponseEntity<VacanteResponseDTO> crearVacante(@Valid @RequestBody VacanteRequestDTO dto) {
-        return ResponseEntity.ok(vacanteService.crearVacante(dto));
     }
 
     @Operation(summary = "Crear mi vacante", description = "Permite a la empresa autenticada crear una nueva oferta laboral asociada a su cuenta.")

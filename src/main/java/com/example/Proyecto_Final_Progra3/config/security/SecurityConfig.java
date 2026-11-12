@@ -45,11 +45,11 @@ public class SecurityConfig {
                             .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html", "/error").permitAll()
                             .requestMatchers("/api/v1/auth/**", "/api/v1/pagos/webhook/**").permitAll()
                             .requestMatchers(HttpMethod.GET, "/api/v1/habilidades").permitAll()
-                            .requestMatchers(HttpMethod.GET, "/api/v1/bootcamps", "/api/v1/bootcamps/*", "/api/v1/bootcamps/disponibles", "/api/v1/bootcamps/modalidad/*").permitAll()
-                            // Solo lectura de feed y detalle individual público (evita wildcard /** que exponía /postulaciones)
-                            .requestMatchers(HttpMethod.GET, "/api/v1/vacantes", "/api/v1/vacantes/*").permitAll()
-                            .requestMatchers(HttpMethod.GET, "/api/v1/freelance/proyectos", "/api/v1/freelance/proyectos/*").permitAll()
-                            .requestMatchers(HttpMethod.GET, "/api/v1/perfiles/*/calificaciones", "/api/v1/perfiles/me/calificaciones", "/api/v1/freelance/calificaciones/me").permitAll()
+                            // {id:\\d+} solo acepta números: "/me", "/postulaciones" o "/historico" no quedan públicos
+                            .requestMatchers(HttpMethod.GET, "/api/v1/bootcamps", "/api/v1/bootcamps/{id:\\d+}", "/api/v1/bootcamps/disponibles", "/api/v1/bootcamps/modalidad/*").permitAll()
+                            .requestMatchers(HttpMethod.GET, "/api/v1/vacantes", "/api/v1/vacantes/{id:\\d+}", "/api/v1/vacantes/uuid/*").permitAll()
+                            .requestMatchers(HttpMethod.GET, "/api/v1/freelance/proyectos", "/api/v1/freelance/proyectos/{id:\\d+}", "/api/v1/freelance/proyectos/uuid/*").permitAll()
+                            .requestMatchers(HttpMethod.GET, "/api/v1/perfiles/{perfilId:\\d+}/calificaciones").permitAll()
                             
                             // Rutas protegidas con roles estrictos
                             .requestMatchers(HttpMethod.GET, "/api/v1/recruiter/entrevistas").hasAnyRole("EMPRESA", "RECRUITER", "POSTULANTE", "EMPLOYEE")

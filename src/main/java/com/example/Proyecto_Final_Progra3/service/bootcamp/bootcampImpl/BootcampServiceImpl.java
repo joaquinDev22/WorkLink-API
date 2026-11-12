@@ -31,9 +31,8 @@ public class BootcampServiceImpl implements IBootcampService {
     private final BootcampMapper mapper;
     private final PerfilRepository perfilRepository;
 
-    @Override
-    @Transactional
-    public BootcampResponseDTO crearBootcamp(BootcampRequestDTO dto) {
+    // Solo se usa desde la versión /me: el endpoint que recibía el id del dueño se eliminó (suplantación)
+    private BootcampResponseDTO crearBootcamp(BootcampRequestDTO dto) {
         validarBootcamp(dto);
 
         InstructorEntity instructor = instructorRepository.findById(dto.instructor_id())

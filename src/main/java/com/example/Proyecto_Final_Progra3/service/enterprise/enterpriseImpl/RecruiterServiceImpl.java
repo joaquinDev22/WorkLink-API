@@ -46,8 +46,19 @@ public class RecruiterServiceImpl implements IRecruiterService {
             throw new BusinessRuleException("Ya existe un recruiter registrado con el email: " + dto.email());
         }
 
+        // RF01 + RF11: el recruiter se registra solo y la empresa lo vincula por email (perfil_id es NOT NULL en la tabla)
+        PerfilEntity perfil = perfilRepository.findByEmail(dto.email())
+                .filter(p -> "RECRUITER".equalsIgnoreCase(p.getRol().getNombre()))
+                .orElseThrow(() -> new BusinessRuleException(
+                        "No existe una cuenta de WorkLink con rol Recruiter y email " + dto.email()
+                                + ". El recruiter debe registrarse primero con ese email."));
+        if (recruiterRepository.findByPerfil(perfil).isPresent()) {
+            throw new BusinessRuleException("La cuenta " + dto.email() + " ya está asociada a una empresa");
+        }
+
         RecruiterEntity recruiter = recruiterMapper.toEntity(dto);
         recruiter.setEmpresa(empresa);
+        recruiter.setPerfil(perfil);
 
         RecruiterEntity guardado = recruiterRepository.save(recruiter);
         return recruiterMapper.toDto(guardado);

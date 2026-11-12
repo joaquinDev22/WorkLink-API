@@ -34,9 +34,8 @@ public class VacanteServiceImpl implements IVacanteService {
     private final RecruiterRepository recruiterRepository;
     private final VacanteMapper vacanteMapper;
 
-    @Override
-    @Transactional
-    public VacanteResponseDTO crearVacante(VacanteRequestDTO dto) {
+    // Solo se usa desde la versión /me: el endpoint que recibía el id del dueño se eliminó (suplantación)
+    private VacanteResponseDTO crearVacante(VacanteRequestDTO dto) {
         EmpresaEntity empresa = empresaRepository.findById(dto.empresaId())
                 .orElseThrow(() -> new ResourceNotFoundException("Empresa no encontrada con ID: " + dto.empresaId()));
 
@@ -67,7 +66,7 @@ public class VacanteServiceImpl implements IVacanteService {
         EmpresaEntity empresa = empresaRepository.findByPerfil(perfil).orElse(null);
         if (empresa == null) {
             RecruiterEntity recruiter = recruiterRepository.findByPerfil(perfil)
-                .orElseThrow(() -> new UnauthorizedAccessException("Solo las empresas o recruiters pueden crear vacantes"));
+                .orElseThrow(() -> new UnauthorizedAccessException("Solo las empresas o los recruiters vinculados a una empresa pueden crear vacantes. Si sos recruiter, pedile a la empresa que te dé de alta con tu email."));
             empresa = recruiter.getEmpresa();
             if (empresa == null) {
                 throw new BusinessRuleException("El recruiter no está asociado a ninguna empresa.");

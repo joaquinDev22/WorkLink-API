@@ -8,17 +8,15 @@ services:
     restart: always
     environment:
       MYSQL_DATABASE: bd_proyecto_final
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_USER: app_user
-      MYSQL_PASSWORD: AppSecurePass2026!
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "3306:3306"
+      - "127.0.0.1:3306:3306"   # MySQL accesible solo desde esta máquina
     volumes:
       - mysql_data:/var/lib/mysql
       # Automatically initialize database schema, stored procedures, triggers & seed data
       - ./bd_proyecto_final.sql:/docker-entrypoint-initdb.d/01_init.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -proot || mysqladmin ping -h localhost -u root -prootpassword || exit 1"]
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost || exit 1"]   # ping responde aunque no haya credenciales
       interval: 10s
       timeout: 5s
       retries: 5
@@ -38,11 +36,11 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/bd_proyecto_final?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       DB_USER: root
-      DB_PASSWORD: root
+      DB_PASSWORD: ${DB_PASSWORD}
       SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root
-      JWT_SECRET: c2VjcmV0S2V5Rm9ySldUVG9rZW5HZW5lcmF0aW9uQW5kVmFsaWRhdGlvbk11c3RCZUxvbmc=
-      JWT_EXPIRATION: 86400000
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: 36000000
     depends_on:
       db:
         condition: service_healthy

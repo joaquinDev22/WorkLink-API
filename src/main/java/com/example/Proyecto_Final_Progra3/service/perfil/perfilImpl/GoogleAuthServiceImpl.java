@@ -2,7 +2,8 @@ package com.example.Proyecto_Final_Progra3.service.perfil.perfilImpl;
 
 import com.example.Proyecto_Final_Progra3.dto.requestdto.GoogleLoginRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.LoginResponseDTO;
-import com.example.Proyecto_Final_Progra3.exceptions.domain.UnauthorizedAccessException;
+import com.example.Proyecto_Final_Progra3.exceptions.domain.BadRequestException;
+import com.example.Proyecto_Final_Progra3.exceptions.domain.ResourceNotFoundException;
 import com.example.Proyecto_Final_Progra3.model.PerfilEntity;
 import com.example.Proyecto_Final_Progra3.model.RolEntity;
 import com.example.Proyecto_Final_Progra3.model.employee.EmployeeEntity;
@@ -22,6 +23,8 @@ import com.google.api.client.json.gson.GsonFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -55,6 +59,10 @@ public class GoogleAuthServiceImpl implements IGoogleAuthService {
     public LoginResponseDTO authenticateGoogle(GoogleLoginRequestDTO request) {
         // Validación criptográfica fuera de transacción de base de datos
         GoogleIdToken.Payload payload = verifyGoogleToken(request.idToken());
+        // Sin email verificado, cualquiera podría entrar a una cuenta ajena usando ese email
+        if (!Boolean.TRUE.equals(payload.getEmailVerified())) {
+            throw new BadCredentialsException("La cuenta de Google no tiene el email verificado");
+        }
 
         String email = payload.getEmail();
         String givenName = (String) payload.get("given_name");
@@ -66,7 +74,7 @@ public class GoogleAuthServiceImpl implements IGoogleAuthService {
         PerfilEntity perfil = (self != null ? self : this).findOrCreatePerfil(email, givenName, familyName, request.rol());
 
         if (!perfil.is_active()) {
-            throw new UnauthorizedAccessException("El perfil de usuario se encuentra desactivado.");
+            throw new DisabledException("El perfil de usuario se encuentra desactivado.");
         }
 
         String token = jwtService.generateToken(perfil);
@@ -89,14 +97,14 @@ public class GoogleAuthServiceImpl implements IGoogleAuthService {
 
             GoogleIdToken idToken = verifier.verify(idTokenString);
             if (idToken == null) {
-                throw new UnauthorizedAccessException("Token de Google inválido o no reconocido para este Client ID");
+                throw new BadCredentialsException("Token de Google inválido o no reconocido para este Client ID");
             }
             return idToken.getPayload();
-        } catch (UnauthorizedAccessException e) {
+        } catch (BadCredentialsException e) {
             throw e;
         } catch (Exception e) {
             log.error("Error al verificar token con los servidores de Google: {}", e.getMessage());
-            throw new UnauthorizedAccessException("Error al procesar la autenticación con Google: " + e.getMessage());
+            throw new BadCredentialsException("Error al procesar la autenticación con Google: " + e.getMessage());
         }
     }
 
@@ -119,14 +127,16 @@ public class GoogleAuthServiceImpl implements IGoogleAuthService {
         }
 
         String rolNombre = (rolDeseado != null && !rolDeseado.isBlank()) ? rolDeseado.toUpperCase() : "POSTULANTE";
+        // Mismos 5 roles registrables que PerfilRequestDTO (RF01); nunca se crean roles desde la API
+        if (!Set.of("POSTULANTE", "FREELANCER", "EMPRESA", "RECRUITER", "CLIENTE").contains(rolNombre)) {
+            throw new BadRequestException("Rol no permitido para el registro: " + rolNombre);
+        }
         RolEntity rol = rolRepository.findByNombre(rolNombre);
         if (rol == null && "POSTULANTE".equalsIgnoreCase(rolNombre)) {
             rol = rolRepository.findByNombre("EMPLOYEE");
         }
         if (rol == null) {
-            rol = new RolEntity();
-            rol.setNombre(rolNombre);
-            rol = rolRepository.save(rol);
+            throw new ResourceNotFoundException("El rol " + rolNombre + " no está configurado en la base de datos (revisar bd_proyecto_final.sql)");
         }
 
         PerfilEntity nuevoPerfil = PerfilEntity.builder()

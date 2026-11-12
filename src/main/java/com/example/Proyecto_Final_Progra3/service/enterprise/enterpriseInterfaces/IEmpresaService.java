@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface IEmpresaService {
-    EmpresaResponseDTO crearEmpresa(EmpresaRequestDTO dto);
+    EmpresaResponseDTO crearEmpresa(String username, EmpresaRequestDTO dto);
     EmpresaResponseDTO editarEmpresa(Integer id, String username, EmpresaRequestDTO dto);
     List<EmpresaResponseDTO> mostrarEmpresas();
     EmpresaResponseDTO buscarEmpresaXid(Integer id);

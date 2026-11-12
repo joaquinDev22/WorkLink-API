@@ -23,20 +23,6 @@ public class PostulacionVacanteController {
     private final IPostulacionVacanteService postulacionService;
 
     @Parameter(name = "vacanteId", description = "Identificador de la vacante", example = "1")
-    @Parameter(name = "employeeId", description = "Identificador del empleado que realiza la postulación", example = "5")
-    @Parameter(name = "mensaje", description = "Mensaje de presentación enviado junto con la postulación", example = "Estoy interesado en la vacante y considero que mi perfil se ajusta a los requisitos.")
-    @Parameter(name = "cv", description = "Archivo de currículum vitae adjunto a la postulación")
-    @Operation(summary = "Postularse a una vacante", description = "Permite registrar la postulación de un empleado a una vacante adjuntando un mensaje y opcionalmente un currículum vitae.")
-    @PostMapping
-    public ResponseEntity<PostulacionResponseDTO> postularse(
-            @PathVariable Integer vacanteId,
-            @RequestParam("employeeId") Integer employeeId,
-            @RequestParam("mensaje") String mensaje,
-            @RequestParam(value = "cv", required = false) MultipartFile cv) {
-        return ResponseEntity.ok(postulacionService.postularse(vacanteId, employeeId, mensaje, cv));
-    }
-
-    @Parameter(name = "vacanteId", description = "Identificador de la vacante", example = "1")
     @Parameter(name = "mensaje", description = "Mensaje de presentación enviado junto con la postulación", example = "Estoy interesado en la vacante y considero que mi perfil se ajusta a los requisitos.")
     @Operation(summary = "Postularme a una vacante", description = "Permite al usuario autenticado postularse a una vacante adjuntando un mensaje y opcionalmente un currículum vitae.")
     @PostMapping("/me")
@@ -51,8 +37,8 @@ public class PostulacionVacanteController {
     @Parameter(name = "vacanteId", description = "Identificador de la vacante", example = "1")
     @Operation(summary = "Ver postulantes de una vacante", description = "Obtiene la lista de postulantes registrados para una vacante específica.")
     @GetMapping
-    public ResponseEntity<List<PostulacionResponseDTO>> verPostulantes(@PathVariable Integer vacanteId) {
-        return ResponseEntity.ok(postulacionService.listarPostulantes(vacanteId));
+    public ResponseEntity<List<PostulacionResponseDTO>> verPostulantes(@PathVariable Integer vacanteId, Authentication authentication) {
+        return ResponseEntity.ok(postulacionService.listarPostulantes(vacanteId, authentication.getName()));
     }
 
     @Parameter(name = "vacanteId", description = "Identificador de la vacante", example = "1")
