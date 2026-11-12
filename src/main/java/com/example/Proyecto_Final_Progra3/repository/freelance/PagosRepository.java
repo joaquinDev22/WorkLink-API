@@ -11,6 +11,7 @@ import java.util.List;
 @Repository
 public interface PagosRepository extends JpaRepository<PagosEntity, Integer> {
     List<PagosEntity> findByProyecto_Id(Integer proyectoId);
+    boolean existsByMpPaymentId(String mpPaymentId);
     List<PagosEntity> findByProyecto_Client_ClienteId(Integer clienteId);
     List<PagosEntity> findByProyecto_Freelancer_EmployeeId(Integer employeeId);
 

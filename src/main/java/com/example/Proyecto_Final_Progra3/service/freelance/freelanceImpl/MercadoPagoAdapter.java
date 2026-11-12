@@ -29,12 +29,12 @@ public class MercadoPagoAdapter {
     @Value("${mercadopago.webhook-url:https://worklink.com/api/v1/pagos/webhook}")
     private String webhookUrl;
 
-    public MercadoPagoPreferenceResponseDTO crearPreferencia(Integer proyectoId, String titulo, BigDecimal monto, String backUrlBase) {
+    public MercadoPagoPreferenceResponseDTO crearPreferencia(String externalReference, String titulo, BigDecimal monto, String backUrlBase) {
         try {
             PreferenceClient client = new PreferenceClient();
 
             PreferenceItemRequest item = PreferenceItemRequest.builder()
-                    .title(titulo != null && !titulo.isBlank() ? titulo : "Pago de Proyecto WorkLink #" + proyectoId)
+                    .title(titulo != null && !titulo.isBlank() ? titulo : "Pago WorkLink " + externalReference)
                     .quantity(1)
                     .unitPrice(monto)
                     .currencyId("ARS")
@@ -54,7 +54,7 @@ public class MercadoPagoAdapter {
                     .items(List.of(item))
                     .backUrls(backUrls)
                     .notificationUrl(webhookUrl)
-                    .externalReference(String.valueOf(proyectoId))
+                    .externalReference(externalReference)
                     .autoReturn("approved")
                     .build();
 

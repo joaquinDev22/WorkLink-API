@@ -9,5 +9,6 @@ public record PagosResponseDTO(
         Moneda moneda,
         BigDecimal monto,
         MedioDePago medioDePago,
-        Integer proyectoId
+        Integer proyectoId,
+        String mpPaymentId   // identificador de la operación en Mercado Pago (RF30/RF31)
 ) {}

@@ -6,7 +6,7 @@
 | **Subdominios** | Autenticación (perfil), Enterprise (vacantes, postulaciones, recruiters), Freelance (pagos, webhook) |
 | **Requisitos que corrige** | RF01, RF08, RF11, RF14, RF19, RF27, RF28, RF29, RF30 · RNF04, RNF05, RNF07, RNF09 · INC-02 del dossier |
 | **Repos afectados** | Backend `Proyecto-Final-Progra-3` (pasos 1–12) · Frontend `WorkLink` (pasos 13 y 14) |
-| **Estado** | ✅ Pasos 1 a 8 **aplicados y probados** contra el backend local (12/11/2026, sin commit). Pasos 9 a 14 pendientes de aprobación ("Acepto el plan, ejecuta el paso N"). |
+| **Estado** | ✅ Pasos 1 a 8 aplicados y probados (commit `a11f93f`). ✅ Pasos 9 a 12 aplicados, MySQL local migrado y probados con curl (12/11/2026). El paquete `strategy` queda en desuso (no se borró). Pasos 13 y 14 (front) pendientes. |
 
 **Decisión ya tomada:** los recruiters **se registran solos** (RF01). La empresa los **vincula** a su nómina con el email (RF11).
 
@@ -837,6 +837,10 @@ flowchart LR
 - Los pasos 1 a 8 son independientes del modelo de pagos y se pueden aplicar ya.
 - Los pasos 9 a 12 van juntos y en orden: cada uno usa lo del anterior. Es el único bloque que cambia la base de datos (pasos 10 y 12).
 - El paso 14 rompe la pantalla de pagos actual si se aplica antes que el 11: el front llamaría al checkout sin `hitoId`.
+
+> **Corrección al aplicar el paso 9:** `ProyectoEntity.estado` no tenía valor inicial y Hibernate insertaba `NULL`, así que los proyectos creados por la API nunca quedaban `BUSCANDO_TALENTO` (no recibían propuestas ni se podían adjudicar). Se agregó `@Builder.Default` con `BUSCANDO_TALENTO` y se corrigió la fila afectada en el MySQL local. Además, `PagosEntity.proyecto` pasó de `@OneToOne` a `@ManyToOne`, porque ahora un proyecto tiene un pago por hito.
+
+> **No probado:** el webhook con un pago real de Sandbox (falta `MERCADOPAGO_ACCESS_TOKEN`). Sí se verificó que, sin Mercado Pago, el webhook responde 422 (Mercado Pago reintenta), que un id no numérico responde 200, y que el `UNIQUE` de `mp_payment_id` rechaza los duplicados.
 
 ## Fuera de este plan (detectado, no crítico)
 

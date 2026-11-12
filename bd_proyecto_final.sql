@@ -105,7 +105,7 @@ CREATE TABLE proyecto (
     presupuesto_min DECIMAL(10,2) NOT NULL,
     duracion VARCHAR(50),
     tipo_pago VARCHAR(50),
-    estado ENUM('BUSCANDO_TALENTO', 'EN_PROGRESO', 'FINALIZADO') DEFAULT 'BUSCANDO_TALENTO',
+    estado ENUM('BUSCANDO_TALENTO', 'EN_PROGRESO', 'FINALIZADO', 'CANCELADO') DEFAULT 'BUSCANDO_TALENTO',
     freelancer_asignado_id INT,
     cliente_id INT NOT NULL,
     FOREIGN KEY (cliente_id) REFERENCES cliente_particular(cliente_particular_id) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -118,7 +118,7 @@ CREATE TABLE hito_proyecto (
     titulo VARCHAR(100) NOT NULL,
     descripcion VARCHAR(255),
     monto DECIMAL(10,2) NOT NULL,
-    estado ENUM('PENDIENTE', 'COMPLETADO', 'PAGADO') DEFAULT 'PENDIENTE',
+    estado ENUM('PENDIENTE', 'EN_PROGRESO', 'COMPLETADO') DEFAULT 'PENDIENTE',
     fecha_limite DATE,
     proyecto_id INT NOT NULL,
     FOREIGN KEY (proyecto_id) REFERENCES proyecto(proyecto_id) ON DELETE CASCADE ON UPDATE CASCADE
@@ -254,7 +254,10 @@ CREATE TABLE pagos (
     monto DECIMAL(10,2) NOT NULL,
     medio_de_pago ENUM('TARJETA', 'BILLETERA_VIRTUAL') NOT NULL,
     proyecto_id INT NOT NULL,
-    FOREIGN KEY (proyecto_id) REFERENCES proyecto(proyecto_id) ON DELETE CASCADE ON UPDATE CASCADE
+    hito_id INT NULL,                       -- hito que habilita este pago (D2)
+    mp_payment_id VARCHAR(30) NULL UNIQUE,  -- id del pago en Mercado Pago: idempotencia del webhook (RNF09)
+    FOREIGN KEY (proyecto_id) REFERENCES proyecto(proyecto_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (hito_id) REFERENCES hito_proyecto(hito_id) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
 CREATE TABLE metodos_cobro_freelancer (
@@ -975,18 +978,18 @@ INSERT INTO hito_proyecto (hito_id, titulo, descripcion, monto, estado, fecha_li
 (3, 'Pruebas de Carga y Entrega Final', 'Auditoría de rendimiento y documentación Swagger.', 1000.00, 'PENDIENTE', '2026-12-05', 1),
 (4, 'Arquitectura de Componentes y Estado', 'Configuración de Angular Signals y routing.', 800.00, 'COMPLETADO', '2026-10-30', 2),
 (5, 'Integración Gráficos y Exportación', 'Visualización con Chart.js y exportación a PDF.', 1400.00, 'PENDIENTE', '2026-11-25', 2),
-(6, 'Conexión Web Services AFIP', 'Comunicación con certificados y claves fiscales.', 900.00, 'PAGADO', '2026-08-25', 3),
-(7, 'Generación de PDFs y Envíos Mail', 'Generación de facturas A y B con código QR.', 900.00, 'PAGADO', '2026-09-02', 3),
-(8, 'Maquetación responsive', 'Diseño de todas las secciones en Next.js.', 600.00, 'PAGADO', '2026-07-08', 9),
-(9, 'Optimización SEO y Deploy Vercel', 'Core Web Vitals verdes y analytics.', 600.00, 'PAGADO', '2026-07-15', 9),
-(10, 'Módulo GPS y Base SQLite Local', 'Sincronización bidireccional offline.', 1800.00, 'PAGADO', '2026-08-10', 10),
-(11, 'Entrega en Play Store', 'Publicación en canal privado de la empresa.', 1800.00, 'PAGADO', '2026-09-15', 10),
-(12, 'Conectores API Shopify a Postgres', 'Pipeline de carga incremental en Python.', 1250.00, 'PAGADO', '2026-08-12', 11),
-(13, 'Validación de Consistencia y Dashboards', 'Reporte automático de discrepancias.', 1250.00, 'PAGADO', '2026-08-22', 11),
-(14, 'Reporte de Vulnerabilidades Encontradas', 'Informe técnico de puntos críticos.', 1000.00, 'PAGADO', '2026-08-28', 12),
-(15, 'Hardening y Re-testing', 'Verificación de correcciones de seguridad.', 1000.00, 'PAGADO', '2026-09-05', 12),
-(16, 'Arquitectura de Vídeo y Streaming', 'Integración CDN y reproductor seguro.', 2250.00, 'PAGADO', '2026-07-20', 13),
-(17, 'Sistema de Exámenes y Certificados', 'Generación de PDFs dinámicos con firma hash.', 2250.00, 'PAGADO', '2026-09-10', 13);
+(6, 'Conexión Web Services AFIP', 'Comunicación con certificados y claves fiscales.', 900.00, 'COMPLETADO', '2026-08-25', 3),
+(7, 'Generación de PDFs y Envíos Mail', 'Generación de facturas A y B con código QR.', 900.00, 'COMPLETADO', '2026-09-02', 3),
+(8, 'Maquetación responsive', 'Diseño de todas las secciones en Next.js.', 600.00, 'COMPLETADO', '2026-07-08', 9),
+(9, 'Optimización SEO y Deploy Vercel', 'Core Web Vitals verdes y analytics.', 600.00, 'COMPLETADO', '2026-07-15', 9),
+(10, 'Módulo GPS y Base SQLite Local', 'Sincronización bidireccional offline.', 1800.00, 'COMPLETADO', '2026-08-10', 10),
+(11, 'Entrega en Play Store', 'Publicación en canal privado de la empresa.', 1800.00, 'COMPLETADO', '2026-09-15', 10),
+(12, 'Conectores API Shopify a Postgres', 'Pipeline de carga incremental en Python.', 1250.00, 'COMPLETADO', '2026-08-12', 11),
+(13, 'Validación de Consistencia y Dashboards', 'Reporte automático de discrepancias.', 1250.00, 'COMPLETADO', '2026-08-22', 11),
+(14, 'Reporte de Vulnerabilidades Encontradas', 'Informe técnico de puntos críticos.', 1000.00, 'COMPLETADO', '2026-08-28', 12),
+(15, 'Hardening y Re-testing', 'Verificación de correcciones de seguridad.', 1000.00, 'COMPLETADO', '2026-09-05', 12),
+(16, 'Arquitectura de Vídeo y Streaming', 'Integración CDN y reproductor seguro.', 2250.00, 'COMPLETADO', '2026-07-20', 13),
+(17, 'Sistema de Exámenes y Certificados', 'Generación de PDFs dinámicos con firma hash.', 2250.00, 'COMPLETADO', '2026-09-10', 13);
 
 INSERT INTO calificacion_proyecto (calificacion_id, puntaje, titulo_resena, comentario, fecha_comentario, proyecto_id) VALUES 
 (1, 5, 'Excelente dominio técnico de Spring Boot', 'Joaquín entregó la integración fiscal sin fisuras y en tiempo récord. Código impecable.', '2026-09-05', 3),

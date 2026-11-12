@@ -58,7 +58,8 @@ public class ProyectoEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private EstadoProyecto estado;
+    @Builder.Default   // sin esto Hibernate insertaba NULL y el proyecto nuevo nunca quedaba BUSCANDO_TALENTO
+    private EstadoProyecto estado = EstadoProyecto.BUSCANDO_TALENTO;
 
     @ElementCollection
     @CollectionTable(name = "proyecto_habilidades", joinColumns = @JoinColumn(name = "proyecto_id"))

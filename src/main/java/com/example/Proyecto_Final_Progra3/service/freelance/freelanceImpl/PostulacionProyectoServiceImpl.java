@@ -2,11 +2,13 @@ package com.example.Proyecto_Final_Progra3.service.freelance.freelanceImpl;
 
 import com.example.Proyecto_Final_Progra3.dto.requestdto.PostulacionProyectoRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.PostulacionProyectoResponseDTO;
+import com.example.Proyecto_Final_Progra3.exceptions.domain.BusinessRuleException;
 import com.example.Proyecto_Final_Progra3.exceptions.domain.ResourceNotFoundException;
 import com.example.Proyecto_Final_Progra3.exceptions.domain.UnauthorizedAccessException;
 import com.example.Proyecto_Final_Progra3.mappers.PostulacionProyectoMapper;
 import com.example.Proyecto_Final_Progra3.model.PerfilEntity;
 import com.example.Proyecto_Final_Progra3.model.freelance.enums.EstadoPostulacionProyecto;
+import com.example.Proyecto_Final_Progra3.model.freelance.enums.EstadoProyecto;
 import com.example.Proyecto_Final_Progra3.model.employee.EmployeeEntity;
 import com.example.Proyecto_Final_Progra3.model.freelance.proyecto.PostulacionProyectoEntity;
 import com.example.Proyecto_Final_Progra3.model.freelance.proyecto.ProyectoEntity;
@@ -57,6 +59,18 @@ public class PostulacionProyectoServiceImpl implements IPostulacionProyectoServi
 
         EmployeeEntity employee = employeeRepository.findById(dto.employeeId())
                 .orElseThrow(() -> new ResourceNotFoundException("Empleado/Freelancer no encontrado con ID: " + dto.employeeId()));
+
+        if (proyecto.getEstado() != EstadoProyecto.BUSCANDO_TALENTO) {
+            throw new BusinessRuleException("El proyecto ya no recibe propuestas (estado actual: " + proyecto.getEstado() + ")");
+        }
+        // D3: lo acordado nunca supera el presupuesto máximo del proyecto
+        if (dto.costo().compareTo(proyecto.getPresupuestoMax()) > 0) {
+            throw new BusinessRuleException("Tu propuesta ($" + dto.costo() + ") supera el presupuesto máximo del proyecto ($" + proyecto.getPresupuestoMax() + ")");
+        }
+        // Una propuesta por freelancer y proyecto: la adjudicación busca la propuesta por ese par
+        if (postulacionRepository.existsByProyecto_IdAndEmployee_EmployeeId(proyectoId, employee.getEmployeeId())) {
+            throw new BusinessRuleException("Ya enviaste una propuesta a este proyecto");
+        }
 
         PostulacionProyectoEntity postulacion = new PostulacionProyectoEntity();
         postulacion.setDescripcion(dto.descripcion());

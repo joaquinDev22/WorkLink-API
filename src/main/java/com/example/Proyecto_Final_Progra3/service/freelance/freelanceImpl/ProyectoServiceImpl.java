@@ -9,11 +9,14 @@ import com.example.Proyecto_Final_Progra3.mappers.ProyectoMapper;
 import com.example.Proyecto_Final_Progra3.model.PerfilEntity;
 import com.example.Proyecto_Final_Progra3.model.employee.EmployeeEntity;
 import com.example.Proyecto_Final_Progra3.model.freelance.ClientEntity;
+import com.example.Proyecto_Final_Progra3.model.freelance.enums.EstadoPostulacionProyecto;
 import com.example.Proyecto_Final_Progra3.model.freelance.enums.EstadoProyecto;
+import com.example.Proyecto_Final_Progra3.model.freelance.proyecto.PostulacionProyectoEntity;
 import com.example.Proyecto_Final_Progra3.model.freelance.proyecto.ProyectoEntity;
 import com.example.Proyecto_Final_Progra3.repository.EmployeeRepository;
 import com.example.Proyecto_Final_Progra3.repository.PerfilRepository;
 import com.example.Proyecto_Final_Progra3.repository.freelance.ClientRepository;
+import com.example.Proyecto_Final_Progra3.repository.freelance.PostulacionProyectoRepository;
 import com.example.Proyecto_Final_Progra3.repository.freelance.ProyectoRepository;
 import com.example.Proyecto_Final_Progra3.service.freelance.freelanceInterfaces.IProyectoService;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +38,7 @@ public class ProyectoServiceImpl implements IProyectoService {
     private final PerfilRepository perfilRepository;
     private final EmployeeRepository employeeRepository;
     private final ProyectoMapper proyectoMapper;
+    private final PostulacionProyectoRepository postulacionProyectoRepository;
 
     // Solo se usa desde la versión /me: el endpoint que recibía el id del dueño se eliminó (suplantación)
     private ProyectoResponseDTO crearProyecto(ProyectoRequestDTO dto) {
@@ -185,10 +189,14 @@ public class ProyectoServiceImpl implements IProyectoService {
             throw new BusinessRuleException("Solo se pueden asignar propuestas a proyectos en estado BUSCANDO_TALENTO");
         }
 
-        EmployeeEntity freelancer = employeeRepository.findById(employeeId)
-                .orElseThrow(() -> new ResourceNotFoundException("Freelancer no encontrado con ID: " + employeeId));
+        // RF27: solo se adjudica a quien se postuló; su costo propuesto pasa a ser el monto acordado (D3)
+        PostulacionProyectoEntity propuesta = postulacionProyectoRepository
+                .findByProyecto_IdAndEmployee_EmployeeId(proyectoId, employeeId)
+                .orElseThrow(() -> new BusinessRuleException("El freelancer " + employeeId + " no envió una propuesta a este proyecto"));
+        propuesta.setEstado(EstadoPostulacionProyecto.ACEPTADA);
+        postulacionProyectoRepository.save(propuesta);
 
-        proyecto.setFreelancer(freelancer);
+        proyecto.setFreelancer(propuesta.getEmployee());
         proyecto.setEstado(EstadoProyecto.EN_PROGRESO);
 
         ProyectoEntity guardado = proyectoRepository.save(proyecto);
