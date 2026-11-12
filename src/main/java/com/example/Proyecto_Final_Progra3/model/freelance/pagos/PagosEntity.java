@@ -7,6 +7,7 @@ import com.example.Proyecto_Final_Progra3.model.freelance.enums.Moneda;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -45,4 +46,8 @@ public class PagosEntity {
 
     @Column(name = "mp_payment_id", unique = true, length = 30)
     private String mpPaymentId;   // id del pago en Mercado Pago: evita registrar dos veces el mismo pago (RNF09)
+
+    @Column(nullable = false, updatable = false)
+    @Builder.Default   // WL-39: fecha de acreditación; los inserts por SQL usan el DEFAULT de la columna
+    private LocalDateTime fecha = LocalDateTime.now();
 }

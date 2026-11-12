@@ -256,6 +256,7 @@ CREATE TABLE pagos (
     proyecto_id INT NOT NULL,
     hito_id INT NULL,                       -- hito que habilita este pago (D2)
     mp_payment_id VARCHAR(30) NULL UNIQUE,  -- id del pago en Mercado Pago: idempotencia del webhook (RNF09)
+    fecha DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,  -- WL-39: fecha de acreditación del pago
     FOREIGN KEY (proyecto_id) REFERENCES proyecto(proyecto_id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (hito_id) REFERENCES hito_proyecto(hito_id) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB;
