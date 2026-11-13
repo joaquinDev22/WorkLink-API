@@ -51,7 +51,8 @@ public class ClientController {
         long activeProjects = proyectoRepository.countByClient_ClienteIdAndEstadoIn(clientId, List.of(EstadoProyecto.BUSCANDO_TALENTO, EstadoProyecto.EN_PROGRESO));
         long completedProjects = proyectoRepository.countByClient_ClienteIdAndEstado(clientId, EstadoProyecto.FINALIZADO);
         Double totalSpent = pagosRepository.sumMontoByClienteId(clientId);
-        long pendingProposals = postulacionProyectoRepository.countByProyecto_Client_ClienteId(clientId);
+        long pendingProposals = postulacionProyectoRepository.countByProyecto_Client_ClienteIdAndEstado(clientId,
+                com.example.Proyecto_Final_Progra3.model.freelance.enums.EstadoPostulacionProyecto.PENDIENTE);
 
         return ResponseEntity.ok(new ClientDashboardResponseDTO(
                 activeProjects,

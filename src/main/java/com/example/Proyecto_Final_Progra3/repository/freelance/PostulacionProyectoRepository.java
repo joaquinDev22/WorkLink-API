@@ -11,7 +11,7 @@ import java.util.Optional;
 @Repository
 public interface PostulacionProyectoRepository extends JpaRepository<PostulacionProyectoEntity, Integer> {
     List<PostulacionProyectoEntity> findByProyecto_Id(Integer proyectoId);
-    long countByProyecto_Client_ClienteId(Integer clienteId);
+    long countByProyecto_Client_ClienteIdAndEstado(Integer clienteId, EstadoPostulacionProyecto estado);
     Optional<PostulacionProyectoEntity> findByProyecto_IdAndEmployee_EmployeeId(Integer proyectoId, Integer employeeId);
     Optional<PostulacionProyectoEntity> findByProyecto_IdAndEstado(Integer proyectoId, EstadoPostulacionProyecto estado);
     boolean existsByProyecto_IdAndEmployee_EmployeeId(Integer proyectoId, Integer employeeId);

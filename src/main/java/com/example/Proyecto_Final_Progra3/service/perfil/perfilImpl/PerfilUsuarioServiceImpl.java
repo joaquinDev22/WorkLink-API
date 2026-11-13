@@ -1,6 +1,7 @@
 package com.example.Proyecto_Final_Progra3.service.perfil.perfilImpl;
 
 import com.example.Proyecto_Final_Progra3.dto.PerfilUsuarioDTO;
+import com.example.Proyecto_Final_Progra3.exceptions.domain.BadRequestException;
 import com.example.Proyecto_Final_Progra3.exceptions.domain.ResourceNotFoundException;
 import com.example.Proyecto_Final_Progra3.exceptions.domain.UnauthorizedAccessException;
 import com.example.Proyecto_Final_Progra3.model.PerfilEntity;
@@ -155,7 +156,7 @@ public class PerfilUsuarioServiceImpl implements IPerfilUsuarioService {
             if (request.getNombre() != null) emp.setNombre(request.getNombre());
             if (request.getApellido() != null) emp.setApellido(request.getApellido());
             if (request.getFechaNacimiento() != null && !request.getFechaNacimiento().isEmpty()) {
-                emp.setFechaNacimiento(LocalDate.parse(request.getFechaNacimiento()));
+                emp.setFechaNacimiento(parseFecha(request.getFechaNacimiento()));
             }
             if (request.getEmail() != null) emp.setEmail(request.getEmail());
             employeeRepository.save(emp);
@@ -204,7 +205,7 @@ public class PerfilUsuarioServiceImpl implements IPerfilUsuarioService {
             if (request.getApellido() != null) rec.setApellido(request.getApellido());
             if (request.getEmail() != null) rec.setEmail(request.getEmail());
             if (request.getFechaNacimiento() != null && !request.getFechaNacimiento().isEmpty()) {
-                rec.setFechaNacimiento(LocalDate.parse(request.getFechaNacimiento()));
+                rec.setFechaNacimiento(parseFecha(request.getFechaNacimiento()));
             }
             recruiterRepository.save(rec);
         }
@@ -217,6 +218,7 @@ public class PerfilUsuarioServiceImpl implements IPerfilUsuarioService {
     public void uploadFoto(String username, MultipartFile file) throws IOException {
         PerfilEntity perfil = perfilRepository.findByUsuario(username)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + username));
+        validarImagen(file, 5, "La foto");
         perfil.setFotoPerfil(file.getBytes());
         perfilRepository.save(perfil);
     }
@@ -226,8 +228,25 @@ public class PerfilUsuarioServiceImpl implements IPerfilUsuarioService {
     public void uploadBanner(String username, MultipartFile file) throws IOException {
         PerfilEntity perfil = perfilRepository.findByUsuario(username)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + username));
+        validarImagen(file, 8, "El banner");
         perfil.setBannerPerfil(file.getBytes());
         perfilRepository.save(perfil);
+    }
+
+    // Mismos tipos y límites que el logo/banner de la empresa
+    private static void validarImagen(MultipartFile file, int maxMb, String campo) {
+        if (file == null || file.isEmpty()) throw new BadRequestException(campo + " está vacía");
+        if (!java.util.Set.of("image/png", "image/jpeg", "image/webp").contains(file.getContentType()))
+            throw new BadRequestException(campo + " debe ser PNG, JPG o WEBP");
+        if (file.getSize() > maxMb * 1024L * 1024) throw new BadRequestException(campo + " no puede superar los " + maxMb + " MB");
+    }
+
+    private static LocalDate parseFecha(String fecha) {
+        try {
+            return LocalDate.parse(fecha);
+        } catch (java.time.format.DateTimeParseException e) {
+            throw new BadRequestException("Fecha de nacimiento inválida (formato esperado: AAAA-MM-DD): " + fecha);
+        }
     }
 
     @Override
