@@ -189,6 +189,58 @@ class EmpresaApiTest extends ApiTestBase {
                 .formatted(LocalDate.now().plusDays(5))).andExpect(status().isCreated());
     }
 
+    private String entrevistaJson(int postulacion, LocalDate fecha, String hora) {
+        return """
+                {"postulacionId":%d,"fecha":"%s","hora":"%s","link":"https://meet.test/abc"}""".formatted(postulacion, fecha, hora);
+    }
+
+    @Test void entrevistas_noSePuedeAgendarDosVeces() throws Exception {
+        postJson(RECRUITER, "/api/v1/recruiter/entrevistas", entrevistaJson(758, LocalDate.now().plusDays(5), "14:30:00"))
+                .andExpect(status().isCreated());
+        postJson(RECRUITER, "/api/v1/recruiter/entrevistas", entrevistaJson(758, LocalDate.now().plusDays(9), "10:00:00"))
+                .andExpect(status().isUnprocessableContent());
+    }
+
+    @Test void entrevistas_reprogramar() throws Exception {
+        postJson(RECRUITER, "/api/v1/recruiter/entrevistas", entrevistaJson(758, LocalDate.now().plusDays(5), "14:30:00"))
+                .andExpect(status().isCreated());
+        Integer id = id("select max(entrevista_id) from entrevista where postulacion_id=758");
+        LocalDate nueva = LocalDate.now().plusDays(12);
+        putJson(RECRUITER, "/api/v1/recruiter/entrevistas/{id}", entrevistaJson(758, nueva, "09:15:00"), id)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.date").value(nueva.toString()))
+                .andExpect(jsonPath("$.time").value("09:15"))
+                .andExpect(jsonPath("$.status").value("PROGRAMADA"));
+        // Sigue habiendo una sola entrevista para esa postulación
+        org.junit.jupiter.api.Assertions.assertEquals(1, id("select count(*) from entrevista where postulacion_id=758"));
+    }
+
+    @Test void entrevistas_reprogramarPasada_422() throws Exception {
+        Integer pasada = id("select min(entrevista_id) from entrevista e join postulacion_vacante pv on pv.postulacion_id=e.postulacion_id "
+                + "join vacante v on v.vacante_id=pv.vacante_id where v.empresa_id=148 and e.fecha<curdate()");
+        putJson(RECRUITER, "/api/v1/recruiter/entrevistas/{id}", entrevistaJson(758, LocalDate.now().plusDays(3), "10:00:00"), pasada)
+                .andExpect(status().isUnprocessableContent());
+    }
+
+    @Test void entrevistas_reprogramarDeOtraEmpresa_403() throws Exception {
+        postJson(RECRUITER, "/api/v1/recruiter/entrevistas", entrevistaJson(758, LocalDate.now().plusDays(5), "14:30:00"))
+                .andExpect(status().isCreated());
+        Integer id = id("select max(entrevista_id) from entrevista where postulacion_id=758");
+        putJson("AnaRecruiter", "/api/v1/recruiter/entrevistas/{id}", entrevistaJson(758, LocalDate.now().plusDays(6), "10:00:00"), id)
+                .andExpect(status().isForbidden());
+    }
+
+    @Test void entrevistas_reprogramarInexistente_404() throws Exception {
+        putJson(RECRUITER, "/api/v1/recruiter/entrevistas/999999", entrevistaJson(758, LocalDate.now().plusDays(3), "10:00:00"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test void entrevistas_reprogramarFechaPasada_400() throws Exception {
+        putJson(RECRUITER, "/api/v1/recruiter/entrevistas/999999", entrevistaJson(758, LocalDate.now().minusDays(3), "10:00:00"))
+                .andExpect(status().isBadRequest());
+    }
+
     // ---------- Portfolio ----------
     @Test void portfolio_subirCV() throws Exception {
         upload(POSTULANTE, "/api/v1/portfolio/296/cv", pdf("file")).andExpect(status().isOk());

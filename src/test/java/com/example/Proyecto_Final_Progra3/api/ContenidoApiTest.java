@@ -219,6 +219,29 @@ class ContenidoApiTest extends ApiTestBase {
                                 + "join vacante v on v.vacante_id=pv.vacante_id where v.empresa_id=148")));
     }
 
+    @Test void entrevistas_traenEmpresaYEstado() throws Exception {
+        String empresa = str("select nombre from empresa where empresa_id=148");
+        get(RECRUITER, "/api/v1/recruiter/entrevistas").andExpect(status().isOk())
+                .andExpect(jsonPath("$[*].companyName", everyItem(is(empresa))))
+                .andExpect(jsonPath("$[*].status", everyItem(in(new String[]{"PROGRAMADA", "COMPLETADA"}))))
+                .andExpect(jsonPath("$[*].postulacionId", everyItem(notNullValue())))
+                .andExpect(jsonPath("$[*].candidateEmail", everyItem(not(emptyOrNullString()))));
+    }
+
+    @Test void entrevistas_estadoSegunFecha() throws Exception {
+        // Una futura queda PROGRAMADA; si se mueve al pasado pasa a COMPLETADA
+        postJson(RECRUITER, "/api/v1/recruiter/entrevistas", """
+                {"postulacionId":758,"fecha":"%s","hora":"10:00:00","link":"https://meet.test/x"}"""
+                .formatted(java.time.LocalDate.now().plusDays(3)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.status").value("PROGRAMADA"))
+                .andExpect(jsonPath("$.companyName").value(str("select nombre from empresa where empresa_id=148")));
+        Integer id = jdbc.queryForObject("select max(entrevista_id) from entrevista", Integer.class);
+        jdbc.update("update entrevista set fecha=? where entrevista_id=?", java.time.LocalDate.now().minusDays(1), id);
+        get(RECRUITER, "/api/v1/recruiter/entrevistas").andExpect(status().isOk())
+                .andExpect(jsonPath("$[?(@.id == " + id + ")].status", hasItem("COMPLETADA")));
+    }
+
     // ---------- Cliente ----------
     @Test void cliente_dashboardCoincideConBase() throws Exception {
         get(CLIENTE, "/api/v1/client/dashboard").andExpect(status().isOk())

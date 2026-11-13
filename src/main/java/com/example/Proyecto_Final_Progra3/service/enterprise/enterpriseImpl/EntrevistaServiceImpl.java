@@ -3,6 +3,7 @@ package com.example.Proyecto_Final_Progra3.service.enterprise.enterpriseImpl;
 import com.example.Proyecto_Final_Progra3.dto.requestdto.EntrevistaRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.EntrevistaResponseDTO;
 import com.example.Proyecto_Final_Progra3.events.EntrevistaAgendadaEvent;
+import com.example.Proyecto_Final_Progra3.exceptions.domain.BusinessRuleException;
 import com.example.Proyecto_Final_Progra3.exceptions.domain.ResourceNotFoundException;
 import com.example.Proyecto_Final_Progra3.exceptions.domain.UnauthorizedAccessException;
 import com.example.Proyecto_Final_Progra3.mappers.EntrevistaMapper;
@@ -79,6 +80,53 @@ public class EntrevistaServiceImpl implements IEntrevistaService {
         PostulacionVacanteEntity postulacion = postulacionVacanteRepository.findById(dto.postulacionId())
                 .orElseThrow(() -> new ResourceNotFoundException("Postulación no encontrada con ID: " + dto.postulacionId()));
 
+        verificarPermiso(postulacion, username);
+
+        // Una sola entrevista programada por postulación: para cambiarla se reprograma
+        if (tieneEntrevistaProgramada(postulacion.getPostulacionVacanteId())) {
+            throw new BusinessRuleException("Este postulante ya tiene una entrevista programada para esta vacante; reprogramala en lugar de agendar otra");
+        }
+
+        EntrevistaEntity entrevista = EntrevistaEntity.builder()
+                .postulacion(postulacion)
+                .fecha(dto.fecha())
+                .hora(dto.hora())
+                .link(dto.link())
+                .build();
+
+        return guardarYNotificar(entrevista, postulacion, username);
+    }
+
+    @Override
+    @Transactional
+    public EntrevistaResponseDTO reprogramarEntrevista(Integer entrevistaId, EntrevistaRequestDTO dto, String username) {
+        EntrevistaEntity entrevista = entrevistaRepository.findById(entrevistaId)
+                .orElseThrow(() -> new ResourceNotFoundException("Entrevista no encontrada con ID: " + entrevistaId));
+        PostulacionVacanteEntity postulacion = entrevista.getPostulacion();
+        verificarPermiso(postulacion, username);
+
+        if (!esProgramada(entrevista)) {
+            throw new BusinessRuleException("Solo se puede reprogramar una entrevista que todavía no ocurrió");
+        }
+
+        entrevista.setFecha(dto.fecha());
+        entrevista.setHora(dto.hora());
+        if (dto.link() != null && !dto.link().isBlank()) entrevista.setLink(dto.link());
+
+        return guardarYNotificar(entrevista, postulacion, username);
+    }
+
+    private static boolean esProgramada(EntrevistaEntity e) {
+        return e.getFecha() != null && e.getHora() != null
+                && !java.time.LocalDateTime.of(e.getFecha(), e.getHora()).isBefore(java.time.LocalDateTime.now());
+    }
+
+    private boolean tieneEntrevistaProgramada(Integer postulacionId) {
+        return entrevistaRepository.findByPostulacion_PostulacionVacanteId(postulacionId).stream()
+                .anyMatch(EntrevistaServiceImpl::esProgramada);
+    }
+
+    private void verificarPermiso(PostulacionVacanteEntity postulacion, String username) {
         Integer empresaPostulacionId = postulacion.getVacante() != null && postulacion.getVacante().getEmpresa() != null
                 ? postulacion.getVacante().getEmpresa().getId()
                 : null;
@@ -99,16 +147,11 @@ public class EntrevistaServiceImpl implements IEntrevistaService {
         }
 
         if (!autorizado) {
-            throw new UnauthorizedAccessException("No tienes autorización para agendar entrevistas en esta postulación");
+            throw new UnauthorizedAccessException("No tienes autorización para gestionar entrevistas en esta postulación");
         }
+    }
 
-        EntrevistaEntity entrevista = EntrevistaEntity.builder()
-                .postulacion(postulacion)
-                .fecha(dto.fecha())
-                .hora(dto.hora())
-                .link(dto.link())
-                .build();
-
+    private EntrevistaResponseDTO guardarYNotificar(EntrevistaEntity entrevista, PostulacionVacanteEntity postulacion, String username) {
         EntrevistaEntity guardada = entrevistaRepository.save(entrevista);
 
         // Patrón GoF Observer: publicar evento de dominio para auditoría y notificaciones desacopladas

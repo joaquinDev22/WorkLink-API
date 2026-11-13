@@ -874,56 +874,6 @@ INSERT INTO vacante_etiquetas (vacante_id, etiqueta) VALUES
 (21, 'Flutter'), (21, 'Dart'), (21, 'Mobile'),
 (22, 'SRE'), (22, 'Kubernetes'), (22, 'Grafana');
 
--- 5. Postulaciones a vacantes y entrevistas (32 postulaciones, 13 entrevistas)
-INSERT INTO postulacion_vacante (postulacion_id, fecha_postulacion, estado_postulacion, cv, mensaje, vacante_id, postulante_id) VALUES 
-(1, '2026-06-15', 'RECHAZADO', '', 'Me interesa mucho la vacante.', 1, 2),
-(2, '2026-10-15', 'ENTREVISTA_AGENDADA', '', 'Cuento con amplia experiencia en Spring Boot, JPA y arquitecturas limpias.', 2, 4),
-(3, '2026-10-16', 'ENTREVISTA_AGENDADA', '', 'Me motiva mucho el desarrollo frontend en Angular y microservicios.', 3, 4),
-(4, '2026-10-20', 'VISUALIZADO', '', 'Postulación para el rol de Backend Kotlin / Java.', 20, 4),
-(5, '2026-10-22', 'PENDIENTE', '', 'Experiencia sólida en diseño y optimización de bases de datos relacionales.', 4, 4),
-(6, '2026-10-10', 'ENTREVISTA_AGENDADA', '', 'He liderado equipos frontend migrando arquitecturas a Next.js y React.', 19, 3),
-(7, '2026-10-12', 'VISUALIZADO', '', 'Interesada en la vacante de Fullstack Angular y Node.js.', 3, 3),
-(8, '2026-10-18', 'PENDIENTE', '', 'Aplicación al rol de React Native Mobile Engineer.', 11, 3),
-(9, '2026-10-08', 'ENTREVISTA_AGENDADA', '', 'Experiencia comprobable construyendo apps React de alto tráfico.', 19, 1),
-(10, '2026-10-14', 'RECHAZADO', '', 'Postulando al rol de Lead DevOps.', 5, 1),
-(11, '2026-10-19', 'VISUALIZADO', '', 'Especialista en desarrollo frontend y diseño en Figma.', 9, 1),
-(12, '2026-10-12', 'ENTREVISTA_AGENDADA', '', 'Cuento con certificaciones AWS Solutions Architect y CKA de Kubernetes.', 5, 5),
-(13, '2026-10-17', 'ENTREVISTA_AGENDADA', '', 'Interesado en la posición de Site Reliability Engineer en Ualá.', 22, 5),
-(14, '2026-10-21', 'PENDIENTE', '', 'Postulación al rol de Principal Software Architect.', 15, 5),
-(15, '2026-10-05', 'ENTREVISTA_AGENDADA', '', 'Especialista en Design Systems y diseño de flujos de checkout para e-commerce.', 9, 6),
-(16, '2026-10-11', 'VISUALIZADO', '', 'Postulación para diseño UI/UX en Despegar.', 19, 6),
-(17, '2026-10-25', 'PENDIENTE', '', 'Interés en participar en el equipo de frontend.', 3, 6),
-(18, '2026-10-16', 'ENTREVISTA_AGENDADA', '', 'Más de 4 años desarrollando aplicaciones en Flutter y Kotlin.', 21, 7),
-(19, '2026-10-18', 'ENTREVISTA_AGENDADA', '', 'Postulación para iOS nativo con Swift en Mercado Libre.', 7, 7),
-(20, '2026-10-22', 'RECHAZADO', '', 'Aplicación para rol de Java Backend.', 2, 7),
-(21, '2026-10-14', 'ENTREVISTA_AGENDADA', '', 'Experiencia en pipelines ETL de datos en streaming y modelos ML.', 6, 8),
-(22, '2026-10-18', 'VISUALIZADO', '', 'Postulación para Machine Learning Scientist en Despegar.', 18, 8),
-(23, '2026-10-24', 'PENDIENTE', '', 'Interés en análisis de datos comerciales.', 4, 8),
-(24, '2026-10-10', 'ENTREVISTA_AGENDADA', '', 'Frameworks de automatización continua integrados en GitHub Actions.', 10, 9),
-(25, '2026-10-15', 'VISUALIZADO', '', 'Postulando al rol de SRE en Ualá.', 22, 9),
-(26, '2026-10-26', 'PENDIENTE', '', 'Aplicación para testing de APIs en Auth0.', 13, 9),
-(27, '2026-10-08', 'ENTREVISTA_AGENDADA', '', 'Experiencia profunda en Java 21, Spring Boot y microservicios distribuidos.', 2, 10),
-(28, '2026-10-12', 'VISUALIZADO', '', 'Postulando para Backend Kotlin en Ualá.', 20, 10),
-(29, '2026-10-20', 'RECHAZADO', '', 'Aplicación para rol de DevOps AWS.', 5, 10),
-(30, '2026-10-06', 'ENTREVISTA_AGENDADA', '', 'Desarrollador enfocado en buenas prácticas y Spring Boot.', 2, 2),
-(31, '2026-10-15', 'PENDIENTE', '', 'Postulando al rol de DBA MySQL.', 4, 2),
-(32, '2026-10-23', 'RECHAZADO', '', 'Postulación para Frontend Angular.', 3, 2);
-
-INSERT INTO entrevista (entrevista_id, postulacion_id, fecha, hora, link) VALUES 
-(1, 2, '2026-11-16', '10:00:00', 'https://meet.google.com/qwe-rtyu-iop'),
-(2, 3, '2026-11-18', '15:30:00', 'https://meet.google.com/asd-fghj-klz'),
-(3, 6, '2026-11-17', '11:00:00', 'https://meet.google.com/zxc-vbnm-qwe'),
-(4, 9, '2026-11-19', '14:00:00', 'https://meet.google.com/poi-uytr-ewq'),
-(5, 12, '2026-11-16', '16:00:00', 'https://meet.google.com/lkj-hgfd-sa1'),
-(6, 13, '2026-11-20', '09:30:00', 'https://meet.google.com/mnb-vcxz-lk2'),
-(7, 15, '2026-11-17', '14:30:00', 'https://meet.google.com/tyu-iopa-sdf3'),
-(8, 18, '2026-11-21', '10:30:00', 'https://meet.google.com/ghj-klzx-cvb4'),
-(9, 19, '2026-11-22', '16:30:00', 'https://meet.google.com/bnm-qwer-tyu5'),
-(10, 21, '2026-11-23', '11:30:00', 'https://meet.google.com/iop-asdf-ghj6'),
-(11, 24, '2026-11-24', '15:00:00', 'https://meet.google.com/klz-xcvb-nmq7'),
-(12, 27, '2026-11-25', '10:00:00', 'https://meet.google.com/wer-tyui-opa8'),
-(13, 30, '2026-11-25', '14:00:00', 'https://meet.google.com/sdf-ghjk-lzx9');
-
 -- 6. Proyectos freelance (23 Proyectos, estados: BUSCANDO_TALENTO, EN_PROGRESO, FINALIZADO)
 INSERT INTO proyecto (proyecto_id, nombre_proyecto, area_proyecto, descripcion, fecha_creacion, presupuesto_max, presupuesto_min, duracion, tipo_pago, estado, freelancer_asignado_id, cliente_id) VALUES 
 (1, 'Portal Bancario B2B', 'Backend', 'Desarrollo de API REST en Spring Boot 3 con seguridad OAuth2 y liquidaciones automáticas.', '2026-10-01', 3500000.00, 2500000.00, '2 meses', 'Precio Fijo', 'EN_PROGRESO', 4, 2),
@@ -1027,20 +977,4 @@ INSERT INTO postulacion_proyecto (post_proy_id, descripcion, valor_propuesto, fe
 (14, 'Data scientist con experiencia en modelos de riesgo y scoring crediticio.', 2800000.00, '2026-11-07', 'PENDIENTE', 8, 19),
 (15, 'Automatización de tests de extremo a extremo con Cypress y reportes Allure.', 1300000.00, '2026-11-08', 'PENDIENTE', 9, 20);
 
--- 7. Bootcamps, calificaciones e inscripciones
-INSERT INTO bootcamp (bootcamp_id, titulo, descripcion, fecha_inicio, fecha_fin, modalidad, tipo, cupos, logo, precio, rating, instructor_id, empresa_id) VALUES 
-(1, 'Master en React', 'Domina React, Hooks, Context y Next.js desde cero.', '2026-08-01', '2026-12-01', 'VIRTUAL', 'PARTICULAR', 100, '⚛️', 150.00, 5.0, 1, NULL);
-
-INSERT INTO bootcamp_etiquetas (bootcamp_id, etiqueta) VALUES 
-(1, 'React'), (1, 'Frontend');
-
-INSERT INTO modulo_bootcamp (modulo_id, titulo, descripcion, link_clase, horario_clase, bootcamp_id) VALUES 
-(1, 'Introducción a React', 'Conceptos básicos, JSX y componentes.', 'https://zoom.us/clase1', 'Lunes 18:00', 1),
-(2, 'Hooks y Estado', 'useState, useEffect y custom hooks.', 'https://zoom.us/clase2', 'Miércoles 18:00', 1);
-
-INSERT INTO inscripcion_bootcamp (fecha_inscripcion, estado, bootcamp_id, employee_id) VALUES 
-('2026-06-16', 'INSCRIPTO', 1, 1);
-
-INSERT INTO calificacion_bootcamp (puntaje, comentario, fecha_comentario, bootcamp_id, employee_id) VALUES 
-(5, 'Excelente bootcamp, muy bien explicado.', '2026-06-20', 1, 1);
 

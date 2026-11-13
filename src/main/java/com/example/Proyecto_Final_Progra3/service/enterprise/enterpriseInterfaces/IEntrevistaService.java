@@ -9,4 +9,5 @@ public interface IEntrevistaService {
     List<EntrevistaResponseDTO> listarEntrevistas();
     List<EntrevistaResponseDTO> listarMisEntrevistas(String username);
     EntrevistaResponseDTO agendarEntrevista(EntrevistaRequestDTO dto, String username);
+    EntrevistaResponseDTO reprogramarEntrevista(Integer entrevistaId, EntrevistaRequestDTO dto, String username);
 }

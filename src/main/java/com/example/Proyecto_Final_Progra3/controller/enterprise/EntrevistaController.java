@@ -33,4 +33,11 @@ public class EntrevistaController {
     public ResponseEntity<EntrevistaResponseDTO> agendarEntrevista(Authentication authentication, @Valid @RequestBody EntrevistaRequestDTO dto) {
         return new ResponseEntity<>(entrevistaService.agendarEntrevista(dto, authentication.getName()), HttpStatus.CREATED);
     }
+
+    @Operation(summary = "Reprogramar entrevista", description = "Cambia fecha, hora y (opcional) link de una entrevista que todavía no ocurrió. El postulacionId del body se ignora.")
+    @PutMapping("/{id}")
+    public ResponseEntity<EntrevistaResponseDTO> reprogramarEntrevista(@PathVariable Integer id, Authentication authentication,
+                                                                       @Valid @RequestBody EntrevistaRequestDTO dto) {
+        return ResponseEntity.ok(entrevistaService.reprogramarEntrevista(id, dto, authentication.getName()));
+    }
 }
