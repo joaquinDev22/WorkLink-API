@@ -10,6 +10,7 @@ import com.example.Proyecto_Final_Progra3.mappers.EntrevistaMapper;
 import com.example.Proyecto_Final_Progra3.model.PerfilEntity;
 import com.example.Proyecto_Final_Progra3.model.enterprise.EmpresaEntity;
 import com.example.Proyecto_Final_Progra3.model.enterprise.EntrevistaEntity;
+import com.example.Proyecto_Final_Progra3.model.enterprise.EstadoEntrevista;
 import com.example.Proyecto_Final_Progra3.model.enterprise.PostulacionVacanteEntity;
 import com.example.Proyecto_Final_Progra3.model.enterprise.RecruiterEntity;
 import com.example.Proyecto_Final_Progra3.repository.PerfilRepository;
@@ -23,6 +24,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+// import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -116,8 +118,38 @@ public class EntrevistaServiceImpl implements IEntrevistaService {
         return guardarYNotificar(entrevista, postulacion, username);
     }
 
+    @Override
+    @Transactional
+    public EntrevistaResponseDTO cancelarEntrevista(Integer entrevistaId, String username) {
+        EntrevistaEntity entrevista = entrevistaRepository.findById(entrevistaId)
+                .orElseThrow(() -> new ResourceNotFoundException("Entrevista no encontrada con ID: " + entrevistaId));
+
+        PostulacionVacanteEntity postulacion = entrevista.getPostulacion();
+        verificarPermiso(postulacion, username);
+
+        // 1. Verificar que no estuviese cancelada desde antes
+        if (entrevista.getStatus() == EstadoEntrevista.CANCELADA) {
+            throw new BusinessRuleException("La entrevista ya se encuentra cancelada");
+        }
+
+        // 2. Verificar que la entrevista todavía no haya ocurrido
+        if (!esProgramada(entrevista)) {
+            throw new BusinessRuleException("Solo se puede cancelar una entrevista que todavía no ocurrió");
+        }
+
+        // 3. Verificar que no sea el mismo día de la entrevista
+        if (entrevista.getFecha().isEqual(java.time.LocalDate.now())) {
+            throw new BusinessRuleException("No se puede cancelar la entrevista el mismo día en que está programada");
+        }
+
+        entrevista.setStatus(EstadoEntrevista.CANCELADA);
+        // Sin evento: EntrevistaAgendadaEvent se auditaría como "nueva entrevista agendada"
+        return entrevistaMapper.toDto(entrevistaRepository.save(entrevista));
+    }
+
     private static boolean esProgramada(EntrevistaEntity e) {
-        return e.getFecha() != null && e.getHora() != null
+        // Programada = no cancelada y todavía no ocurrió (las canceladas no bloquean agendar otra)
+        return e.getStatus() != EstadoEntrevista.CANCELADA && e.getFecha() != null && e.getHora() != null
                 && !java.time.LocalDateTime.of(e.getFecha(), e.getHora()).isBefore(java.time.LocalDateTime.now());
     }
 

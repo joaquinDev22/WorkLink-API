@@ -127,6 +127,7 @@ CREATE TABLE hito_proyecto (
 ) ENGINE=InnoDB;
 
 CREATE TABLE proyecto_habilidades (
+	id INT AUTO_INCREMENT PRIMARY KEY,
     proyecto_id INT NOT NULL,
     habilidad VARCHAR(255) NOT NULL,
     FOREIGN KEY (proyecto_id) REFERENCES proyecto(proyecto_id) ON DELETE CASCADE ON UPDATE CASCADE
@@ -190,6 +191,7 @@ CREATE TABLE vacante (
 ) ENGINE=InnoDB;
 
 CREATE TABLE vacante_etiquetas (
+	id INT AUTO_INCREMENT PRIMARY KEY,	
     vacante_id INT NOT NULL,
     etiqueta VARCHAR(255) NOT NULL,
     FOREIGN KEY (vacante_id) REFERENCES vacante(vacante_id) ON DELETE CASCADE ON UPDATE CASCADE
@@ -214,6 +216,7 @@ CREATE TABLE entrevista (
     fecha DATE NOT NULL,
     hora TIME NOT NULL,
     link VARCHAR(255),
+    estado VARCHAR(20) NOT NULL DEFAULT 'PROGRAMADA',   -- PROGRAMADA | CANCELADA (COMPLETADA se deriva de la fecha)
     FOREIGN KEY (postulacion_id) REFERENCES postulacion_vacante(postulacion_id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
@@ -359,6 +362,7 @@ CREATE TABLE modulo_bootcamp (
 ) ENGINE=InnoDB;
 
 CREATE TABLE bootcamp_etiquetas (
+	id INT AUTO_INCREMENT PRIMARY KEY,
     bootcamp_id INT NOT NULL,
     etiqueta VARCHAR(255) NOT NULL,
     FOREIGN KEY (bootcamp_id) REFERENCES bootcamp(bootcamp_id) ON DELETE CASCADE ON UPDATE CASCADE
@@ -691,12 +695,12 @@ DELIMITER ;
 -- ===================================================================================
 
 -- Crear usuario exclusivo para la aplicación Spring Boot
-CREATE USER IF NOT EXISTS 'app_user'@'%' IDENTIFIED BY 'AppSecurePass2026!';
+-- CREATE USER IF NOT EXISTS 'app_user'@'%' IDENTIFIED BY 'AppSecurePass2026!';
 
 -- Otorgar solo permisos DML y de Ejecución (Sin permisos DDL de alteración/borrado de esquema en prod)
-GRANT SELECT, INSERT, UPDATE, DELETE, EXECUTE ON bd_proyecto_final.* TO 'app_user'@'%';
+-- GRANT SELECT, INSERT, UPDATE, DELETE, EXECUTE ON bd_proyecto_final.* TO 'app_user'@'%';
 
-FLUSH PRIVILEGES;
+-- FLUSH PRIVILEGES;
 
 -- ===================================================================================
 -- 11. DATOS INICIALES (SEED DATA COMPLETO)

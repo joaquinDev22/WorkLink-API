@@ -17,7 +17,8 @@ public interface EntrevistaRepository extends JpaRepository<EntrevistaEntity, In
     @Query("SELECT e FROM EntrevistaEntity e WHERE e.postulacion.employee.perfil.usuario = :username")
     List<EntrevistaEntity> findByPostulanteUsuario(@Param("username") String username);
 
-    @Query("SELECT COUNT(e) FROM EntrevistaEntity e WHERE e.postulacion.vacante.empresa.id = :empresaId")
+    @Query("SELECT COUNT(e) FROM EntrevistaEntity e WHERE e.postulacion.vacante.empresa.id = :empresaId "
+            + "AND e.status <> com.example.Proyecto_Final_Progra3.model.enterprise.EstadoEntrevista.CANCELADA")
     Long countPendientesByEmpresaId(@Param("empresaId") Integer empresaId);
 
     List<EntrevistaEntity> findByPostulacion_PostulacionVacanteId(Integer postulacionId);

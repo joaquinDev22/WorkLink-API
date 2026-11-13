@@ -27,7 +27,8 @@ public class EntrevistaMapper {
         String companyName = vacante != null && vacante.getEmpresa() != null ? vacante.getEmpresa().getNombre() : "Empresa";
 
         // No hay columna de estado: se deriva de la fecha y hora de la entrevista
-        String status = entity.getFecha() != null && entity.getHora() != null
+        String status = entity.getStatus() == com.example.Proyecto_Final_Progra3.model.enterprise.EstadoEntrevista.CANCELADA ? "CANCELADA"
+                : entity.getFecha() != null && entity.getHora() != null
                 && java.time.LocalDateTime.of(entity.getFecha(), entity.getHora()).isBefore(java.time.LocalDateTime.now())
                 ? "COMPLETADA" : "PROGRAMADA";
         String vacancyTitle = (entity.getPostulacion() != null && entity.getPostulacion().getVacante() != null)

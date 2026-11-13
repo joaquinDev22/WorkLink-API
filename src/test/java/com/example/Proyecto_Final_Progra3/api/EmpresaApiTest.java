@@ -241,6 +241,75 @@ class EmpresaApiTest extends ApiTestBase {
                 .andExpect(status().isBadRequest());
     }
 
+    private Integer agendar758(LocalDate fecha) throws Exception {
+        postJson(RECRUITER, "/api/v1/recruiter/entrevistas", entrevistaJson(758, fecha, "14:30:00")).andExpect(status().isCreated());
+        return id("select max(entrevista_id) from entrevista where postulacion_id=758");
+    }
+
+    @Test void entrevistas_cancelar() throws Exception {
+        Integer id = agendar758(LocalDate.now().plusDays(4));
+        delete(RECRUITER, "/api/v1/recruiter/entrevistas/{id}", id).andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("CANCELADA"));
+        get(RECRUITER, "/api/v1/recruiter/entrevistas").andExpect(status().isOk())
+                .andExpect(jsonPath("$[?(@.id == " + id + ")].status", org.hamcrest.Matchers.hasItem("CANCELADA")));
+        org.junit.jupiter.api.Assertions.assertEquals("CANCELADA",
+                jdbc.queryForObject("select estado from entrevista where entrevista_id=?", String.class, id));
+    }
+
+    @Test void entrevistas_cancelarDosVeces_422() throws Exception {
+        Integer id = agendar758(LocalDate.now().plusDays(4));
+        delete(RECRUITER, "/api/v1/recruiter/entrevistas/{id}", id).andExpect(status().isOk());
+        delete(RECRUITER, "/api/v1/recruiter/entrevistas/{id}", id).andExpect(status().isUnprocessableContent());
+    }
+
+    @Test void entrevistas_cancelarElMismoDia_422() throws Exception {
+        Integer id = agendar758(LocalDate.now().plusDays(4));
+        jdbc.update("update entrevista set fecha=curdate(), hora='23:59:00' where entrevista_id=?", id);
+        delete(RECRUITER, "/api/v1/recruiter/entrevistas/{id}", id).andExpect(status().isUnprocessableContent());
+    }
+
+    @Test void entrevistas_cancelarPasada_422() throws Exception {
+        Integer pasada = id("select min(entrevista_id) from entrevista e join postulacion_vacante pv on pv.postulacion_id=e.postulacion_id "
+                + "join vacante v on v.vacante_id=pv.vacante_id where v.empresa_id=148 and e.fecha<curdate()");
+        delete(RECRUITER, "/api/v1/recruiter/entrevistas/{id}", pasada).andExpect(status().isUnprocessableContent());
+    }
+
+    @Test void entrevistas_cancelarDeOtraEmpresa_403() throws Exception {
+        Integer id = agendar758(LocalDate.now().plusDays(4));
+        delete("AnaRecruiter", "/api/v1/recruiter/entrevistas/{id}", id).andExpect(status().isForbidden());
+    }
+
+    @Test void entrevistas_cancelarInexistente_404() throws Exception {
+        delete(RECRUITER, "/api/v1/recruiter/entrevistas/999999").andExpect(status().isNotFound());
+    }
+
+    @Test void entrevistas_postulanteNoPuedeCancelar_403() throws Exception {
+        Integer id = agendar758(LocalDate.now().plusDays(4));
+        delete(POSTULANTE, "/api/v1/recruiter/entrevistas/{id}", id).andExpect(status().isForbidden());
+    }
+
+    @Test void entrevistas_trasCancelarSePuedeAgendarOtra() throws Exception {
+        Integer id = agendar758(LocalDate.now().plusDays(4));
+        delete(RECRUITER, "/api/v1/recruiter/entrevistas/{id}", id).andExpect(status().isOk());
+        postJson(RECRUITER, "/api/v1/recruiter/entrevistas", entrevistaJson(758, LocalDate.now().plusDays(8), "11:00:00"))
+                .andExpect(status().isCreated()).andExpect(jsonPath("$.status").value("PROGRAMADA"));
+    }
+
+    @Test void entrevistas_noSeReprogramaUnaCancelada_422() throws Exception {
+        Integer id = agendar758(LocalDate.now().plusDays(4));
+        delete(RECRUITER, "/api/v1/recruiter/entrevistas/{id}", id).andExpect(status().isOk());
+        putJson(RECRUITER, "/api/v1/recruiter/entrevistas/{id}", entrevistaJson(758, LocalDate.now().plusDays(9), "10:00:00"), id)
+                .andExpect(status().isUnprocessableContent());
+    }
+
+    @Test void entrevistas_dashboardNoCuentaCanceladas() throws Exception {
+        Integer id = agendar758(LocalDate.now().plusDays(4));
+        int antes = com.jayway.jsonpath.JsonPath.read(get(EMPRESA, "/api/v1/empresas/dashboard")
+                .andReturn().getResponse().getContentAsString(), "$.entrevistasPendientes");
+        delete(RECRUITER, "/api/v1/recruiter/entrevistas/{id}", id).andExpect(status().isOk());
+        get(EMPRESA, "/api/v1/empresas/dashboard").andExpect(jsonPath("$.entrevistasPendientes").value(antes - 1));
+    }
+
     // ---------- Portfolio ----------
     @Test void portfolio_subirCV() throws Exception {
         upload(POSTULANTE, "/api/v1/portfolio/296/cv", pdf("file")).andExpect(status().isOk());

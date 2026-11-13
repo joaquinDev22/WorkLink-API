@@ -36,8 +36,13 @@ public class EntrevistaController {
 
     @Operation(summary = "Reprogramar entrevista", description = "Cambia fecha, hora y (opcional) link de una entrevista que todavía no ocurrió. El postulacionId del body se ignora.")
     @PutMapping("/{id}")
-    public ResponseEntity<EntrevistaResponseDTO> reprogramarEntrevista(@PathVariable Integer id, Authentication authentication,
-                                                                       @Valid @RequestBody EntrevistaRequestDTO dto) {
+    public ResponseEntity<EntrevistaResponseDTO> reprogramarEntrevista(@PathVariable Integer id, Authentication authentication, @Valid @RequestBody EntrevistaRequestDTO dto) {
         return ResponseEntity.ok(entrevistaService.reprogramarEntrevista(id, dto, authentication.getName()));
+    }
+
+    @Operation(summary = "Cancelar entrevista", description = "Marca la entrevista como CANCELADA. Solo si todavía no ocurrió y no es el mismo día.")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<EntrevistaResponseDTO> cancelarEntrevista(@PathVariable Integer id, Authentication authentication) {
+        return ResponseEntity.ok(entrevistaService.cancelarEntrevista(id, authentication.getName()));
     }
 }

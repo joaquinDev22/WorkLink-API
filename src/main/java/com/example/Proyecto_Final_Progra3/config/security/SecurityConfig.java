@@ -72,7 +72,12 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of("http://localhost:4200", "http://localhost:*", "https://*.worklink.com"));
+        config.setAllowedOriginPatterns(List.of(
+            "http://localhost:4200",
+            "http://localhost:*",
+            "https://*.vercel.app",
+            "https://*.onrender.com"
+            ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "X-Requested-With", "Origin"));
         config.setExposedHeaders(List.of("Authorization", "Content-Disposition"));

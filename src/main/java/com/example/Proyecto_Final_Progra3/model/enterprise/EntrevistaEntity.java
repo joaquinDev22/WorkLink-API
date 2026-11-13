@@ -14,6 +14,7 @@ import java.time.LocalTime;
 @Entity
 @Table(name="entrevista")
 public class EntrevistaEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "entrevista_id")
@@ -32,4 +33,9 @@ public class EntrevistaEntity {
 
     @Column(length = 255)
     private String link;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado", nullable = false, length = 20)
+    @Builder.Default
+    private EstadoEntrevista status = EstadoEntrevista.PROGRAMADA;
 }
