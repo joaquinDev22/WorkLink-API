@@ -40,6 +40,7 @@ public class PostulacionVacanteServiceImpl implements IPostulacionVacanteService
     private final PerfilRepository perfilRepository;
     private final EmpresaRepository empresaRepository;
     private final RecruiterRepository recruiterRepository;
+    private final com.example.Proyecto_Final_Progra3.repository.enterprise.PortfolioRepository portfolioRepository;
     private final PostulacionVacanteMapper postulacionVacanteMapper;
 
     @Override
@@ -62,6 +63,10 @@ public class PostulacionVacanteServiceImpl implements IPostulacionVacanteService
         EmployeeEntity employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Empleado no encontrado con ID: " + employeeId));
 
+        if (postulacionRepository.existsByVacante_VacanteIdAndEmployee_EmployeeId(vacanteId, employeeId)) {
+            throw new BusinessRuleException("Ya te postulaste a esta vacante");
+        }
+
         PostulacionVacanteEntity postulacion = new PostulacionVacanteEntity();
         postulacion.setVacante(vacante);
         postulacion.setEmployee(employee);
@@ -81,6 +86,12 @@ public class PostulacionVacanteServiceImpl implements IPostulacionVacanteService
             } catch (IOException e) {
                 throw new BusinessRuleException("Error al procesar el archivo PDF del CV.");
             }
+        } else {
+            // Sin archivo adjunto se usa el CV guardado en el perfil (la columna cv es NOT NULL)
+            byte[] cvPerfil = portfolioRepository.findByEmployee_EmployeeId(employeeId)
+                    .map(p -> p.getCv()).filter(b -> b != null && b.length > 0)
+                    .orElseThrow(() -> new BadRequestException("Adjuntá un CV en PDF o subilo primero a tu perfil."));
+            postulacion.setCv(cvPerfil);
         }
 
         PostulacionVacanteEntity guardada = postulacionRepository.save(postulacion);

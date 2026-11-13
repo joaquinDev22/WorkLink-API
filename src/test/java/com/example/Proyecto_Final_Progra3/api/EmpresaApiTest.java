@@ -144,8 +144,19 @@ class EmpresaApiTest extends ApiTestBase {
         Integer vac = id("""
                 select min(vacante_id) from vacante where activa=1 and fecha_fin>=curdate()
                 and vacante_id not in (select vacante_id from postulacion_vacante where postulante_id=296)""");
+        // Sin adjunto se usa el CV del perfil
+        upload(POSTULANTE, "/api/v1/perfiles/uploadMyCV", pdf("file")).andExpect(status().isOk());
         call(POSTULANTE, multipart("/api/v1/vacantes/{v}/postulaciones/me", vac).param("mensaje", "Sin CV"))
                 .andExpect(status().isOk());
+    }
+
+    @Test void postularse_sinCVNiEnPerfil_400() throws Exception {
+        jdbc.update("update portfolio set cv=null where employee_id=296");
+        Integer vac = id("""
+                select min(vacante_id) from vacante where activa=1 and fecha_fin>=curdate()
+                and vacante_id not in (select vacante_id from postulacion_vacante where postulante_id=296)""");
+        call(POSTULANTE, multipart("/api/v1/vacantes/{v}/postulaciones/me", vac).param("mensaje", "Sin CV"))
+                .andExpect(status().isBadRequest());
     }
 
     @Test void verPostulantes() throws Exception { get(EMPRESA, "/api/v1/vacantes/461/postulaciones").andExpect(status().isOk()); }

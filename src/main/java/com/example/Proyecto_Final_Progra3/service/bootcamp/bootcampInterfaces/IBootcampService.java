@@ -9,9 +9,9 @@ public interface IBootcampService {
 
     BootcampResponseDTO crearMiBootcamp(String username, BootcampRequestDTO dto);
 
-    void eliminarBootcamp(Integer id);
+    void eliminarBootcamp(Integer id, String username);
 
-    BootcampResponseDTO modificarBootcamp(Integer id, BootcampRequestDTO dto);
+    BootcampResponseDTO modificarBootcamp(Integer id, BootcampRequestDTO dto, String username);
 
     List<BootcampResponseDTO> listarBootcamps();
 

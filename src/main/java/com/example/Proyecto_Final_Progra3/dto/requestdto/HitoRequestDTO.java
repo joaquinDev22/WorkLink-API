@@ -10,7 +10,7 @@ public record HitoRequestDTO(
         @Size(max = 100, message = "El título no puede superar los 100 caracteres")
         String titulo,
 
-        @Size(max = 500, message = "La descripción no puede superar los 500 caracteres")
+        @Size(max = 255, message = "La descripción no puede superar los 255 caracteres")
         String descripcion,
 
         LocalDate fechaLimite

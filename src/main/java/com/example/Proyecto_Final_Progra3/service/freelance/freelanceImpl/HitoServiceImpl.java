@@ -59,7 +59,16 @@ public class HitoServiceImpl implements IHitoService {
     }
 
     @Override
-    public List<HitoResponseDTO> listarHitosPorProyecto(Integer proyectoId) {
+    public List<HitoResponseDTO> listarHitosPorProyecto(Integer proyectoId, String username) {
+        ProyectoEntity proyecto = proyectoRepository.findById(proyectoId)
+                .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado con ID: " + proyectoId));
+        boolean esCliente = proyecto.getClient() != null && proyecto.getClient().getPerfil() != null
+                && username.equals(proyecto.getClient().getPerfil().getUsuario());
+        boolean esFreelancer = proyecto.getFreelancer() != null && proyecto.getFreelancer().getPerfil() != null
+                && username.equals(proyecto.getFreelancer().getPerfil().getUsuario());
+        if (!esCliente && !esFreelancer) {
+            throw new UnauthorizedAccessException("Solo el cliente o el freelancer del proyecto pueden ver sus hitos");
+        }
         return hitoRepository.findByProyecto_IdOrderByHitoIdAsc(proyectoId).stream()
                 .map(this::mapToDto)
                 .toList();

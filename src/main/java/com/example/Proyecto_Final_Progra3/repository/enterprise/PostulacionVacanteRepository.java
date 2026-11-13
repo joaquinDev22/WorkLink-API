@@ -13,6 +13,7 @@ public interface PostulacionVacanteRepository extends JpaRepository<PostulacionV
     List<PostulacionVacanteEntity> findByVacante_VacanteId(Integer vacanteId);
     List<PostulacionVacanteEntity> findByVacante_Empresa_Id(Integer empresaId);
     List<PostulacionVacanteEntity> findByEmployee_EmployeeId(Integer employeeId);
+    boolean existsByVacante_VacanteIdAndEmployee_EmployeeId(Integer vacanteId, Integer employeeId);
 
     @Procedure(procedureName = "sp_postular_vacante")
     String postularVacante(

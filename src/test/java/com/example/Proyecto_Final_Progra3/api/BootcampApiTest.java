@@ -30,6 +30,11 @@ class BootcampApiTest extends ApiTestBase {
     @Test void buscarPorId_inexistente_404() throws Exception { get(null, "/api/v1/bootcamps/999999").andExpect(status().isNotFound()); }
     @Test void disponibles_publico() throws Exception { get(null, "/api/v1/bootcamps/disponibles").andExpect(status().isOk()); }
     @Test void porModalidad_publico() throws Exception { get(null, "/api/v1/bootcamps/modalidad/VIRTUAL").andExpect(status().isOk()); }
+    @Test void instructores_crear_sinPerfil_400() throws Exception {
+        postJson(INSTRUCTOR, "/api/v1/instructores", INSTRUCTOR_JSON).andExpect(status().isBadRequest());
+    }
+
+    @Test void porModalidad_invalida_400() throws Exception { get(null, "/api/v1/bootcamps/modalidad/MARCIANA").andExpect(status().isBadRequest()); }
     @Test void misBootcamps() throws Exception { get(INSTRUCTOR, "/api/v1/bootcamps/me").andExpect(status().isOk()); }
 
     @Test void crear() throws Exception { crearBootcamp(); }
@@ -63,9 +68,11 @@ class BootcampApiTest extends ApiTestBase {
     @Test void instructores_bootcamps() throws Exception { get(INSTRUCTOR, "/api/v1/instructores/bootcamps").andExpect(status().isOk()); }
 
     @Test void instructores_crear_modificar_eliminar() throws Exception {
-        postJson(INSTRUCTOR, "/api/v1/instructores", INSTRUCTOR_JSON).andExpect(status().isCreated());
+        Integer perfil = id("select perfil_id from perfil where usuario='freelancer07'");
+        String json = INSTRUCTOR_JSON.replace("}", ",\"perfil_id\":" + perfil + "}");
+        postJson(INSTRUCTOR, "/api/v1/instructores", json).andExpect(status().isCreated());
         Integer id = id("select max(instructor_id) from instructor");
-        putJson(INSTRUCTOR, "/api/v1/instructores/{id}", INSTRUCTOR_JSON.replace("Ana", "Ana María"), id).andExpect(status().isOk());
+        putJson(INSTRUCTOR, "/api/v1/instructores/{id}", json.replace("Ana", "Ana María"), id).andExpect(status().isOk());
         int st = delete(INSTRUCTOR, "/api/v1/instructores/{id}", id).andReturn().getResponse().getStatus();
         org.junit.jupiter.api.Assertions.assertTrue(st == 200 || st == 204, "fue " + st);
     }

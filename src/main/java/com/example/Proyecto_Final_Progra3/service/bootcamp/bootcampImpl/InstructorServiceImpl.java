@@ -24,12 +24,23 @@ public class InstructorServiceImpl implements IInstructorService {
     private final InstructorRepository repository;
     private final EmpresaRepository empresaRepository;
     private final InstructorMapper mapper;
+    private final com.example.Proyecto_Final_Progra3.repository.PerfilRepository perfilRepository;
 
     @Transactional
     public InstructorResponseDTO crearInstructor(InstructorRequestDTO dto) {
         validarInstructor(dto);
 
+        if (dto.perfil_id() == null) {
+            throw new InstructorInvalidoException("El perfil del instructor es obligatorio");
+        }
+        var perfil = perfilRepository.findById(dto.perfil_id())
+                .orElseThrow(() -> new ResourceNotFoundException("Perfil no encontrado con ID: " + dto.perfil_id()));
+        if (repository.findByPerfil(perfil).isPresent()) {
+            throw new com.example.Proyecto_Final_Progra3.exceptions.domain.BusinessRuleException("Ese perfil ya es instructor");
+        }
+
         InstructorEntity instructor = mapper.toEntity(dto);
+        instructor.setPerfil(perfil);
 
         if (dto.tipo() != null && dto.tipo().equals(Tipo.EMPRESA)) {
             EmpresaEntity empresa = empresaRepository.findById(dto.empresa_id())
@@ -99,8 +110,8 @@ public class InstructorServiceImpl implements IInstructorService {
             throw new InstructorInvalidoException("La descripción no puede superar los 255 caracteres");
         }
 
-        if (dto.empresa_id() == null) {
-            throw new InstructorInvalidoException("La empresa es obligatoria");
+        if (dto.tipo() == Tipo.EMPRESA && dto.empresa_id() == null) {
+            throw new InstructorInvalidoException("La empresa es obligatoria para instructores de tipo EMPRESA");
         }
     }
 }

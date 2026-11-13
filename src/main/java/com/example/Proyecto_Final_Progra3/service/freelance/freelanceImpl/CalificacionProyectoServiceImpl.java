@@ -1,5 +1,7 @@
 package com.example.Proyecto_Final_Progra3.service.freelance.freelanceImpl;
 
+import com.example.Proyecto_Final_Progra3.exceptions.domain.BusinessRuleException;
+import com.example.Proyecto_Final_Progra3.model.freelance.enums.EstadoProyecto;
 import com.example.Proyecto_Final_Progra3.dto.requestdto.CalificacionProyectoRequestDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.CalificacionProyectoResponseDTO;
 import com.example.Proyecto_Final_Progra3.dto.responsedto.ReputacionPerfilResponseDTO;
@@ -50,6 +52,10 @@ public class CalificacionProyectoServiceImpl implements ICalificacionProyectoSer
 
         if (!esCliente && !esFreelancer) {
             throw new UnauthorizedAccessException("Solo el cliente o el freelancer participante pueden calificar este proyecto");
+        }
+
+        if (proyecto.getEstado() != EstadoProyecto.FINALIZADO) {
+            throw new BusinessRuleException("Solo se puede calificar un proyecto finalizado (estado actual: " + proyecto.getEstado() + ")");
         }
 
         // Crear registro en calificacion_proyecto

@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface IHitoService {
     HitoResponseDTO crearHito(Integer proyectoId, HitoRequestDTO dto, String username);
-    List<HitoResponseDTO> listarHitosPorProyecto(Integer proyectoId);
+    List<HitoResponseDTO> listarHitosPorProyecto(Integer proyectoId, String username);
     HitoResponseDTO cambiarEstadoHito(Integer proyectoId, Integer hitoId, EstadoHitoProyecto nuevoEstado, String username);
 }
 

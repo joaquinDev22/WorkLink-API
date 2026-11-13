@@ -31,14 +31,15 @@ public class BootcampController {
 
     @Operation(summary = "Modificar bootcamp", description = "Actualiza la información de un bootcamp existente mediante su identificador.")
     @PutMapping("/{id}")
-    public ResponseEntity<BootcampResponseDTO> modificarBootcamp(@PathVariable Integer id, @Valid @RequestBody BootcampRequestDTO dto) {
-        return ResponseEntity.ok(bootcampService.modificarBootcamp(id, dto));
+    public ResponseEntity<BootcampResponseDTO> modificarBootcamp(@PathVariable Integer id, @Valid @RequestBody BootcampRequestDTO dto,
+                                                                  org.springframework.security.core.Authentication authentication) {
+        return ResponseEntity.ok(bootcampService.modificarBootcamp(id, dto, authentication.getName()));
     }
 
     @Operation(summary = "Eliminar bootcamp", description = "Elimina un bootcamp registrado en el sistema utilizando su identificador.")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarBootcamp(@PathVariable Integer id) {
-        bootcampService.eliminarBootcamp(id);
+    public ResponseEntity<Void> eliminarBootcamp(@PathVariable Integer id, org.springframework.security.core.Authentication authentication) {
+        bootcampService.eliminarBootcamp(id, authentication.getName());
         return ResponseEntity.noContent().build();
     }
 

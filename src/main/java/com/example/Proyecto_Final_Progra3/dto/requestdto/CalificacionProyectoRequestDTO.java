@@ -13,7 +13,7 @@ public record CalificacionProyectoRequestDTO(
         Integer puntaje,
 
         @NotBlank(message = "El comentario es obligatorio")
-        @Size(max = 500, message = "El comentario no puede superar los 500 caracteres")
+        @Size(max = 255, message = "El comentario no puede superar los 255 caracteres")
         String comentario
 ) {}
 

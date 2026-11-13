@@ -5,6 +5,7 @@ import com.example.Proyecto_Final_Progra3.dto.responsedto.BootcampResponseDTO;
 import com.example.Proyecto_Final_Progra3.exceptions.bootcamps.BootcampInvalidoException;
 import com.example.Proyecto_Final_Progra3.exceptions.domain.ResourceNotFoundException;
 import com.example.Proyecto_Final_Progra3.exceptions.domain.UnauthorizedAccessException;
+import com.example.Proyecto_Final_Progra3.model.bootcamps.enums.Modalidad;
 import com.example.Proyecto_Final_Progra3.mappers.BootcampMapper;
 import com.example.Proyecto_Final_Progra3.model.PerfilEntity;
 import com.example.Proyecto_Final_Progra3.model.bootcamps.BootcampEntity;
@@ -77,29 +78,35 @@ public class BootcampServiceImpl implements IBootcampService {
 
     @Override
     @Transactional
-    public void eliminarBootcamp(Integer id) {
-        BootcampEntity bootcamp = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("No existe un bootcamp con el ID: " + id));
+    public void eliminarBootcamp(Integer id, String username) {
+        BootcampEntity bootcamp = buscarPropio(id, username);
 
         repository.delete(bootcamp);
     }
 
     @Override
     @Transactional
-    public BootcampResponseDTO modificarBootcamp(Integer id, BootcampRequestDTO dto) {
-        BootcampEntity bootcamp = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("No existe un bootcamp con el ID: " + id));
+    public BootcampResponseDTO modificarBootcamp(Integer id, BootcampRequestDTO dto, String username) {
+        BootcampEntity bootcamp = buscarPropio(id, username);
+        InstructorEntity instructor = bootcamp.getInstructor(); // el dueño no cambia por lo que mande el body
 
         validarBootcamp(dto);
-
-        InstructorEntity instructor = instructorRepository.findById(dto.instructor_id())
-                .orElseThrow(() -> new ResourceNotFoundException("No existe un instructor con el ID: " + dto.instructor_id()));
 
         mapper.updateEntityFromDto(dto, bootcamp);
         bootcamp.setInstructor(instructor);
 
         bootcamp = repository.save(bootcamp);
         return mapper.toDto(bootcamp);
+    }
+
+    private BootcampEntity buscarPropio(Integer id, String username) {
+        BootcampEntity bootcamp = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No existe un bootcamp con el ID: " + id));
+        InstructorEntity instructor = bootcamp.getInstructor();
+        if (instructor == null || instructor.getPerfil() == null || !username.equals(instructor.getPerfil().getUsuario())) {
+            throw new UnauthorizedAccessException("Solo el instructor dueño puede modificar o eliminar este bootcamp");
+        }
+        return bootcamp;
     }
 
     @Override
@@ -135,7 +142,13 @@ public class BootcampServiceImpl implements IBootcampService {
         if (modalidad == null || modalidad.isBlank()) {
             throw new BootcampInvalidoException("La modalidad es obligatoria");
         }
-        return mapper.toDtoList(repository.findByModalidad(modalidad));
+        Modalidad m;
+        try {
+            m = Modalidad.valueOf(modalidad.trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new BootcampInvalidoException("Modalidad inválida: " + modalidad + " (valores: VIRTUAL, PRESENCIAL)");
+        }
+        return mapper.toDtoList(repository.findByModalidad(m));
     }
 
     private void validarBootcamp(BootcampRequestDTO dto) {

@@ -48,7 +48,8 @@ public class CalificacionProyectoController {
     }
 
     @Operation(summary = "Obtener mis opiniones y calificaciones", description = "Calcula el promedio decimal y retorna el listado histórico de reseñas del usuario autenticado.")
-    @GetMapping({"/api/v1/perfiles/me/calificaciones", "/api/v1/freelance/calificaciones/me", "/api/v1/freelancer/opiniones", "/api/v1/freelancer/calificaciones"})
+    // /freelancer/opiniones y /freelancer/calificaciones los atiende FreelancerController (antes estaban duplicadas: 400 ambiguo)
+    @GetMapping({"/api/v1/perfiles/me/calificaciones", "/api/v1/freelance/calificaciones/me"})
     public ResponseEntity<ReputacionPerfilResponseDTO> obtenerMiReputacion(Authentication authentication) {
         return ResponseEntity.ok(calificacionService.obtenerReputacionPorUsuario(authentication.getName()));
     }

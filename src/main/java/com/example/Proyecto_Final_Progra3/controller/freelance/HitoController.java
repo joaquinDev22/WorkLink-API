@@ -37,8 +37,8 @@ public class HitoController {
     @Parameter(name = "proyectoId", description = "Identificador único del proyecto", example = "1")
     @Operation(summary = "Listar hitos del proyecto", description = "Obtiene la lista cronológica de entregas e hitos asociados al proyecto.")
     @GetMapping
-    public ResponseEntity<List<HitoResponseDTO>> listarHitos(@PathVariable Integer proyectoId) {
-        return ResponseEntity.ok(hitoService.listarHitosPorProyecto(proyectoId));
+    public ResponseEntity<List<HitoResponseDTO>> listarHitos(@PathVariable Integer proyectoId, Authentication authentication) {
+        return ResponseEntity.ok(hitoService.listarHitosPorProyecto(proyectoId, authentication.getName()));
     }
 
     @Parameter(name = "proyectoId", description = "Identificador único del proyecto", example = "1")

@@ -10,7 +10,7 @@ import java.util.List;
 public interface BootcampRepository extends JpaRepository<BootcampEntity, Integer> {
     List<BootcampEntity> findByCuposGreaterThanAndInicioGreaterThanEqual(int cupos, LocalDate fecha);
 
-    List<BootcampEntity> findByModalidad(String modalidad);
+    List<BootcampEntity> findByModalidad(com.example.Proyecto_Final_Progra3.model.bootcamps.enums.Modalidad modalidad);
 
     List<BootcampEntity> findByInstructor(InstructorEntity instructor);
 
