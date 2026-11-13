@@ -75,6 +75,7 @@ public class SecurityConfig {
         config.setAllowedOriginPatterns(List.of(
             "http://localhost:4200",
             "http://localhost:*",
+            "https://work-link-cyan.vercel.app",
             "https://*.vercel.app",
             "https://*.onrender.com"
             ));
