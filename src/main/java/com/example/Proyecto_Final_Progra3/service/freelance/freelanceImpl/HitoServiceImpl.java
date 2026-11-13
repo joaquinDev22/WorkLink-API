@@ -71,23 +71,23 @@ public class HitoServiceImpl implements IHitoService {
         HitoProyectoEntity hito = hitoRepository.findById(hitoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Hito no encontrado con ID: " + hitoId));
 
-        if (!hito.getProyecto().getId().equals(proyectoId)) {
+        ProyectoEntity proyecto = hito.getProyecto();
+        if (proyecto == null || !proyecto.getId().equals(proyectoId)) {
             throw new BusinessRuleException("El hito no pertenece al proyecto indicado");
         }
 
-        ProyectoEntity proyecto = hito.getProyecto();
-        boolean esCliente = proyecto != null &&
-                            proyecto.getClient() != null &&
-                            proyecto.getClient().getPerfil() != null &&
-                            proyecto.getClient().getPerfil().getUsuario().equals(username);
-        boolean esFreelancer = proyecto != null &&
-                               proyecto.getFreelancer() != null &&
-                               proyecto.getFreelancer().getPerfil() != null &&
-                               proyecto.getFreelancer().getPerfil().getUsuario().equals(username);
+        boolean esCliente = proyecto.getClient() != null &&
+        proyecto.getClient().getPerfil() != null && 
+        username.equals(proyecto.getClient().getPerfil().getUsuario());
+
+        boolean esFreelancer = proyecto.getFreelancer() != null &&
+        proyecto.getFreelancer().getPerfil() != null &&
+        username.equals(proyecto.getFreelancer().getPerfil().getUsuario());
 
         if (!esCliente && !esFreelancer) {
             throw new UnauthorizedAccessException("No tienes permisos para modificar hitos de este proyecto");
         }
+
         // D2: EN_PROGRESO solo lo pone el webhook al confirmarse el pago; a mano solo se puede completar
         if (nuevoEstado != EstadoHitoProyecto.COMPLETADO) {
             throw new BusinessRuleException("El hito pasa a EN_PROGRESO solo cuando Mercado Pago confirma el pago; manualmente solo se puede marcar como COMPLETADO");
@@ -119,8 +119,8 @@ public class HitoServiceImpl implements IHitoService {
         List<HitoProyectoEntity> hitos = hitoRepository.findByProyecto_IdOrderByHitoIdAsc(proyecto.getId());
         BigDecimal yaPagado = hitos.stream()
                 .filter(h -> h.getEstado() != EstadoHitoProyecto.PENDIENTE)
-                .map(HitoProyectoEntity::getMonto)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .map(hito -> hito.getMonto())
+                .reduce(BigDecimal.ZERO, (acumulado, monto) -> acumulado.add(monto));
         List<HitoProyectoEntity> pendientes = hitos.stream()
                 .filter(h -> h.getEstado() == EstadoHitoProyecto.PENDIENTE)
                 .toList();
