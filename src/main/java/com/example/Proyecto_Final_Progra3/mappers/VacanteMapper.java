@@ -17,6 +17,7 @@ public interface VacanteMapper {
     @Mapping(target = "empresaId", source = "empresa.id")
     @Mapping(target = "nombreEmpresa", source = "entity", qualifiedByName = "mapNombreEmpresa")
     @Mapping(target = "etiquetas", source = "etiquetas", qualifiedByName = "mapEtiquetas")
+    @Mapping(target = "logo", source = "entity", qualifiedByName = "mapLogo")
     VacanteResponseDTO toDto(VacanteEntity entity);
 
     List<VacanteResponseDTO> toDtoList(List<VacanteEntity> entities);
@@ -27,6 +28,13 @@ public interface VacanteMapper {
             return "Empresa Desconocida";
         }
         return entity.getEmpresa().getNombre();
+    }
+
+    // Si la vacante no tiene logo propio se muestra el de la empresa
+    @Named("mapLogo")
+    default String mapLogo(VacanteEntity entity) {
+        if (entity.getLogo() != null && !entity.getLogo().isBlank()) return entity.getLogo();
+        return entity.getEmpresa() != null ? entity.getEmpresa().getLogo() : null;
     }
 
     @Named("mapEtiquetas")

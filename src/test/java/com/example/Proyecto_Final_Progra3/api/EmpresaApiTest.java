@@ -17,7 +17,16 @@ class EmpresaApiTest extends ApiTestBase {
             {"nombre":"Empresa Test","descripcion":"Descripción test","sitio_web":"https://test.com","ubicacion":"Córdoba"}""";
 
     // ---------- Empresa ----------
-    @Test void miEmpresa() throws Exception { get(EMPRESA, "/api/v1/empresas/my").andExpect(status().isOk()); }
+    @Test void miEmpresa() throws Exception {
+        get(EMPRESA, "/api/v1/empresas/my").andExpect(status().isOk())
+                .andExpect(jsonPath("$.descripcion").isNotEmpty())
+                .andExpect(jsonPath("$.perfil_id").value(802))
+                .andExpect(jsonPath("$.logo", startsWith("data:image")));
+    }
+    @Test void getProfileEmpresa_traeLogo() throws Exception {
+        get(EMPRESA, "/api/v1/perfiles/getProfile").andExpect(status().isOk())
+                .andExpect(jsonPath("$.logo", startsWith("data:image")));
+    }
     @Test void mostrarEmpresa() throws Exception { get(EMPRESA, "/api/v1/empresas/148").andExpect(status().isOk()); }
     @Test void mostrarEmpresaPorUuid() throws Exception {
         String uuid = jdbc.queryForObject("select uuid from empresa where empresa_id=148", String.class);
@@ -92,7 +101,11 @@ class EmpresaApiTest extends ApiTestBase {
     }
 
     @Test void vacantes_listar_publico() throws Exception { get(null, "/api/v1/vacantes").andExpect(status().isOk()); }
-    @Test void vacantes_porId_publico() throws Exception { get(null, "/api/v1/vacantes/461").andExpect(status().isOk()); }
+    @Test void vacantes_porId_publico() throws Exception {
+        // Sin logo propio usa el de la empresa
+        get(null, "/api/v1/vacantes/461").andExpect(status().isOk())
+                .andExpect(jsonPath("$.logo", startsWith("data:image")));
+    }
     @Test void vacantes_porUuid_publico() throws Exception {
         String uuid = jdbc.queryForObject("select uuid from vacante where vacante_id=461", String.class);
         get(null, "/api/v1/vacantes/uuid/{u}", uuid).andExpect(status().isOk());

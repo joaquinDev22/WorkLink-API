@@ -185,7 +185,11 @@ class FreelanceApiTest extends ApiTestBase {
 
     // ---------- Freelancer ----------
     @Test void freelancer_finanzas() throws Exception { get(FREELANCER, "/api/v1/freelancer/finances").andExpect(status().isOk()); }
-    @Test void freelancer_transacciones() throws Exception { get(FREELANCER, "/api/v1/freelancer/transactions").andExpect(status().isOk()); }
+    @Test void freelancer_transacciones() throws Exception {
+        String nombre = jdbc.queryForObject("select nombre_proyecto from proyecto where proyecto_id=394", String.class);
+        get(FREELANCER, "/api/v1/freelancer/transactions").andExpect(status().isOk())
+                .andExpect(jsonPath("$[?(@.projectId == 394)].projectTitle", org.hamcrest.Matchers.hasItem(nombre)));
+    }
     @Test void freelancer_proyectos() throws Exception {
         for (String url : new String[]{"/api/v1/freelancer/proyectos", "/api/v1/freelancer/proyectos/historico", "/api/v1/freelancer/proyectos/asignados"})
             get(FREELANCER, url).andExpect(status().isOk());

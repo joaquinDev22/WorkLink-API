@@ -6,6 +6,7 @@ public record EmpresaResponseDTO(
         Integer id,
         UUID uuid,
         String nombre,
+        String descripcion,
         String direccion,
         String sitio_web,
         String ubicacion,

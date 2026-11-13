@@ -100,6 +100,7 @@ public class PerfilUsuarioServiceImpl implements IPerfilUsuarioService {
             if (emp != null) {
                 dto.setNombre(emp.getNombre());
                 dto.setSitioWeb(emp.getSitio_web());
+                dto.setLogo(emp.getLogo());
             }
         } else if ("INSTRUCTOR".equals(rol)) {
             InstructorEntity inst = instructorRepository.findByPerfil(perfil).orElse(null);

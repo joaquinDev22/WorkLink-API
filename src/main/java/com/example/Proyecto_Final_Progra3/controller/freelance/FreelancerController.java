@@ -81,7 +81,7 @@ public class FreelancerController {
                         p.getMonto(),
                         p.getMedioDePago() != null ? p.getMedioDePago().name() : "BILLETERA_VIRTUAL",
                         p.getProyecto() != null ? p.getProyecto().getId() : null,
-                        p.getProyecto() != null ? p.getProyecto().getArea() : "Proyecto"
+                        p.getProyecto() != null ? p.getProyecto().getNombreProyecto() : "Proyecto"
                 ))
                 .toList();
 

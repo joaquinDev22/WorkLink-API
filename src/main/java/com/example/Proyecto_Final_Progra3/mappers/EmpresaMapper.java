@@ -14,6 +14,7 @@ import java.util.List;
 public interface EmpresaMapper {
     EmpresaEntity toEntity(EmpresaRequestDTO dto);
 
+    @Mapping(target = "perfil_id", source = "perfil.id")
     EmpresaResponseDTO toDto(EmpresaEntity entity);
 
     List<EmpresaResponseDTO> toDtoList(List<EmpresaEntity> entities);
