@@ -9,6 +9,7 @@ import com.example.Proyecto_Final_Progra3.mappers.PostulacionVacanteMapper;
 import com.example.Proyecto_Final_Progra3.model.PerfilEntity;
 import com.example.Proyecto_Final_Progra3.model.employee.EmployeeEntity;
 import com.example.Proyecto_Final_Progra3.model.enterprise.EmpresaEntity;
+import com.example.Proyecto_Final_Progra3.model.enterprise.EntrevistaEntity;
 import com.example.Proyecto_Final_Progra3.model.enterprise.EstadoPostulacion;
 import com.example.Proyecto_Final_Progra3.model.enterprise.PostulacionVacanteEntity;
 import com.example.Proyecto_Final_Progra3.model.enterprise.RecruiterEntity;
@@ -16,6 +17,7 @@ import com.example.Proyecto_Final_Progra3.model.enterprise.VacanteEntity;
 import com.example.Proyecto_Final_Progra3.repository.EmployeeRepository;
 import com.example.Proyecto_Final_Progra3.repository.PerfilRepository;
 import com.example.Proyecto_Final_Progra3.repository.enterprise.EmpresaRepository;
+import com.example.Proyecto_Final_Progra3.repository.enterprise.EntrevistaRepository;
 import com.example.Proyecto_Final_Progra3.repository.enterprise.PostulacionVacanteRepository;
 import com.example.Proyecto_Final_Progra3.repository.enterprise.RecruiterRepository;
 import com.example.Proyecto_Final_Progra3.repository.enterprise.VacanteRepository;
@@ -41,6 +43,7 @@ public class PostulacionVacanteServiceImpl implements IPostulacionVacanteService
     private final EmpresaRepository empresaRepository;
     private final RecruiterRepository recruiterRepository;
     private final com.example.Proyecto_Final_Progra3.repository.enterprise.PortfolioRepository portfolioRepository;
+    private final EntrevistaRepository entrevistaRepository;
     private final PostulacionVacanteMapper postulacionVacanteMapper;
 
     @Override
@@ -143,6 +146,27 @@ public class PostulacionVacanteServiceImpl implements IPostulacionVacanteService
         }
 
         validarGestionVacante(postulacion.getVacante(), username);
+
+        EstadoPostulacion actual = postulacion.getEstado();
+        if (nuevoEstado == actual) {
+            return postulacionVacanteMapper.toDto(postulacion);
+        }
+
+        // Con una entrevista programada el estado queda fijo: primero hay que cancelarla o esperar a que ocurra
+        boolean tieneEntrevistaProgramada = entrevistaRepository
+                .findByPostulacion_PostulacionVacanteId(postulacionId).stream()
+                .anyMatch(EntrevistaEntity::estaProgramada);
+        if (tieneEntrevistaProgramada) {
+            throw new BusinessRuleException("No se puede cambiar el estado: el postulante tiene una entrevista agendada. Cancelala o esperá a que se realice.");
+        }
+
+        // El proceso solo avanza: no se puede volver a una etapa anterior
+        if (actual != null && actual.esFinal()) {
+            throw new BusinessRuleException("La postulación ya fue rechazada y no admite cambios de estado");
+        }
+        if (actual != null && !actual.puedeAvanzarA(nuevoEstado)) {
+            throw new BusinessRuleException("El estado de la postulación no puede retroceder de " + actual + " a " + nuevoEstado);
+        }
 
         postulacion.setEstado(nuevoEstado);
         PostulacionVacanteEntity guardada = postulacionRepository.save(postulacion);

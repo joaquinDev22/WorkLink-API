@@ -1,7 +1,7 @@
 package com.example.Proyecto_Final_Progra3.dto.requestdto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
@@ -14,7 +14,7 @@ public record EntrevistaRequestDTO(
         Integer postulacionId,
 
         @NotNull(message = "La fecha no puede ser nula")
-        @FutureOrPresent(message = "La fecha de la entrevista debe ser actual o futura")
+        @Future(message = "La entrevista debe agendarse a partir del día siguiente")
         @Schema(description = "Fecha de la entrevista", example = "2026-10-15")
         LocalDate fecha,
 
