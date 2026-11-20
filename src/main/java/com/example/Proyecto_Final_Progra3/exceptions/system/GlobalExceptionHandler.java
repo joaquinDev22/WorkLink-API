@@ -210,10 +210,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponseDTO> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
         log.error("Error de integridad de datos SQL: {}", ex.getMessage(), ex);
-        String causa = ex.getMostSpecificCause() != null ? ex.getMostSpecificCause().getMessage() : "Restricción de unicidad o clave foránea violada";
         ErrorResponseDTO error = new ErrorResponseDTO(
                 "Conflicto de datos",
-                List.of("No se pudo completar la operación: " + causa),
+                List.of("No se pudo completar la operación porque entra en conflicto con datos existentes"),
                 LocalDate.now()
         );
         return new ResponseEntity<>(error, HttpStatus.CONFLICT);
@@ -237,45 +236,36 @@ public class GlobalExceptionHandler {
             ErrorResponseDTO error = new ErrorResponseDTO("Error de validación en base de datos", errors, LocalDate.now());
             return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
         }
-        String causa = root != null ? root.getMessage() : ex.getMessage();
-        ErrorResponseDTO error = new ErrorResponseDTO("Error en transacción", List.of(causa), LocalDate.now());
-        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+        log.error("Error en transacción: {}", ex.getMessage(), ex);
+        return errorInterno();
     }
 
     // HTTP 500 - Referencia nula no controlada (con ubicación precisa en vez de mensaje vacío)
     @ExceptionHandler(NullPointerException.class)
     public ResponseEntity<ErrorResponseDTO> handleNullPointer(NullPointerException ex) {
         log.error("NullPointerException inesperado: {}", ex.getMessage(), ex);
-        String ubicacion = (ex.getStackTrace() != null && ex.getStackTrace().length > 0)
-                ? ex.getStackTrace()[0].getFileName() + ":" + ex.getStackTrace()[0].getLineNumber()
-                : "desconocido";
-        ErrorResponseDTO error = new ErrorResponseDTO(
-                "Error interno: Referencia nula",
-                List.of("Ocurrió un error inesperado en " + ubicacion + ". " + (ex.getMessage() != null ? ex.getMessage() : "")),
-                LocalDate.now()
-        );
-        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+        return errorInterno();
     }
 
     // HTTP 500 - Error de Acceso a Base de Datos
     @ExceptionHandler(DataAccessException.class)
     public ResponseEntity<ErrorResponseDTO> handleDataAccessException(DataAccessException ex) {
         log.error("Error de acceso a base de datos: {}", ex.getMessage(), ex);
-        String causa = ex.getMostSpecificCause() != null ? ex.getMostSpecificCause().getMessage() : ex.getMessage();
-        ErrorResponseDTO error = new ErrorResponseDTO("Error en base de datos", List.of(causa != null ? causa : "Error SQL"), LocalDate.now());
-        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+        return errorInterno();
     }
 
     // HTTP 500 - Salvaguarda para Excepciones Inesperadas No Capturadas
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDTO> handleGenericException(Exception ex) {
         log.error("Error interno no controlado [{}]: {}", ex.getClass().getSimpleName(), ex.getMessage(), ex);
-        String detalle = (ex.getMessage() != null && !ex.getMessage().isBlank())
-                ? ex.getClass().getSimpleName() + ": " + ex.getMessage()
-                : "Excepción inesperada de tipo " + ex.getClass().getSimpleName();
+        return errorInterno();
+    }
+
+    // Los 500 no le muestran al usuario SQL, clases ni rutas internas: el detalle queda en el log del servidor
+    private static ResponseEntity<ErrorResponseDTO> errorInterno() {
         ErrorResponseDTO error = new ErrorResponseDTO(
-                "Error interno: " + ex.getClass().getSimpleName(),
-                List.of(detalle),
+                "Error interno",
+                List.of("Ocurrió un error inesperado. Intentá de nuevo en unos minutos."),
                 LocalDate.now()
         );
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
