@@ -55,10 +55,10 @@ public class PostulacionProyectoServiceImpl implements IPostulacionProyectoServi
     // Solo se usa desde la versión /me: el endpoint que recibía el id del dueño se eliminó (suplantación)
     private PostulacionProyectoResponseDTO postularse(Integer proyectoId, PostulacionProyectoRequestDTO dto) {
         ProyectoEntity proyecto = proyectoRepository.findById(proyectoId)
-                .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado con ID: " + proyectoId));
+                .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado"));
 
         EmployeeEntity employee = employeeRepository.findById(dto.employeeId())
-                .orElseThrow(() -> new ResourceNotFoundException("Empleado/Freelancer no encontrado con ID: " + dto.employeeId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Empleado/Freelancer no encontrado"));
 
         if (proyecto.getEstado() != EstadoProyecto.BUSCANDO_TALENTO) {
             throw new BusinessRuleException("El proyecto ya no recibe propuestas (estado actual: " + proyecto.getEstado() + ")");
@@ -87,7 +87,7 @@ public class PostulacionProyectoServiceImpl implements IPostulacionProyectoServi
     @Override
     public List<PostulacionProyectoResponseDTO> listarPostulacionesPorProyecto(Integer proyectoId, String username) {
         ProyectoEntity proyecto = proyectoRepository.findById(proyectoId)
-                .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado con ID: " + proyectoId));
+                .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado"));
 
         boolean esClienteTitular = proyecto.getClient() != null && 
                                    proyecto.getClient().getPerfil() != null &&

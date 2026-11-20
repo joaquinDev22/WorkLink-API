@@ -43,7 +43,7 @@ public class ProyectoServiceImpl implements IProyectoService {
     // Solo se usa desde la versión /me: el endpoint que recibía el id del dueño se eliminó (suplantación)
     private ProyectoResponseDTO crearProyecto(ProyectoRequestDTO dto) {
         ClientEntity client = clientRepository.findById(dto.clienteId())
-                .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado con ID: " + dto.clienteId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado"));
 
         ProyectoEntity proyecto = new ProyectoEntity();
         proyecto.setNombreProyecto(dto.nombreProyecto());
@@ -89,7 +89,7 @@ public class ProyectoServiceImpl implements IProyectoService {
     @Transactional
     public void cancelarMiProyecto(Integer id, String username) {
         ProyectoEntity proyecto = proyectoRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado con ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado"));
 
         if (proyecto.getClient() == null || proyecto.getClient().getPerfil() == null || !proyecto.getClient().getPerfil().getUsuario().equals(username)) {
             throw new UnauthorizedAccessException("No tienes permiso para cancelar este proyecto");
@@ -107,7 +107,7 @@ public class ProyectoServiceImpl implements IProyectoService {
     @Transactional
     public ProyectoResponseDTO actualizarMiProyecto(Integer id, String username, ProyectoRequestDTO dto) {
         ProyectoEntity proyecto = proyectoRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado con ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado"));
 
         if (proyecto.getClient() == null || proyecto.getClient().getPerfil() == null || !proyecto.getClient().getPerfil().getUsuario().equals(username)) {
             throw new UnauthorizedAccessException("No tienes permiso para modificar este proyecto");
@@ -134,7 +134,7 @@ public class ProyectoServiceImpl implements IProyectoService {
     public ProyectoResponseDTO buscarPorId(Integer id) {
         return proyectoRepository.findById(id)
                 .map(proyectoMapper::toDto)
-                .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado con ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado"));
     }
 
     @Override
@@ -179,7 +179,7 @@ public class ProyectoServiceImpl implements IProyectoService {
     @Transactional
     public ProyectoResponseDTO asignarFreelancer(Integer proyectoId, Integer employeeId, String username) {
         ProyectoEntity proyecto = proyectoRepository.findById(proyectoId)
-                .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado con ID: " + proyectoId));
+                .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado"));
 
         if (proyecto.getClient() == null || proyecto.getClient().getPerfil() == null || !proyecto.getClient().getPerfil().getUsuario().equals(username)) {
             throw new UnauthorizedAccessException("No tienes permiso para adjudicar este proyecto");

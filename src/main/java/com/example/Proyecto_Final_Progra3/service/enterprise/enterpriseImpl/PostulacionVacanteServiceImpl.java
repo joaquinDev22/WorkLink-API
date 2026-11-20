@@ -61,10 +61,10 @@ public class PostulacionVacanteServiceImpl implements IPostulacionVacanteService
     // Solo se usa desde la versión /me: el endpoint que recibía el id del dueño se eliminó (suplantación)
     private PostulacionResponseDTO postularse(Integer vacanteId, Integer employeeId, String mensaje, MultipartFile cv) {
         VacanteEntity vacante = vacanteRepository.findById(vacanteId)
-                .orElseThrow(() -> new ResourceNotFoundException("Vacante no encontrada con ID: " + vacanteId));
+                .orElseThrow(() -> new ResourceNotFoundException("Vacante no encontrada"));
 
         EmployeeEntity employee = employeeRepository.findById(employeeId)
-                .orElseThrow(() -> new ResourceNotFoundException("Empleado no encontrado con ID: " + employeeId));
+                .orElseThrow(() -> new ResourceNotFoundException("Empleado no encontrado"));
 
         if (postulacionRepository.existsByVacante_VacanteIdAndEmployee_EmployeeId(vacanteId, employeeId)) {
             throw new BusinessRuleException("Ya te postulaste a esta vacante");
@@ -104,7 +104,7 @@ public class PostulacionVacanteServiceImpl implements IPostulacionVacanteService
     @Override
     public List<PostulacionResponseDTO> listarPostulantes(Integer vacanteId, String username) {
         VacanteEntity vacante = vacanteRepository.findById(vacanteId)
-                .orElseThrow(() -> new ResourceNotFoundException("Vacante no encontrada con ID: " + vacanteId));
+                .orElseThrow(() -> new ResourceNotFoundException("Vacante no encontrada"));
         validarGestionVacante(vacante, username);
         return postulacionVacanteMapper.toDtoList(postulacionRepository.findByVacante_VacanteId(vacanteId));
     }
@@ -139,7 +139,7 @@ public class PostulacionVacanteServiceImpl implements IPostulacionVacanteService
     @Transactional
     public PostulacionResponseDTO cambiarEstado(Integer vacanteId, Integer postulacionId, EstadoPostulacion nuevoEstado, String username) {
         PostulacionVacanteEntity postulacion = postulacionRepository.findById(postulacionId)
-                .orElseThrow(() -> new ResourceNotFoundException("Postulación no encontrada con ID: " + postulacionId));
+                .orElseThrow(() -> new ResourceNotFoundException("Postulación no encontrada"));
 
         if (!postulacion.getVacante().getVacanteId().equals(vacanteId)) {
             throw new BusinessRuleException("La postulación no pertenece a la vacante indicada");

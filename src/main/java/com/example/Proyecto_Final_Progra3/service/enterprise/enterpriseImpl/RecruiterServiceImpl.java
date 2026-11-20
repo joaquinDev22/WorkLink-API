@@ -47,7 +47,7 @@ public class RecruiterServiceImpl implements IRecruiterService {
     private RecruiterEntity obtenerRecruiterDeEmpresa(String usernameEmpresa, Integer recruiterId) {
         EmpresaEntity empresa = obtenerEmpresa(usernameEmpresa);
         return recruiterRepository.findByRecruiterIdAndEmpresa_Id(recruiterId, empresa.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Recruiter no encontrado con ID: " + recruiterId));
+                .orElseThrow(() -> new ResourceNotFoundException("Recruiter no encontrado"));
     }
 
     /** Cuenta RECRUITER registrada con ese email y todavía sin empresa. */
@@ -178,7 +178,7 @@ public class RecruiterServiceImpl implements IRecruiterService {
         RecruiterEntity recruiter = obtenerMiVinculacion(usernameRecruiter);
         if (recruiter.tieneBajaSolicitada()) {
             throw new BusinessRuleException("Ya solicitaste la baja el " + recruiter.getBajaSolicitadaEn().format(FECHA)
-                    + ". Si la empresa no responde, podés desvincularte a partir del " + recruiter.fechaBajaHabilitada().format(FECHA) + ".");
+                    + ". Si la empresa no responde, puedes desvincularte a partir del " + recruiter.fechaBajaHabilitada().format(FECHA) + ".");
         }
         recruiter.setBajaSolicitadaEn(LocalDateTime.now());
         RecruiterEntity guardado = recruiterRepository.save(recruiter);
@@ -191,7 +191,7 @@ public class RecruiterServiceImpl implements IRecruiterService {
     public RecruiterResponseDTO cancelarSolicitudBaja(String usernameRecruiter) {
         RecruiterEntity recruiter = obtenerMiVinculacion(usernameRecruiter);
         if (!recruiter.tieneBajaSolicitada()) {
-            throw new BusinessRuleException("No tenés una solicitud de baja pendiente");
+            throw new BusinessRuleException("No tienes una solicitud de baja pendiente");
         }
         recruiter.setBajaSolicitadaEn(null);
         return recruiterMapper.toDto(recruiterRepository.save(recruiter));
@@ -202,11 +202,11 @@ public class RecruiterServiceImpl implements IRecruiterService {
     public void confirmarBajaPorCuentaPropia(String usernameRecruiter) {
         RecruiterEntity recruiter = obtenerMiVinculacion(usernameRecruiter);
         if (!recruiter.tieneBajaSolicitada()) {
-            throw new BusinessRuleException("Primero tenés que solicitar la baja a la empresa");
+            throw new BusinessRuleException("Primero tienes que solicitar la baja a la empresa");
         }
         if (!recruiter.puedeDarseDeBajaSolo(LocalDateTime.now())) {
             throw new BusinessRuleException("La empresa tiene " + RecruiterEntity.DIAS_RESPUESTA_BAJA
-                    + " días para responder. Podés desvincularte por tu cuenta a partir del "
+                    + " días para responder. Puedes desvincularte por tu cuenta a partir del "
                     + recruiter.fechaBajaHabilitada().format(FECHA) + ".");
         }
         publicar(recruiter, RecruiterVinculacionEvent.Tipo.BAJA_POR_CUENTA_PROPIA);

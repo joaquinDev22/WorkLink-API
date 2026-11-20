@@ -54,7 +54,7 @@ public class PagosServiceImpl implements IPagosService {
     @Override
     public List<PagosResponseDTO> listarPagos(Integer proyectoId, String username) {
         ProyectoEntity proyecto = proyectoRepository.findById(proyectoId)
-                .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado con ID: " + proyectoId));
+                .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado"));
         boolean esCliente = esUsuario(proyecto.getClient() != null ? proyecto.getClient().getPerfil() : null, username);
         boolean esFreelancer = esUsuario(proyecto.getFreelancer() != null ? proyecto.getFreelancer().getPerfil() : null, username);
         if (!esCliente && !esFreelancer) {
@@ -66,7 +66,7 @@ public class PagosServiceImpl implements IPagosService {
     @Override
     public MercadoPagoPreferenceResponseDTO crearPreferenciaPago(Integer proyectoId, Integer hitoId, String username) {
         HitoProyectoEntity hito = hitoRepository.findById(hitoId)
-                .orElseThrow(() -> new ResourceNotFoundException("Hito no encontrado con ID: " + hitoId));
+                .orElseThrow(() -> new ResourceNotFoundException("Hito no encontrado"));
         ProyectoEntity proyecto = hito.getProyecto();
         if (!proyecto.getId().equals(proyectoId)) {
             throw new BusinessRuleException("El hito " + hitoId + " no pertenece al proyecto " + proyectoId);

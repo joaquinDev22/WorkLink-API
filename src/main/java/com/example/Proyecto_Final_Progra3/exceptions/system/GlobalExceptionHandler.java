@@ -69,7 +69,7 @@ public class GlobalExceptionHandler {
     // HTTP 400 - Parámetro @RequestParam obligatorio ausente
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<ErrorResponseDTO> handleMissingParameter(MissingServletRequestParameterException ex) {
-        String msg = "El parámetro obligatorio '" + ex.getParameterName() + "' (tipo " + ex.getParameterType() + ") no fue enviado en la petición";
+        String msg = "Falta un dato obligatorio (" + ex.getParameterName() + "). Revisa el formulario e inténtalo de nuevo.";
         ErrorResponseDTO error = new ErrorResponseDTO("Parámetro requerido ausente", List.of(msg), LocalDate.now());
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
@@ -77,7 +77,7 @@ public class GlobalExceptionHandler {
     // HTTP 400 - Parte multipart obligatoria ausente (ej. archivo en upload)
     @ExceptionHandler(MissingServletRequestPartException.class)
     public ResponseEntity<ErrorResponseDTO> handleMissingRequestPart(MissingServletRequestPartException ex) {
-        String msg = "La parte multipart requerida '" + ex.getRequestPartName() + "' no se encuentra en la petición";
+        String msg = "Falta adjuntar el archivo. Selecciónalo e inténtalo de nuevo.";
         ErrorResponseDTO error = new ErrorResponseDTO("Archivo o parte ausente", List.of(msg), LocalDate.now());
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
@@ -85,10 +85,10 @@ public class GlobalExceptionHandler {
     // HTTP 400 - Cuerpo JSON Inválido o Malformado
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponseDTO> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
-        String causa = ex.getMostSpecificCause() != null ? ex.getMostSpecificCause().getMessage() : "Formato JSON malformado";
+        log.warn("JSON inválido: {}", ex.getMessage());
         ErrorResponseDTO error = new ErrorResponseDTO(
                 "Cuerpo de solicitud inválido",
-                List.of("Error al parsear el JSON de la petición: " + causa),
+                List.of("Algunos datos no tienen el formato esperado. Revísalos e inténtalo de nuevo."),
                 LocalDate.now()
         );
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
@@ -97,8 +97,7 @@ public class GlobalExceptionHandler {
     // HTTP 400 - Tipo de Parámetro Incorrecto en URL o Query (ej. string en vez de int o UUID)
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ErrorResponseDTO> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
-        String tipoRequerido = ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "válido";
-        String msg = "El parámetro '" + ex.getName() + "' con valor '" + ex.getValue() + "' no tiene el formato esperado (" + tipoRequerido + ")";
+        String msg = "El dato '" + ex.getName() + "' no tiene el formato esperado.";
         ErrorResponseDTO error = new ErrorResponseDTO("Parámetro con formato inválido", List.of(msg), LocalDate.now());
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
@@ -108,7 +107,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponseDTO> handleIllegalArguments(RuntimeException ex) {
         ErrorResponseDTO error = new ErrorResponseDTO(
                 "Petición inválida",
-                List.of(ex.getMessage() != null ? ex.getMessage() : "Argumento o estado inválido"),
+                // Los mensajes de Java (p. ej. "No enum constant com.example...") no se muestran tal cual
+                List.of(ex.getMessage() != null && !ex.getMessage().matches(".*\\b[a-z]+\\.[a-z]+\\.[A-Za-z].*") ? ex.getMessage() : "Algunos datos no son válidos. Revísalos e inténtalo de nuevo."),
                 LocalDate.now()
         );
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
@@ -137,7 +137,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponseDTO> handleSpringAccessDenied(AccessDeniedException ex) {
         ErrorResponseDTO error = new ErrorResponseDTO(
                 "Acceso denegado",
-                List.of("No posees los permisos requeridos para ejecutar esta acción en este recurso"),
+                List.of("No tienes permiso para hacer esta acción."),
                 LocalDate.now()
         );
         return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
@@ -146,7 +146,7 @@ public class GlobalExceptionHandler {
     // HTTP 404 - Recurso No Encontrado por ID o criterio
     @ExceptionHandler({ResourceNotFoundException.class, NoSuchElementException.class, EntityNotFoundException.class, EmptyResultDataAccessException.class})
     public ResponseEntity<ErrorResponseDTO> handleResourceNotFoundException(Exception ex) {
-        String detalle = ex.getMessage() != null ? ex.getMessage() : "El recurso solicitado no existe en la base de datos";
+        String detalle = ex instanceof ResourceNotFoundException && ex.getMessage() != null ? ex.getMessage() : "No encontramos lo que buscas. Puede que se haya eliminado.";
         ErrorResponseDTO error = new ErrorResponseDTO("Recurso no encontrado", List.of(detalle), LocalDate.now());
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
@@ -156,7 +156,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponseDTO> handleNoResourceFound(NoResourceFoundException ex) {
         ErrorResponseDTO error = new ErrorResponseDTO(
                 "Ruta no encontrada",
-                List.of("El endpoint '" + ex.getResourcePath() + "' no existe en el servidor"),
+                List.of("Esta función no está disponible en este momento."),
                 LocalDate.now()
         );
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
@@ -167,7 +167,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponseDTO> handleMethodNotSupported(HttpRequestMethodNotSupportedException ex) {
         ErrorResponseDTO error = new ErrorResponseDTO(
                 "Método no permitido",
-                List.of("El método HTTP " + ex.getMethod() + " no está soportado en este endpoint"),
+                List.of("Esta acción no está disponible."),
                 LocalDate.now()
         );
         return new ResponseEntity<>(error, HttpStatus.METHOD_NOT_ALLOWED);
@@ -178,7 +178,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponseDTO> handleMaxUploadSize(MaxUploadSizeExceededException ex) {
         ErrorResponseDTO error = new ErrorResponseDTO(
                 "Archivo demasiado grande",
-                List.of("El tamaño del archivo supera el límite permitido por el servidor"),
+                List.of("El archivo es demasiado grande. Prueba con uno más liviano."),
                 LocalDate.now()
         );
         return new ResponseEntity<>(error, HttpStatus.CONTENT_TOO_LARGE);
@@ -189,7 +189,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponseDTO> handleMediaTypeNotSupported(HttpMediaTypeNotSupportedException ex) {
         ErrorResponseDTO error = new ErrorResponseDTO(
                 "Formato de contenido no soportado",
-                List.of("El Content-Type '" + ex.getContentType() + "' no es soportado. Se esperaba formato compatible."),
+                List.of("No pudimos leer los datos enviados. Inténtalo de nuevo."),
                 LocalDate.now()
         );
         return new ResponseEntity<>(error, HttpStatus.UNSUPPORTED_MEDIA_TYPE);
@@ -200,7 +200,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponseDTO> handleMediaTypeNotAcceptable(HttpMediaTypeNotAcceptableException ex) {
         ErrorResponseDTO error = new ErrorResponseDTO(
                 "Formato de respuesta no aceptable",
-                List.of("El servidor no puede responder en el formato solicitado por el cliente."),
+                List.of("No pudimos completar la solicitud. Inténtalo de nuevo."),
                 LocalDate.now()
         );
         return new ResponseEntity<>(error, HttpStatus.NOT_ACCEPTABLE);
@@ -212,7 +212,7 @@ public class GlobalExceptionHandler {
         log.error("Error de integridad de datos SQL: {}", ex.getMessage(), ex);
         ErrorResponseDTO error = new ErrorResponseDTO(
                 "Conflicto de datos",
-                List.of("No se pudo completar la operación porque entra en conflicto con datos existentes"),
+                List.of("No pudimos guardar los cambios porque chocan con datos que ya existen."),
                 LocalDate.now()
         );
         return new ResponseEntity<>(error, HttpStatus.CONFLICT);
@@ -265,7 +265,7 @@ public class GlobalExceptionHandler {
     private static ResponseEntity<ErrorResponseDTO> errorInterno() {
         ErrorResponseDTO error = new ErrorResponseDTO(
                 "Error interno",
-                List.of("Ocurrió un error inesperado. Intentá de nuevo en unos minutos."),
+                List.of("Ocurrió un error inesperado. Inténtalo de nuevo en unos minutos."),
                 LocalDate.now()
         );
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);

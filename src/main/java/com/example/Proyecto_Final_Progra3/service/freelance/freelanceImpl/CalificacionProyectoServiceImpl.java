@@ -41,7 +41,7 @@ public class CalificacionProyectoServiceImpl implements ICalificacionProyectoSer
     @Transactional
     public CalificacionProyectoResponseDTO calificarProyecto(Integer proyectoId, CalificacionProyectoRequestDTO dto, String username) {
         ProyectoEntity proyecto = proyectoRepository.findById(proyectoId)
-                .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado con ID: " + proyectoId));
+                .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado"));
 
         boolean esCliente = proyecto.getClient() != null && 
                             proyecto.getClient().getPerfil() != null &&
@@ -104,7 +104,7 @@ public class CalificacionProyectoServiceImpl implements ICalificacionProyectoSer
     @Override
     public ReputacionPerfilResponseDTO obtenerReputacionPerfil(Integer perfilId) {
         PerfilEntity perfil = perfilRepository.findById(perfilId)
-                .orElseThrow(() -> new ResourceNotFoundException("Perfil no encontrado con ID: " + perfilId));
+                .orElseThrow(() -> new ResourceNotFoundException("Perfil no encontrado"));
 
         List<CalificacionUsuarioEntity> registros = calificacionUsuarioRepository.findByPerfil_Id(perfilId);
 

@@ -62,7 +62,7 @@ public class EmpresaServiceImpl implements IEmpresaService {
     @Transactional
     public EmpresaResponseDTO editarEmpresa(Integer id, String username, EmpresaRequestDTO dto) {
         EmpresaEntity empresa = empresaRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Empresa no encontrada con ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Empresa no encontrada"));
 
         // Validación anti-IDOR: solo la empresa titular puede editar su perfil
         if (empresa.getPerfil() == null || !empresa.getPerfil().getUsuario().equals(username)) {
@@ -84,7 +84,7 @@ public class EmpresaServiceImpl implements IEmpresaService {
     @Override
     public EmpresaResponseDTO buscarEmpresaXid(Integer id) {
         EmpresaEntity empresa = empresaRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Empresa no encontrada con ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Empresa no encontrada"));
         return mapper.toDto(empresa);
     }
 
@@ -98,7 +98,7 @@ public class EmpresaServiceImpl implements IEmpresaService {
     @Override
     public List<EmpresaResponseDTO> buscarEmpresasXidPerfil(int idPerfil) {
         PerfilEntity perfil = perfilRepository.findById(idPerfil)
-                .orElseThrow(() -> new ResourceNotFoundException("Perfil no encontrado con ID: " + idPerfil));
+                .orElseThrow(() -> new ResourceNotFoundException("Perfil no encontrado"));
         return empresaRepository.findByPerfil(perfil).stream()
                 .map(mapper::toDto)
                 .collect(Collectors.toList());
@@ -108,7 +108,7 @@ public class EmpresaServiceImpl implements IEmpresaService {
     @Transactional
     public void eliminarEmpresa(Integer idEmpresa, String username) {
         EmpresaEntity empresa = empresaRepository.findById(idEmpresa)
-                .orElseThrow(() -> new ResourceNotFoundException("Empresa no encontrada con ID: " + idEmpresa));
+                .orElseThrow(() -> new ResourceNotFoundException("Empresa no encontrada"));
 
         // Validación anti-IDOR
         if (empresa.getPerfil() == null || !empresa.getPerfil().getUsuario().equals(username)) {
