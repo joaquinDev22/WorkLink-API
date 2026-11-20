@@ -11,6 +11,7 @@ import com.example.Proyecto_Final_Progra3.model.PerfilEntity;
 import com.example.Proyecto_Final_Progra3.model.enterprise.EmpresaEntity;
 import com.example.Proyecto_Final_Progra3.model.enterprise.EntrevistaEntity;
 import com.example.Proyecto_Final_Progra3.model.enterprise.EstadoEntrevista;
+import com.example.Proyecto_Final_Progra3.model.enterprise.EstadoPostulacion;
 import com.example.Proyecto_Final_Progra3.model.enterprise.PostulacionVacanteEntity;
 import com.example.Proyecto_Final_Progra3.model.enterprise.RecruiterEntity;
 import com.example.Proyecto_Final_Progra3.repository.PerfilRepository;
@@ -88,6 +89,15 @@ public class EntrevistaServiceImpl implements IEntrevistaService {
         if (tieneEntrevistaProgramada(postulacion.getPostulacionVacanteId())) {
             throw new BusinessRuleException("Este postulante ya tiene una entrevista programada para esta vacante; reprogramala en lugar de agendar otra");
         }
+        validarFechaDesdeManiana(dto);
+
+        if (postulacion.getEstado() != null && postulacion.getEstado().esFinal()) {
+            throw new BusinessRuleException("No se puede agendar una entrevista a una postulación rechazada");
+        }
+        // Agendar la entrevista hace avanzar la postulación (nunca la hace retroceder)
+        if (postulacion.getEstado() == null || postulacion.getEstado().puedeAvanzarA(EstadoPostulacion.ENTREVISTA_AGENDADA)) {
+            postulacion.setEstado(EstadoPostulacion.ENTREVISTA_AGENDADA);
+        }
 
         EntrevistaEntity entrevista = EntrevistaEntity.builder()
                 .postulacion(postulacion)
@@ -110,6 +120,7 @@ public class EntrevistaServiceImpl implements IEntrevistaService {
         if (!esProgramada(entrevista)) {
             throw new BusinessRuleException("Solo se puede reprogramar una entrevista que todavía no ocurrió");
         }
+        validarFechaDesdeManiana(dto);
 
         entrevista.setFecha(dto.fecha());
         entrevista.setHora(dto.hora());
@@ -148,9 +159,14 @@ public class EntrevistaServiceImpl implements IEntrevistaService {
     }
 
     private static boolean esProgramada(EntrevistaEntity e) {
-        // Programada = no cancelada y todavía no ocurrió (las canceladas no bloquean agendar otra)
-        return e.getStatus() != EstadoEntrevista.CANCELADA && e.getFecha() != null && e.getHora() != null
-                && !java.time.LocalDateTime.of(e.getFecha(), e.getHora()).isBefore(java.time.LocalDateTime.now());
+        return e.estaProgramada();
+    }
+
+    // Regla de negocio: nunca el mismo día ni antes; la entrevista va del día siguiente en adelante
+    private static void validarFechaDesdeManiana(EntrevistaRequestDTO dto) {
+        if (dto.fecha() == null || !dto.fecha().isAfter(java.time.LocalDate.now())) {
+            throw new BusinessRuleException("La entrevista debe agendarse a partir del día siguiente");
+        }
     }
 
     private boolean tieneEntrevistaProgramada(Integer postulacionId) {

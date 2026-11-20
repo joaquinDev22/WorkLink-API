@@ -1,5 +1,6 @@
 package com.example.Proyecto_Final_Progra3.dto.requestdto;
 
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
@@ -13,5 +14,6 @@ public record HitoRequestDTO(
         @Size(max = 255, message = "La descripción no puede superar los 255 caracteres")
         String descripcion,
 
+        @FutureOrPresent(message = "La fecha límite del hito no puede ser anterior a hoy")
         LocalDate fechaLimite
 ) {}

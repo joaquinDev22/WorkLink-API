@@ -52,10 +52,13 @@ CREATE TABLE recruiter (
     nombre VARCHAR(50) NOT NULL,
     apellido VARCHAR(50) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
-    fecha_nacimiento DATE NOT NULL,
-    area VARCHAR(50) NOT NULL,
+    fecha_nacimiento DATE NULL,
+    area VARCHAR(50) NULL,
     empresa_id INT NOT NULL,
     perfil_id INT NOT NULL UNIQUE,
+    fecha_vinculacion DATETIME NULL,
+    vinculacion_vista BOOLEAN NOT NULL DEFAULT FALSE,
+    baja_solicitada_en DATETIME NULL,
     FOREIGN KEY (perfil_id) REFERENCES perfil(perfil_id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (empresa_id) REFERENCES empresa(empresa_id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;

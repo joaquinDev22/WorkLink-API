@@ -65,5 +65,13 @@ public class RecruiterController {
         recruiterService.eliminarRecruiter(authentication.getName(), id);
         return ResponseEntity.noContent().build();
     }
-}
 
+    @Operation(summary = "Aceptar baja de recruiter", description = "La empresa acepta la baja que solicitó el recruiter y lo desvincula.")
+    @PostMapping("/{id}/baja/aceptar")
+    public ResponseEntity<Void> aceptarBaja(
+            Authentication authentication,
+            @Parameter(description = "Identificador del recruiter", example = "1") @PathVariable Integer id) {
+        recruiterService.aceptarBaja(authentication.getName(), id);
+        return ResponseEntity.noContent().build();
+    }
+}

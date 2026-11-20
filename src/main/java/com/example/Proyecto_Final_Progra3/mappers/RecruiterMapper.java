@@ -22,6 +22,7 @@ public interface RecruiterMapper {
     @Mapping(target = "recruiterId", source = "recruiterId")
     @Mapping(target = "empresaId", source = "entity", qualifiedByName = "mapEmpresaId")
     @Mapping(target = "nombreEmpresa", source = "entity", qualifiedByName = "mapNombreEmpresa")
+    @Mapping(target = "fechaBajaHabilitada", expression = "java(entity.fechaBajaHabilitada())")
     RecruiterResponseDTO toDto(RecruiterEntity entity);
 
     List<RecruiterResponseDTO> toDtoList(List<RecruiterEntity> entities);

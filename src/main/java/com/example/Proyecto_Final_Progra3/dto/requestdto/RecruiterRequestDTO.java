@@ -3,30 +3,14 @@ package com.example.Proyecto_Final_Progra3.dto.requestdto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
-import java.time.LocalDate;
-
-@Schema(description = "Datos para crear o actualizar un recruiter asociado a una empresa")
+// La empresa vincula al recruiter solo por email: el resto de los datos ya están en su cuenta de WorkLink
+@Schema(description = "Datos para vincular un recruiter a la empresa")
 public record RecruiterRequestDTO(
-        @NotBlank(message = "El nombre no puede estar vacío")
-        @Schema(description = "Nombre del recruiter", example = "María")
-        String nombre,
-
-        @NotBlank(message = "El apellido no puede estar vacío")
-        @Schema(description = "Apellido del recruiter", example = "González")
-        String apellido,
-
         @NotBlank(message = "El email no puede estar vacío")
         @Email(message = "Debe ser un correo electrónico válido")
-        @Schema(description = "Correo electrónico institucional del recruiter", example = "maria.gonzalez@empresa.com")
-        String email,
-
-        @NotNull(message = "La fecha de nacimiento no puede ser nula")
-        @Schema(description = "Fecha de nacimiento del recruiter", example = "1992-05-15")
-        LocalDate fechaNacimiento,
-
-        @Schema(description = "Área de reclutamiento o departamento", example = "IT & Tech Recruiting")
-        String area
+        @Size(max = 100, message = "El email no puede superar los 100 caracteres")
+        @Schema(description = "Email con el que el recruiter se registró en WorkLink", example = "maria.gonzalez@empresa.com")
+        String email
 ) {}
-

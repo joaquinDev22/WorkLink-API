@@ -104,7 +104,7 @@ class AuthYPerfilApiTest extends ApiTestBase {
                 .andExpect(status().isOk());
         Integer habId = id("""
                 select eh.habilidad_id from employee_habilidad eh join habilidad h on h.habilidad_id=eh.habilidad_id
-                where eh.employee_id=316 and h.nombre_habilidad='Kotlin'""");
+                where eh.employee_id=? and h.nombre_habilidad='Kotlin'""", freelancerEmp);
         delete(FREELANCER, "/api/v1/perfiles/removeMySkill/{id}", habId).andExpect(status().isOk());
     }
 
@@ -112,12 +112,12 @@ class AuthYPerfilApiTest extends ApiTestBase {
         call(FREELANCER, multipart("/api/v1/perfiles/addMyProject").file(png("imagen"))
                 .param("nombre", "Proyecto test").param("descripcion", "Desc test").param("link", "https://test.com"))
                 .andExpect(status().isOk());
-        Integer ppId = id("select max(proyecto_perfil_id) from proyecto_perfil where perfil_id=762");
+        Integer ppId = id("select max(proyecto_perfil_id) from proyecto_perfil where perfil_id=" + freelancerPerfil);
         delete(FREELANCER, "/api/v1/perfiles/removeMyProject/{id}", ppId).andExpect(status().isOk());
     }
 
     @Test void removeMyProject_ajeno_403o404() throws Exception {
-        Integer ajeno = id("select min(proyecto_perfil_id) from proyecto_perfil where perfil_id<>762");
+        Integer ajeno = id("select min(proyecto_perfil_id) from proyecto_perfil where perfil_id<>?", freelancerPerfil);
         int st = delete(FREELANCER, "/api/v1/perfiles/removeMyProject/{id}", ajeno).andReturn().getResponse().getStatus();
         org.junit.jupiter.api.Assertions.assertTrue(st == 403 || st == 404, "esperado 403/404, fue " + st);
     }

@@ -11,5 +11,15 @@ public interface IRecruiterService {
     RecruiterResponseDTO buscarPorId(String usernameEmpresa, Integer recruiterId);
     RecruiterResponseDTO actualizarRecruiter(String usernameEmpresa, Integer recruiterId, RecruiterRequestDTO dto);
     void eliminarRecruiter(String usernameEmpresa, Integer recruiterId);
+
+    // Empresa: acepta la baja que pidió el recruiter
+    void aceptarBaja(String usernameEmpresa, Integer recruiterId);
+
+    // Recruiter: aviso de contratación y baja
+    RecruiterResponseDTO miVinculacion(String usernameRecruiter);
+    RecruiterResponseDTO marcarVinculacionVista(String usernameRecruiter);
+    RecruiterResponseDTO solicitarBaja(String usernameRecruiter);
+    RecruiterResponseDTO cancelarSolicitudBaja(String usernameRecruiter);
+    void confirmarBajaPorCuentaPropia(String usernameRecruiter);
 }
 

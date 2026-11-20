@@ -3,6 +3,7 @@ package com.example.Proyecto_Final_Progra3.model.enterprise;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Getter
@@ -38,4 +39,10 @@ public class EntrevistaEntity {
     @Column(name = "estado", nullable = false, length = 20)
     @Builder.Default
     private EstadoEntrevista status = EstadoEntrevista.PROGRAMADA;
+
+    /** Programada = no cancelada y todavía no ocurrió (las canceladas o pasadas no bloquean nada). */
+    public boolean estaProgramada() {
+        return status != EstadoEntrevista.CANCELADA && fecha != null && hora != null
+                && !LocalDateTime.of(fecha, hora).isBefore(LocalDateTime.now());
+    }
 }
