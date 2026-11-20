@@ -35,7 +35,7 @@ public class HitoServiceImpl implements IHitoService {
     @Transactional
     public HitoResponseDTO crearHito(Integer proyectoId, HitoRequestDTO dto, String username) {
         ProyectoEntity proyecto = proyectoRepository.findById(proyectoId)
-                .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado con ID: " + proyectoId));
+                .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado"));
 
         if (proyecto.getClient() == null || proyecto.getClient().getPerfil() == null || !proyecto.getClient().getPerfil().getUsuario().equals(username)) {
             throw new UnauthorizedAccessException("Solo el cliente propietario puede crear hitos en este proyecto");
@@ -61,7 +61,7 @@ public class HitoServiceImpl implements IHitoService {
     @Override
     public List<HitoResponseDTO> listarHitosPorProyecto(Integer proyectoId, String username) {
         ProyectoEntity proyecto = proyectoRepository.findById(proyectoId)
-                .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado con ID: " + proyectoId));
+                .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado"));
         boolean esCliente = proyecto.getClient() != null && proyecto.getClient().getPerfil() != null
                 && username.equals(proyecto.getClient().getPerfil().getUsuario());
         boolean esFreelancer = proyecto.getFreelancer() != null && proyecto.getFreelancer().getPerfil() != null
@@ -78,7 +78,7 @@ public class HitoServiceImpl implements IHitoService {
     @Transactional
     public HitoResponseDTO cambiarEstadoHito(Integer proyectoId, Integer hitoId, EstadoHitoProyecto nuevoEstado, String username) {
         HitoProyectoEntity hito = hitoRepository.findById(hitoId)
-                .orElseThrow(() -> new ResourceNotFoundException("Hito no encontrado con ID: " + hitoId));
+                .orElseThrow(() -> new ResourceNotFoundException("Hito no encontrado"));
 
         ProyectoEntity proyecto = hito.getProyecto();
         if (proyecto == null || !proyecto.getId().equals(proyectoId)) {

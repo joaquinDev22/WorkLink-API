@@ -40,7 +40,7 @@ public class PortfolioServiceImpl implements IPortfolioService {
         }
 
         EmployeeEntity employee = employeeRepository.findById(employeeId)
-                .orElseThrow(() -> new ResourceNotFoundException("Empleado no encontrado con ID: " + employeeId));
+                .orElseThrow(() -> new ResourceNotFoundException("Empleado no encontrado"));
 
         // Validación anti-IDOR: solo el titular puede subir/pisar su propio CV
         if (employee.getPerfil() == null || !employee.getPerfil().getUsuario().equals(username)) {
@@ -95,7 +95,7 @@ public class PortfolioServiceImpl implements IPortfolioService {
     @Transactional
     public void removeProyecto(PerfilEntity perfil, Integer proyectoId) {
         ProyectoPerfilEntity proyecto = proyectoPerfilRepository.findById(proyectoId)
-                .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado con ID: " + proyectoId));
+                .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado"));
 
         if (!proyecto.getPerfil().getId().equals(perfil.getId())) {
             throw new UnauthorizedAccessException("No tiene permisos para eliminar este proyecto.");

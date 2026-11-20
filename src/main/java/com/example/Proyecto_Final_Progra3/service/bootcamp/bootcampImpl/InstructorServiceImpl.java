@@ -34,7 +34,7 @@ public class InstructorServiceImpl implements IInstructorService {
             throw new InstructorInvalidoException("El perfil del instructor es obligatorio");
         }
         var perfil = perfilRepository.findById(dto.perfil_id())
-                .orElseThrow(() -> new ResourceNotFoundException("Perfil no encontrado con ID: " + dto.perfil_id()));
+                .orElseThrow(() -> new ResourceNotFoundException("Perfil no encontrado"));
         if (repository.findByPerfil(perfil).isPresent()) {
             throw new com.example.Proyecto_Final_Progra3.exceptions.domain.BusinessRuleException("Ese perfil ya es instructor");
         }
@@ -44,7 +44,7 @@ public class InstructorServiceImpl implements IInstructorService {
 
         if (dto.tipo() != null && dto.tipo().equals(Tipo.EMPRESA)) {
             EmpresaEntity empresa = empresaRepository.findById(dto.empresa_id())
-                    .orElseThrow(() -> new ResourceNotFoundException("Empresa no encontrada con ID: " + dto.empresa_id()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Empresa no encontrada"));
             instructor.setEmpresa(empresa);
         }
 
@@ -70,7 +70,7 @@ public class InstructorServiceImpl implements IInstructorService {
 
         if (dto.tipo() != null && dto.tipo().equals(Tipo.EMPRESA)) {
             EmpresaEntity empresa = empresaRepository.findById(dto.empresa_id())
-                    .orElseThrow(() -> new ResourceNotFoundException("Empresa no encontrada con ID: " + dto.empresa_id()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Empresa no encontrada"));
             instructor.setEmpresa(empresa);
         } else {
             instructor.setEmpresa(null);

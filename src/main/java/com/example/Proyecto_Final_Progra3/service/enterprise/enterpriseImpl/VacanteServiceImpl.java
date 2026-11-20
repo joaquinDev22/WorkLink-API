@@ -37,7 +37,7 @@ public class VacanteServiceImpl implements IVacanteService {
     // Solo se usa desde la versión /me: el endpoint que recibía el id del dueño se eliminó (suplantación)
     private VacanteResponseDTO crearVacante(VacanteRequestDTO dto) {
         EmpresaEntity empresa = empresaRepository.findById(dto.empresaId())
-                .orElseThrow(() -> new ResourceNotFoundException("Empresa no encontrada con ID: " + dto.empresaId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Empresa no encontrada"));
 
         VacanteEntity vacante = new VacanteEntity();
         vacante.setPuesto(dto.puesto());
@@ -92,7 +92,7 @@ public class VacanteServiceImpl implements IVacanteService {
     public VacanteResponseDTO buscarPorId(Integer id) {
         return vacanteRepository.findById(id)
                 .map(vacanteMapper::toDto)
-                .orElseThrow(() -> new ResourceNotFoundException("Vacante no encontrada con ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Vacante no encontrada"));
     }
 
     @Override
@@ -146,7 +146,7 @@ public class VacanteServiceImpl implements IVacanteService {
     @Transactional
     public VacanteResponseDTO actualizarVacante(Integer id, String username, VacanteRequestDTO dto) {
         VacanteEntity vacante = vacanteRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Vacante no encontrada con ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Vacante no encontrada"));
 
         validarPropiedadVacante(vacante, username);
 
@@ -168,7 +168,7 @@ public class VacanteServiceImpl implements IVacanteService {
     @Transactional
     public void eliminarVacante(Integer id, String username) {
         VacanteEntity vacante = vacanteRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Vacante no encontrada con ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Vacante no encontrada"));
 
         validarPropiedadVacante(vacante, username);
         vacante.setActiva(false);

@@ -81,13 +81,13 @@ public class EntrevistaServiceImpl implements IEntrevistaService {
     @Transactional
     public EntrevistaResponseDTO agendarEntrevista(EntrevistaRequestDTO dto, String username) {
         PostulacionVacanteEntity postulacion = postulacionVacanteRepository.findById(dto.postulacionId())
-                .orElseThrow(() -> new ResourceNotFoundException("Postulación no encontrada con ID: " + dto.postulacionId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Postulación no encontrada"));
 
         verificarPermiso(postulacion, username);
 
         // Una sola entrevista programada por postulación: para cambiarla se reprograma
         if (tieneEntrevistaProgramada(postulacion.getPostulacionVacanteId())) {
-            throw new BusinessRuleException("Este postulante ya tiene una entrevista programada para esta vacante; reprogramala en lugar de agendar otra");
+            throw new BusinessRuleException("Este postulante ya tiene una entrevista programada para esta vacante; reprográmala en lugar de agendar otra");
         }
         validarFechaDesdeManiana(dto);
         validarHorarioLibre(postulacion, dto, null);
@@ -114,7 +114,7 @@ public class EntrevistaServiceImpl implements IEntrevistaService {
     @Transactional
     public EntrevistaResponseDTO reprogramarEntrevista(Integer entrevistaId, EntrevistaRequestDTO dto, String username) {
         EntrevistaEntity entrevista = entrevistaRepository.findById(entrevistaId)
-                .orElseThrow(() -> new ResourceNotFoundException("Entrevista no encontrada con ID: " + entrevistaId));
+                .orElseThrow(() -> new ResourceNotFoundException("Entrevista no encontrada"));
         PostulacionVacanteEntity postulacion = entrevista.getPostulacion();
         verificarPermiso(postulacion, username);
 
@@ -123,7 +123,7 @@ public class EntrevistaServiceImpl implements IEntrevistaService {
         }
         validarFechaDesdeManiana(dto);
         if (dto.fecha().equals(entrevista.getFecha()) && dto.hora().equals(entrevista.getHora())) {
-            throw new BusinessRuleException("La entrevista ya está programada para ese día y horario; elegí otro para reprogramarla");
+            throw new BusinessRuleException("La entrevista ya está en ese día y horario. Elige otro para reprogramarla.");
         }
         validarHorarioLibre(postulacion, dto, entrevista.getId());
 
@@ -138,7 +138,7 @@ public class EntrevistaServiceImpl implements IEntrevistaService {
     @Transactional
     public EntrevistaResponseDTO cancelarEntrevista(Integer entrevistaId, String username) {
         EntrevistaEntity entrevista = entrevistaRepository.findById(entrevistaId)
-                .orElseThrow(() -> new ResourceNotFoundException("Entrevista no encontrada con ID: " + entrevistaId));
+                .orElseThrow(() -> new ResourceNotFoundException("Entrevista no encontrada"));
 
         PostulacionVacanteEntity postulacion = entrevista.getPostulacion();
         verificarPermiso(postulacion, username);
@@ -181,7 +181,7 @@ public class EntrevistaServiceImpl implements IEntrevistaService {
     private void validarHorarioLibre(PostulacionVacanteEntity postulacion, EntrevistaRequestDTO dto, Integer excluirId) {
         Integer empresaId = postulacion.getVacante().getEmpresa().getId();
         if (entrevistaRepository.existeOtraEnHorario(empresaId, dto.fecha(), dto.hora(), excluirId)) {
-            throw new BusinessRuleException("Ya hay otra entrevista programada para ese día y horario; elegí otro");
+            throw new BusinessRuleException("Ese horario ya está ocupado por otra entrevista. Elige otro día u hora.");
         }
     }
 
