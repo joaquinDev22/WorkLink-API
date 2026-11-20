@@ -233,7 +233,7 @@ class ContenidoApiTest extends ApiTestBase {
         // Una futura queda PROGRAMADA; si se mueve al pasado pasa a COMPLETADA
         postJson(RECRUITER, "/api/v1/recruiter/entrevistas", """
                 {"postulacionId":%d,"fecha":"%s","hora":"10:00:00","link":"https://meet.test/x"}"""
-                .formatted(postulacion, java.time.LocalDate.now().plusDays(3)))
+                .formatted(postulacion, diaHabil(3)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.status").value("PROGRAMADA"))
                 .andExpect(jsonPath("$.companyName").value(str("select nombre from empresa where empresa_id=" + empresaId)));

@@ -167,6 +167,9 @@ public class EntrevistaServiceImpl implements IEntrevistaService {
         if (dto.fecha() == null || !dto.fecha().isAfter(java.time.LocalDate.now())) {
             throw new BusinessRuleException("La entrevista debe agendarse a partir del día siguiente");
         }
+        if (dto.hora() == null || !EntrevistaEntity.esHorarioDeOficina(dto.fecha(), dto.hora())) {
+            throw new BusinessRuleException("La entrevista debe ser en horario de oficina: de lunes a viernes, de 9 a 18 hs");
+        }
     }
 
     private boolean tieneEntrevistaProgramada(Integer postulacionId) {

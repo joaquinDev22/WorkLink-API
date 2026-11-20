@@ -17,6 +17,17 @@ import static org.junit.jupiter.api.Assertions.*;
 class ReglasDeDominioTest {
 
     @Test
+    void entrevistaSoloEnHorarioDeOficina() {
+        LocalDate lunes = LocalDate.of(2026, 11, 23), sabado = LocalDate.of(2026, 11, 21), domingo = LocalDate.of(2026, 11, 22);
+        assertTrue(EntrevistaEntity.esHorarioDeOficina(lunes, LocalTime.of(9, 0)));
+        assertTrue(EntrevistaEntity.esHorarioDeOficina(lunes, LocalTime.of(17, 59)));
+        assertFalse(EntrevistaEntity.esHorarioDeOficina(lunes, LocalTime.of(8, 59)));
+        assertFalse(EntrevistaEntity.esHorarioDeOficina(lunes, LocalTime.of(18, 0)));
+        assertFalse(EntrevistaEntity.esHorarioDeOficina(sabado, LocalTime.of(10, 0)));
+        assertFalse(EntrevistaEntity.esHorarioDeOficina(domingo, LocalTime.of(10, 0)));
+    }
+
+    @Test
     void laPostulacionSoloAvanza() {
         assertTrue(PENDIENTE.puedeAvanzarA(VISUALIZADO));
         assertTrue(VISUALIZADO.puedeAvanzarA(ENTREVISTA_AGENDADA));
