@@ -56,6 +56,13 @@ public class PerfilEntity implements UserDetails {
     @Column(name = "ubicacion", length = 150)
     private String ubicacion;
 
+    // Datos de contacto comunes a todos los roles (el cliente además los guarda en cliente_particular)
+    @Column(length = 30)
+    private String telefono;
+
+    @Column(length = 60)
+    private String pais;
+
     @Column(name = "descripcion", length = 500)
     private String descripcion;
 

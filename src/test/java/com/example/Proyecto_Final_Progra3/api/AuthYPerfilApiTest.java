@@ -86,6 +86,24 @@ class AuthYPerfilApiTest extends ApiTestBase {
                 .andExpect(status().isOk());
     }
 
+    @Test void updateProfile_guardaTelefonoPaisYEmail() throws Exception {
+        putJson(POSTULANTE, "/api/v1/perfiles/updateProfile", """
+                {"nombre":"Valentina","apellido":"Gonzalez","telefono":"+54 221 555-0300","pais":"Argentina",
+                 "email":"valentina.nueva@demo-worklink.test"}""").andExpect(status().isOk());
+        sincronizar();
+        get(POSTULANTE, "/api/v1/perfiles/getProfile")
+                .andExpect(jsonPath("$.telefono").value("+54 221 555-0300"))
+                .andExpect(jsonPath("$.pais").value("Argentina"))
+                .andExpect(jsonPath("$.email").value("valentina.nueva@demo-worklink.test"));
+    }
+
+    @Test void updateProfile_emailDeOtraCuenta_422() throws Exception {
+        putJson(POSTULANTE, "/api/v1/perfiles/updateProfile", """
+                {"email":"demo_freelancer@demo-worklink.test"}""").andExpect(status().isUnprocessableContent());
+        putJson(POSTULANTE, "/api/v1/perfiles/updateProfile", """
+                {"email":"sin-arroba"}""").andExpect(status().isUnprocessableContent());
+    }
+
     @Test void uploadMyCV_y_downloadMyCV() throws Exception {
         upload(POSTULANTE, "/api/v1/perfiles/uploadMyCV", pdf("file")).andExpect(status().isOk());
         get(POSTULANTE, "/api/v1/perfiles/downloadMyCV").andExpect(status().isOk());
@@ -100,8 +118,12 @@ class AuthYPerfilApiTest extends ApiTestBase {
     }
 
     @Test void addMySkill_y_removeMySkill() throws Exception {
+        // Devuelve la habilidad completa: sin id ni nivel el front no podía mostrarla bien
         call(FREELANCER, post("/api/v1/perfiles/addMySkill").param("nombre", "Kotlin").param("nivel", "3"))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.habilidadId").isNumber())
+                .andExpect(jsonPath("$.nombre").value("Kotlin"))
+                .andExpect(jsonPath("$.nivel").value(3));
         Integer habId = id("""
                 select eh.habilidad_id from employee_habilidad eh join habilidad h on h.habilidad_id=eh.habilidad_id
                 where eh.employee_id=? and h.nombre_habilidad='Kotlin'""", freelancerEmp);
