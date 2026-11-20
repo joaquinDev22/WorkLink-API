@@ -2,6 +2,7 @@ package com.example.Proyecto_Final_Progra3.dto.responsedto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Schema(description = "Datos de respuesta de un recruiter asociado a una empresa")
 public record RecruiterResponseDTO(
@@ -27,6 +28,18 @@ public record RecruiterResponseDTO(
         Integer empresaId,
 
         @Schema(description = "Nombre de la empresa asociada", example = "Tech Solutions S.A.")
-        String nombreEmpresa
+        String nombreEmpresa,
+
+        @Schema(description = "Cuándo la empresa vinculó al recruiter")
+        LocalDateTime fechaVinculacion,
+
+        @Schema(description = "Si el recruiter ya vio el aviso de que fue contratado")
+        boolean vinculacionVista,
+
+        @Schema(description = "Cuándo el recruiter pidió la baja (null si no la pidió)")
+        LocalDateTime bajaSolicitadaEn,
+
+        @Schema(description = "Desde cuándo el recruiter puede desvincularse por su cuenta si la empresa no responde")
+        LocalDateTime fechaBajaHabilitada
 ) {}
 

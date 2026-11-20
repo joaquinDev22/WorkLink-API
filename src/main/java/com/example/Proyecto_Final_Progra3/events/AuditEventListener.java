@@ -24,5 +24,10 @@ public class AuditEventListener {
         log.info("[AUDITORÍA / EVENTO OBSERVER] Nueva entrevista agendada -> ID Entrevista: {}, Postulación: {}, Recruiter: {}, Postulante: {}, Fecha: {} {}, Link: {}",
                 event.entrevistaId(), event.postulacionId(), event.recruiterUsername(), event.postulanteEmail(), event.fecha(), event.hora(), event.link());
     }
-}
 
+    @EventListener
+    public void onRecruiterVinculacion(RecruiterVinculacionEvent event) {
+        log.info("[AUDITORÍA / EVENTO OBSERVER] Vinculación de recruiter -> Tipo: {}, Recruiter: {} ({}), Empresa: {}, Fecha: {}",
+                event.tipo(), event.recruiterId(), event.recruiterEmail(), event.empresa(), event.timestamp());
+    }
+}
