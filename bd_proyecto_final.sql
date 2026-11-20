@@ -24,6 +24,8 @@ CREATE TABLE perfil (
     banner_perfil LONGBLOB,
     ubicacion VARCHAR(150),
     descripcion VARCHAR(500),
+    telefono VARCHAR(30),
+    pais VARCHAR(60),
     usuario VARCHAR(50) UNIQUE NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,

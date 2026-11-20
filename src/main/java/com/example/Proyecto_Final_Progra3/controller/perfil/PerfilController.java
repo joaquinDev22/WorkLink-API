@@ -76,9 +76,9 @@ public class PerfilController {
 
     @Operation(summary = "Agregar habilidad", description = "Permite agregar una nueva habilidad al perfil del usuario autenticado indicando su nivel de dominio.")
     @PostMapping("/addMySkill")
-    public ResponseEntity<MessageResponseDTO> addHabilidad(Authentication authentication, @RequestParam("nombre") String nombre, @RequestParam("nivel") Integer nivel) {
-            perfilUsuarioService.addHabilidad(authentication.getName(), nombre, nivel);
-            return ResponseEntity.ok(new MessageResponseDTO("Habilidad agregada exitosamente."));
+    public ResponseEntity<PerfilUsuarioDTO.HabilidadDTO> addHabilidad(Authentication authentication, @RequestParam("nombre") String nombre, @RequestParam("nivel") Integer nivel) {
+            // Devuelve la habilidad creada (id, nombre y nivel): el front la agrega a la lista sin recargar el perfil
+            return ResponseEntity.ok(perfilUsuarioService.addHabilidad(authentication.getName(), nombre, nivel));
     }
 
     @Operation(summary = "Eliminar habilidad", description = "Permite eliminar una habilidad previamente asociada al perfil del usuario autenticado.")

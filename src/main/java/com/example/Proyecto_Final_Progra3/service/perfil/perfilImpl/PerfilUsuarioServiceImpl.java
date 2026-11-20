@@ -1,5 +1,6 @@
 package com.example.Proyecto_Final_Progra3.service.perfil.perfilImpl;
 
+import com.example.Proyecto_Final_Progra3.exceptions.domain.BusinessRuleException;
 import com.example.Proyecto_Final_Progra3.dto.PerfilUsuarioDTO;
 import com.example.Proyecto_Final_Progra3.exceptions.domain.BadRequestException;
 import com.example.Proyecto_Final_Progra3.exceptions.domain.ResourceNotFoundException;
@@ -62,6 +63,8 @@ public class PerfilUsuarioServiceImpl implements IPerfilUsuarioService {
         dto.setEmail(perfil.getEmail());
         dto.setUbicacion(perfil.getUbicacion());
         dto.setDescripcion(perfil.getDescripcion());
+        dto.setTelefono(perfil.getTelefono());
+        dto.setPais(perfil.getPais());
         dto.setFotoPerfil(perfil.getFotoPerfil());
         dto.setBannerPerfil(perfil.getBannerPerfil());
         
@@ -140,8 +143,10 @@ public class PerfilUsuarioServiceImpl implements IPerfilUsuarioService {
         PerfilEntity perfil = perfilRepository.findByUsuario(username)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + username));
                 
-        if (request.getEmail() != null) perfil.setEmail(request.getEmail());
+        actualizarEmail(perfil, request.getEmail());
         if (request.getUbicacion() != null) perfil.setUbicacion(request.getUbicacion());
+        if (request.getTelefono() != null) perfil.setTelefono(textoOpcional(request.getTelefono(), 30, "El teléfono"));
+        if (request.getPais() != null) perfil.setPais(textoOpcional(request.getPais(), 60, "El país"));
         if (request.getDescripcion() != null) perfil.setDescripcion(request.getDescripcion());
         
         perfilRepository.save(perfil);
@@ -158,7 +163,7 @@ public class PerfilUsuarioServiceImpl implements IPerfilUsuarioService {
             if (request.getFechaNacimiento() != null && !request.getFechaNacimiento().isEmpty()) {
                 emp.setFechaNacimiento(parseFecha(request.getFechaNacimiento()));
             }
-            if (request.getEmail() != null) emp.setEmail(request.getEmail());
+            emp.setEmail(perfil.getEmail());
             employeeRepository.save(emp);
         } else if ("CLIENTE".equals(rol)) {
             ClientEntity client = clientRepository.findByPerfil(perfil).orElseGet(() -> {
@@ -170,7 +175,7 @@ public class PerfilUsuarioServiceImpl implements IPerfilUsuarioService {
             if (request.getApellido() != null) client.setLastName(request.getApellido());
             if (request.getTelefono() != null) client.setPhoneNumber(request.getTelefono());
             if (request.getPais() != null) client.setCountry(request.getPais());
-            if (request.getEmail() != null) client.setEmail(request.getEmail());
+            client.setEmail(perfil.getEmail());
             clientRepository.save(client);
         } else if ("EMPRESA".equals(rol)) {
             EmpresaEntity emp = empresaRepository.findByPerfil(perfil).orElseGet(() -> {
@@ -203,7 +208,7 @@ public class PerfilUsuarioServiceImpl implements IPerfilUsuarioService {
             });
             if (request.getNombre() != null) rec.setNombre(request.getNombre());
             if (request.getApellido() != null) rec.setApellido(request.getApellido());
-            if (request.getEmail() != null) rec.setEmail(request.getEmail());
+            rec.setEmail(perfil.getEmail());
             if (request.getFechaNacimiento() != null && !request.getFechaNacimiento().isEmpty()) {
                 rec.setFechaNacimiento(parseFecha(request.getFechaNacimiento()));
             }
@@ -239,6 +244,26 @@ public class PerfilUsuarioServiceImpl implements IPerfilUsuarioService {
         if (!java.util.Set.of("image/png", "image/jpeg", "image/webp").contains(file.getContentType()))
             throw new BadRequestException(campo + " debe ser PNG, JPG o WEBP");
         if (file.getSize() > maxMb * 1024L * 1024) throw new BadRequestException(campo + " no puede superar los " + maxMb + " MB");
+    }
+
+    // El email es el de la cuenta: tiene que ser válido y no estar usado por otra cuenta
+    private void actualizarEmail(PerfilEntity perfil, String email) {
+        if (email == null || email.isBlank()) return;
+        String nuevo = email.trim();
+        if (nuevo.equalsIgnoreCase(perfil.getEmail())) return;
+        if (nuevo.length() > 100 || !nuevo.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
+            throw new BusinessRuleException("El email no es válido");
+        }
+        if (perfilRepository.findByEmail(nuevo).isPresent()) {
+            throw new BusinessRuleException("Ese email ya está en uso por otra cuenta");
+        }
+        perfil.setEmail(nuevo);
+    }
+
+    private static String textoOpcional(String valor, int max, String campo) {
+        String limpio = valor.trim();
+        if (limpio.length() > max) throw new BusinessRuleException(campo + " no puede superar los " + max + " caracteres");
+        return limpio.isEmpty() ? null : limpio;
     }
 
     private static LocalDate parseFecha(String fecha) {
