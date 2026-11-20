@@ -43,7 +43,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponseDTO> handleValidationExceptions(MethodArgumentNotValidException ex) {
         List<String> errors = ex.getBindingResult().getFieldErrors().stream()
-                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                // Solo el mensaje: ya está escrito para el usuario y el nombre del campo es técnico
+                .map(error -> error.getDefaultMessage())
                 .toList();
         ErrorResponseDTO error = new ErrorResponseDTO("Error de validación", errors, LocalDate.now());
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
