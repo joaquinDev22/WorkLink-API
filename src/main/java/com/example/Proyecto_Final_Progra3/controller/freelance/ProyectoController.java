@@ -72,6 +72,14 @@ public class ProyectoController {
     }
 
     @Parameter(name = "id", description = "Identificador único del proyecto freelance", example = "1")
+    @Operation(summary = "Eliminar proyecto", description = "Permite al propietario eliminar un proyecto que todavía no tiene freelancer (BUSCANDO_TALENTO o CANCELADO), junto con sus propuestas.")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminarMiProyecto(@PathVariable Integer id, Authentication authentication) {
+        proyectoService.eliminarMiProyecto(id, authentication.getName());
+        return ResponseEntity.noContent().build();
+    }
+
+    @Parameter(name = "id", description = "Identificador único del proyecto freelance", example = "1")
     @Operation(summary = "Modificar proyecto", description = "Permite al cliente propietario modificar los datos de un proyecto freelance en estado BUSCANDO_TALENTO.")
     @PutMapping("/{id}")
     public ResponseEntity<ProyectoResponseDTO> actualizarMiProyecto(
