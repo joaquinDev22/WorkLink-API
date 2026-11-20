@@ -38,6 +38,17 @@ public class EmpresaEntity {
     @Column(length = 150)
     private String ubicacion;
 
+    // Rubro de la empresa (en el front se llama "rubro")
+    @Column(length = 100)
+    private String sector;
+
+    @Column(length = 30)
+    private String telefono;
+
+    // Dirección de las oficinas (calle y número); la ciudad va en ubicacion
+    @Column(length = 150)
+    private String direccion;
+
     // Imágenes como data URL ("data:image/png;base64,..."): se muestran directo en <img src>
     @Column(columnDefinition = "MEDIUMTEXT")
     private String logo;
