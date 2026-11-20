@@ -273,6 +273,23 @@ class EmpresaApiTest extends ApiTestBase {
                 .andExpect(status().isUnprocessableContent());
     }
 
+    @Test void entrevistas_noSePuedenSuperponer() throws Exception {
+        LocalDate dia = diaHabil(4);
+        // Otra postulación de la misma empresa ya tiene entrevista ese día a las 11
+        Integer otra = id("select min(pv.postulacion_id) from postulacion_vacante pv join vacante v on v.vacante_id=pv.vacante_id "
+                + "where v.empresa_id=? and pv.postulacion_id<>?", empresaId, postulacion);
+        jdbc.update("insert into entrevista (postulacion_id, fecha, hora, estado) values (?, ?, '11:00:00', 'PROGRAMADA')", otra, dia);
+
+        postJson(RECRUITER, "/api/v1/recruiter/entrevistas", entrevistaJson(postulacion, dia, "11:00:00"))
+                .andExpect(status().isUnprocessableContent());
+        Integer id = agendar758(dia);
+        putJson(RECRUITER, "/api/v1/recruiter/entrevistas/{id}", entrevistaJson(postulacion, dia, "11:00:00"), id)
+                .andExpect(status().isUnprocessableContent());
+        // Reprogramar al mismo día y horario que ya tiene tampoco cambia nada: avisa
+        putJson(RECRUITER, "/api/v1/recruiter/entrevistas/{id}", entrevistaJson(postulacion, dia, "14:30:00"), id)
+                .andExpect(status().isUnprocessableContent());
+    }
+
     @Test void entrevistas_noSePuedeAgendarDosVeces() throws Exception {
         postJson(RECRUITER, "/api/v1/recruiter/entrevistas", entrevistaJson(postulacion, diaHabil(5), "14:30:00"))
                 .andExpect(status().isCreated());

@@ -90,6 +90,7 @@ public class EntrevistaServiceImpl implements IEntrevistaService {
             throw new BusinessRuleException("Este postulante ya tiene una entrevista programada para esta vacante; reprogramala en lugar de agendar otra");
         }
         validarFechaDesdeManiana(dto);
+        validarHorarioLibre(postulacion, dto, null);
 
         if (postulacion.getEstado() != null && postulacion.getEstado().esFinal()) {
             throw new BusinessRuleException("No se puede agendar una entrevista a una postulación rechazada");
@@ -121,6 +122,10 @@ public class EntrevistaServiceImpl implements IEntrevistaService {
             throw new BusinessRuleException("Solo se puede reprogramar una entrevista que todavía no ocurrió");
         }
         validarFechaDesdeManiana(dto);
+        if (dto.fecha().equals(entrevista.getFecha()) && dto.hora().equals(entrevista.getHora())) {
+            throw new BusinessRuleException("La entrevista ya está programada para ese día y horario; elegí otro para reprogramarla");
+        }
+        validarHorarioLibre(postulacion, dto, entrevista.getId());
 
         entrevista.setFecha(dto.fecha());
         entrevista.setHora(dto.hora());
@@ -169,6 +174,14 @@ public class EntrevistaServiceImpl implements IEntrevistaService {
         }
         if (dto.hora() == null || !EntrevistaEntity.esHorarioDeOficina(dto.fecha(), dto.hora())) {
             throw new BusinessRuleException("La entrevista debe ser en horario de oficina: de lunes a viernes, de 9 a 18 hs");
+        }
+    }
+
+    // Dos entrevistas de la misma empresa no pueden caer en el mismo día y horario
+    private void validarHorarioLibre(PostulacionVacanteEntity postulacion, EntrevistaRequestDTO dto, Integer excluirId) {
+        Integer empresaId = postulacion.getVacante().getEmpresa().getId();
+        if (entrevistaRepository.existeOtraEnHorario(empresaId, dto.fecha(), dto.hora(), excluirId)) {
+            throw new BusinessRuleException("Ya hay otra entrevista programada para ese día y horario; elegí otro");
         }
     }
 
