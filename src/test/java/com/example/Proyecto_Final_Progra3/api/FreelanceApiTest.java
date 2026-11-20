@@ -42,13 +42,21 @@ class FreelanceApiTest extends ApiTestBase {
                 .andExpect(jsonPath("$.estado").value("BUSCANDO_TALENTO"));
     }
 
-    @Test void proyectos_crear_nombreLargo_400() throws Exception {
-        // nombre_proyecto es VARCHAR(30): debería ser 400 de validación, no un error de base
-        postJson(CLIENTE, "/api/v1/freelance/proyectos/me", proyectoJson("N".repeat(45))).andExpect(status().isBadRequest());
+    @Test void proyectos_crear_conLosLargosDelFormulario() throws Exception {
+        // El formulario manda áreas como "Desarrollo Web" y títulos de hasta 120 caracteres
+        String json = proyectoJson("T".repeat(120)).replace("\"IT\"", "\"Desarrollo Web\"")
+                .replace("Proyecto de prueba", "D".repeat(3000));
+        postJson(CLIENTE, "/api/v1/freelance/proyectos/me", json).andExpect(status().isOk());
+        sincronizar();
+    }
+
+    @Test void proyectos_crear_nombreLargo_400_mensajeSinNombreDeCampo() throws Exception {
+        postJson(CLIENTE, "/api/v1/freelance/proyectos/me", proyectoJson("N".repeat(121))).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.details[0]").value("El título del proyecto no puede superar los 120 caracteres"));
     }
 
     @Test void proyectos_crear_descripcionLarga_400() throws Exception {
-        String json = proyectoJson("Desc larga").replace("Proyecto de prueba", "D".repeat(400));
+        String json = proyectoJson("Desc larga").replace("Proyecto de prueba", "D".repeat(3001));
         postJson(CLIENTE, "/api/v1/freelance/proyectos/me", json).andExpect(status().isBadRequest());
     }
 
