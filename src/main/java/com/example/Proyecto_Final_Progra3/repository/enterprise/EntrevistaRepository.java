@@ -22,4 +22,12 @@ public interface EntrevistaRepository extends JpaRepository<EntrevistaEntity, In
     Long countPendientesByEmpresaId(@Param("empresaId") Integer empresaId);
 
     List<EntrevistaEntity> findByPostulacion_PostulacionVacanteId(Integer postulacionId);
+
+    // Otra entrevista no cancelada de la misma empresa en ese día y horario (sin contar la que se reprograma)
+    @Query("SELECT COUNT(e) > 0 FROM EntrevistaEntity e WHERE e.postulacion.vacante.empresa.id = :empresaId "
+            + "AND e.fecha = :fecha AND e.hora = :hora "
+            + "AND e.status <> com.example.Proyecto_Final_Progra3.model.enterprise.EstadoEntrevista.CANCELADA "
+            + "AND (:excluirId IS NULL OR e.id <> :excluirId)")
+    boolean existeOtraEnHorario(@Param("empresaId") Integer empresaId, @Param("fecha") java.time.LocalDate fecha,
+                                @Param("hora") java.time.LocalTime hora, @Param("excluirId") Integer excluirId);
 }
