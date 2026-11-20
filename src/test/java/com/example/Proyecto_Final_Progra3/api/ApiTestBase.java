@@ -106,6 +106,13 @@ public abstract class ApiTestBase {
         em.clear();
     }
 
+    /** Hoy + dias, corrido al lunes si cae en fin de semana: las entrevistas solo se agendan en días hábiles. */
+    protected static java.time.LocalDate diaHabil(int dias) {
+        java.time.LocalDate d = java.time.LocalDate.now().plusDays(dias);
+        while (d.getDayOfWeek().getValue() > 5) d = d.plusDays(1);
+        return d;
+    }
+
     protected Integer id(String sql, Object... args) {
         return jdbc.queryForObject(sql, Integer.class, args);
     }

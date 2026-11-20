@@ -230,7 +230,7 @@ class EmpresaApiTest extends ApiTestBase {
 
     @Test void estadoPostulacion_bloqueadoConEntrevistaAgendada() throws Exception {
         Integer[] vp = postulacionDemo();
-        postJson(RECRUITER, "/api/v1/recruiter/entrevistas", entrevistaJson(vp[1], LocalDate.now().plusDays(5), "14:30:00"))
+        postJson(RECRUITER, "/api/v1/recruiter/entrevistas", entrevistaJson(vp[1], diaHabil(5), "14:30:00"))
                 .andExpect(status().isCreated());
         // Agendar la entrevista avanza la postulación
         sincronizar();
@@ -247,7 +247,7 @@ class EmpresaApiTest extends ApiTestBase {
     @Test void entrevistas_agendar() throws Exception {
         postJson(RECRUITER, "/api/v1/recruiter/entrevistas", """
                 {"postulacionId":%d,"fecha":"%s","hora":"14:30:00","link":"https://meet.google.com/abc"}"""
-                .formatted(postulacion, LocalDate.now().plusDays(5))).andExpect(status().isCreated());
+                .formatted(postulacion, diaHabil(5))).andExpect(status().isCreated());
     }
 
     private String entrevistaJson(int postulacion, LocalDate fecha, String hora) {
@@ -261,18 +261,30 @@ class EmpresaApiTest extends ApiTestBase {
                 .andExpect(status().is4xxClientError());
     }
 
+    @Test void entrevistas_soloEnHorarioDeOficina() throws Exception {
+        LocalDate habil = diaHabil(3);
+        LocalDate sabado = LocalDate.now().plusDays(1).with(java.time.temporal.TemporalAdjusters.next(java.time.DayOfWeek.SATURDAY));
+        for (String[] caso : new String[][]{{habil.toString(), "08:59:00"}, {habil.toString(), "18:00:00"}, {sabado.toString(), "10:00:00"}})
+            postJson(RECRUITER, "/api/v1/recruiter/entrevistas", entrevistaJson(postulacion, LocalDate.parse(caso[0]), caso[1]))
+                    .andExpect(status().isUnprocessableContent());
+        // Reprogramar tampoco puede sacarla del horario de oficina
+        Integer id = agendar758(habil);
+        putJson(RECRUITER, "/api/v1/recruiter/entrevistas/{id}", entrevistaJson(postulacion, habil, "19:30:00"), id)
+                .andExpect(status().isUnprocessableContent());
+    }
+
     @Test void entrevistas_noSePuedeAgendarDosVeces() throws Exception {
-        postJson(RECRUITER, "/api/v1/recruiter/entrevistas", entrevistaJson(postulacion, LocalDate.now().plusDays(5), "14:30:00"))
+        postJson(RECRUITER, "/api/v1/recruiter/entrevistas", entrevistaJson(postulacion, diaHabil(5), "14:30:00"))
                 .andExpect(status().isCreated());
-        postJson(RECRUITER, "/api/v1/recruiter/entrevistas", entrevistaJson(postulacion, LocalDate.now().plusDays(9), "10:00:00"))
+        postJson(RECRUITER, "/api/v1/recruiter/entrevistas", entrevistaJson(postulacion, diaHabil(9), "10:00:00"))
                 .andExpect(status().isUnprocessableContent());
     }
 
     @Test void entrevistas_reprogramar() throws Exception {
-        postJson(RECRUITER, "/api/v1/recruiter/entrevistas", entrevistaJson(postulacion, LocalDate.now().plusDays(5), "14:30:00"))
+        postJson(RECRUITER, "/api/v1/recruiter/entrevistas", entrevistaJson(postulacion, diaHabil(5), "14:30:00"))
                 .andExpect(status().isCreated());
         Integer id = id("select max(entrevista_id) from entrevista where postulacion_id=" + postulacion);
-        LocalDate nueva = LocalDate.now().plusDays(12);
+        LocalDate nueva = diaHabil(12);
         putJson(RECRUITER, "/api/v1/recruiter/entrevistas/{id}", entrevistaJson(postulacion, nueva, "09:15:00"), id)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(id))
@@ -286,20 +298,20 @@ class EmpresaApiTest extends ApiTestBase {
     @Test void entrevistas_reprogramarPasada_422() throws Exception {
         Integer pasada = id("select min(entrevista_id) from entrevista e join postulacion_vacante pv on pv.postulacion_id=e.postulacion_id "
                 + "join vacante v on v.vacante_id=pv.vacante_id where v.empresa_id=" + empresaId + " and e.fecha<curdate()");
-        putJson(RECRUITER, "/api/v1/recruiter/entrevistas/{id}", entrevistaJson(postulacion, LocalDate.now().plusDays(3), "10:00:00"), pasada)
+        putJson(RECRUITER, "/api/v1/recruiter/entrevistas/{id}", entrevistaJson(postulacion, diaHabil(3), "10:00:00"), pasada)
                 .andExpect(status().isUnprocessableContent());
     }
 
     @Test void entrevistas_reprogramarDeOtraEmpresa_403() throws Exception {
-        postJson(RECRUITER, "/api/v1/recruiter/entrevistas", entrevistaJson(postulacion, LocalDate.now().plusDays(5), "14:30:00"))
+        postJson(RECRUITER, "/api/v1/recruiter/entrevistas", entrevistaJson(postulacion, diaHabil(5), "14:30:00"))
                 .andExpect(status().isCreated());
         Integer id = id("select max(entrevista_id) from entrevista where postulacion_id=" + postulacion);
-        putJson("AnaRecruiter", "/api/v1/recruiter/entrevistas/{id}", entrevistaJson(postulacion, LocalDate.now().plusDays(6), "10:00:00"), id)
+        putJson("AnaRecruiter", "/api/v1/recruiter/entrevistas/{id}", entrevistaJson(postulacion, diaHabil(6), "10:00:00"), id)
                 .andExpect(status().isForbidden());
     }
 
     @Test void entrevistas_reprogramarInexistente_404() throws Exception {
-        putJson(RECRUITER, "/api/v1/recruiter/entrevistas/999999", entrevistaJson(postulacion, LocalDate.now().plusDays(3), "10:00:00"))
+        putJson(RECRUITER, "/api/v1/recruiter/entrevistas/999999", entrevistaJson(postulacion, diaHabil(3), "10:00:00"))
                 .andExpect(status().isNotFound());
     }
 
@@ -314,7 +326,7 @@ class EmpresaApiTest extends ApiTestBase {
     }
 
     @Test void entrevistas_cancelar() throws Exception {
-        Integer id = agendar758(LocalDate.now().plusDays(4));
+        Integer id = agendar758(diaHabil(4));
         delete(RECRUITER, "/api/v1/recruiter/entrevistas/{id}", id).andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("CANCELADA"));
         get(RECRUITER, "/api/v1/recruiter/entrevistas").andExpect(status().isOk())
@@ -324,13 +336,13 @@ class EmpresaApiTest extends ApiTestBase {
     }
 
     @Test void entrevistas_cancelarDosVeces_422() throws Exception {
-        Integer id = agendar758(LocalDate.now().plusDays(4));
+        Integer id = agendar758(diaHabil(4));
         delete(RECRUITER, "/api/v1/recruiter/entrevistas/{id}", id).andExpect(status().isOk());
         delete(RECRUITER, "/api/v1/recruiter/entrevistas/{id}", id).andExpect(status().isUnprocessableContent());
     }
 
     @Test void entrevistas_cancelarElMismoDia_422() throws Exception {
-        Integer id = agendar758(LocalDate.now().plusDays(4));
+        Integer id = agendar758(diaHabil(4));
         sincronizar();
         jdbc.update("update entrevista set fecha=curdate(), hora='23:59:00' where entrevista_id=?", id);
         delete(RECRUITER, "/api/v1/recruiter/entrevistas/{id}", id).andExpect(status().isUnprocessableContent());
@@ -343,7 +355,7 @@ class EmpresaApiTest extends ApiTestBase {
     }
 
     @Test void entrevistas_cancelarDeOtraEmpresa_403() throws Exception {
-        Integer id = agendar758(LocalDate.now().plusDays(4));
+        Integer id = agendar758(diaHabil(4));
         delete("AnaRecruiter", "/api/v1/recruiter/entrevistas/{id}", id).andExpect(status().isForbidden());
     }
 
@@ -352,26 +364,26 @@ class EmpresaApiTest extends ApiTestBase {
     }
 
     @Test void entrevistas_postulanteNoPuedeCancelar_403() throws Exception {
-        Integer id = agendar758(LocalDate.now().plusDays(4));
+        Integer id = agendar758(diaHabil(4));
         delete(POSTULANTE, "/api/v1/recruiter/entrevistas/{id}", id).andExpect(status().isForbidden());
     }
 
     @Test void entrevistas_trasCancelarSePuedeAgendarOtra() throws Exception {
-        Integer id = agendar758(LocalDate.now().plusDays(4));
+        Integer id = agendar758(diaHabil(4));
         delete(RECRUITER, "/api/v1/recruiter/entrevistas/{id}", id).andExpect(status().isOk());
-        postJson(RECRUITER, "/api/v1/recruiter/entrevistas", entrevistaJson(postulacion, LocalDate.now().plusDays(8), "11:00:00"))
+        postJson(RECRUITER, "/api/v1/recruiter/entrevistas", entrevistaJson(postulacion, diaHabil(8), "11:00:00"))
                 .andExpect(status().isCreated()).andExpect(jsonPath("$.status").value("PROGRAMADA"));
     }
 
     @Test void entrevistas_noSeReprogramaUnaCancelada_422() throws Exception {
-        Integer id = agendar758(LocalDate.now().plusDays(4));
+        Integer id = agendar758(diaHabil(4));
         delete(RECRUITER, "/api/v1/recruiter/entrevistas/{id}", id).andExpect(status().isOk());
-        putJson(RECRUITER, "/api/v1/recruiter/entrevistas/{id}", entrevistaJson(postulacion, LocalDate.now().plusDays(9), "10:00:00"), id)
+        putJson(RECRUITER, "/api/v1/recruiter/entrevistas/{id}", entrevistaJson(postulacion, diaHabil(9), "10:00:00"), id)
                 .andExpect(status().isUnprocessableContent());
     }
 
     @Test void entrevistas_dashboardNoCuentaCanceladas() throws Exception {
-        Integer id = agendar758(LocalDate.now().plusDays(4));
+        Integer id = agendar758(diaHabil(4));
         int antes = com.jayway.jsonpath.JsonPath.read(get(EMPRESA, "/api/v1/empresas/dashboard")
                 .andReturn().getResponse().getContentAsString(), "$.entrevistasPendientes");
         delete(RECRUITER, "/api/v1/recruiter/entrevistas/{id}", id).andExpect(status().isOk());
