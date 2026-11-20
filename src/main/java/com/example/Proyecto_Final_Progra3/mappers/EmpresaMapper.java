@@ -12,13 +12,16 @@ import java.util.List;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface EmpresaMapper {
+    @Mapping(target = "sector", source = "rubro")
     EmpresaEntity toEntity(EmpresaRequestDTO dto);
 
     @Mapping(target = "perfil_id", source = "perfil.id")
+    @Mapping(target = "rubro", source = "sector")
     EmpresaResponseDTO toDto(EmpresaEntity entity);
 
     List<EmpresaResponseDTO> toDtoList(List<EmpresaEntity> entities);
 
     @Mapping(target = "perfil", ignore = true)
+    @Mapping(target = "sector", source = "rubro")
     void updateEntityFromDto(EmpresaRequestDTO dto, @MappingTarget EmpresaEntity entity);
 }

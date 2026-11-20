@@ -36,11 +36,13 @@ CREATE TABLE empresa (
     empresa_id INT AUTO_INCREMENT PRIMARY KEY,
     uuid CHAR(36) NOT NULL UNIQUE DEFAULT (UUID()),
     nombre VARCHAR(100) NOT NULL,
-    descripcion VARCHAR(255) NOT NULL,
-    sitio_web VARCHAR(100) NOT NULL,
-    ubicacion VARCHAR(100) NOT NULL,
+    descripcion VARCHAR(500) NOT NULL,
+    sitio_web VARCHAR(150),
+    ubicacion VARCHAR(150),
     tamano VARCHAR(50),
     sector VARCHAR(100),
+    telefono VARCHAR(30),
+    direccion VARCHAR(150),
     logo MEDIUMTEXT,    -- imagen como data URL (data:image/png;base64,...)
     banner MEDIUMTEXT,  -- imagen como data URL
     perfil_id INT NOT NULL UNIQUE,

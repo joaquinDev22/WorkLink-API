@@ -47,10 +47,24 @@ class EmpresaApiTest extends ApiTestBase {
         putJson(EMPRESA, "/api/v1/empresas/" + empresaId, EMPRESA_JSON).andExpect(status().isOk());
     }
 
+    @Test void editarEmpresa_guardaTelefonoRubroYDireccion() throws Exception {
+        putJson(EMPRESA, "/api/v1/empresas/" + empresaId, """
+                {"nombre":"Empresa Test","descripcion":"Descripción test","ubicacion":"La Plata",
+                 "telefono":"+54 221 555-0100","rubro":"Tecnología","direccion":"Calle 7 N° 1234"}""")
+                .andExpect(status().isOk());
+        sincronizar();
+        // Al volver a cargar el perfil, los datos siguen ahí
+        get(EMPRESA, "/api/v1/empresas/my")
+                .andExpect(jsonPath("$.telefono").value("+54 221 555-0100"))
+                .andExpect(jsonPath("$.rubro").value("Tecnología"))
+                .andExpect(jsonPath("$.direccion").value("Calle 7 N° 1234"));
+    }
+
     @Test void editarEmpresa_sinSitioNiUbicacion() throws Exception {
         // sitio_web y ubicacion son opcionales en el DTO: no debería romper con 409 por NOT NULL en la base
         putJson(EMPRESA, "/api/v1/empresas/" + empresaId, """
                 {"nombre":"Empresa Test","descripcion":"Sin sitio"}""").andExpect(status().isOk());
+        sincronizar(); // fuerza el UPDATE: antes la base rechazaba sitio_web vacío recién al escribir
     }
 
     @Test void editarEmpresa_ajena_403() throws Exception {
