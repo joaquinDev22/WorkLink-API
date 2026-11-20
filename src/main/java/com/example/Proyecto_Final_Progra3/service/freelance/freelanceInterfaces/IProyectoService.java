@@ -9,6 +9,7 @@ import java.util.UUID;
 public interface IProyectoService {
     ProyectoResponseDTO crearMiProyecto(String username, ProyectoRequestDTO dto);
     void cancelarMiProyecto(Integer id, String username);
+    void eliminarMiProyecto(Integer id, String username);
     ProyectoResponseDTO buscarPorId(Integer id);
     ProyectoResponseDTO buscarPorUuid(UUID uuid);
     List<ProyectoResponseDTO> listarTodos();

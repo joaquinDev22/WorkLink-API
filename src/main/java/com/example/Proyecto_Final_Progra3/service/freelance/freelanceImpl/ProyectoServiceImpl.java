@@ -105,6 +105,25 @@ public class ProyectoServiceImpl implements IProyectoService {
 
     @Override
     @Transactional
+    public void eliminarMiProyecto(Integer id, String username) {
+        ProyectoEntity proyecto = proyectoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado"));
+
+        if (proyecto.getClient() == null || proyecto.getClient().getPerfil() == null || !proyecto.getClient().getPerfil().getUsuario().equals(username)) {
+            throw new UnauthorizedAccessException("No tienes permiso para eliminar este proyecto");
+        }
+
+        // Solo sin freelancer: un proyecto adjudicado ya tiene hitos y pagos que no se pueden perder
+        if (proyecto.getEstado() != EstadoProyecto.BUSCANDO_TALENTO && proyecto.getEstado() != EstadoProyecto.CANCELADO) {
+            throw new BusinessRuleException("Solo puedes eliminar proyectos que todavía no tengan un freelancer asignado");
+        }
+
+        postulacionProyectoRepository.deleteAll(postulacionProyectoRepository.findByProyecto_Id(id));
+        proyectoRepository.delete(proyecto);
+    }
+
+    @Override
+    @Transactional
     public ProyectoResponseDTO actualizarMiProyecto(Integer id, String username, ProyectoRequestDTO dto) {
         ProyectoEntity proyecto = proyectoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado"));

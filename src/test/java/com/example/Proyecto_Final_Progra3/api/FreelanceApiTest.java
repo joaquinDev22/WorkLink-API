@@ -74,6 +74,23 @@ class FreelanceApiTest extends ApiTestBase {
         org.junit.jupiter.api.Assertions.assertTrue(st == 200 || st == 204, "fue " + st);
     }
 
+    @Test void proyectos_eliminar_conPropuestas() throws Exception {
+        // proyBuscando tiene una propuesta de demo_freelancer: se borra junto con el proyecto
+        delete(CLIENTE, "/api/v1/freelance/proyectos/{id}", proyBuscando).andExpect(status().isNoContent());
+        sincronizar();
+        org.junit.jupiter.api.Assertions.assertEquals(0, id("select count(*) from proyecto where proyecto_id=?", proyBuscando));
+        org.junit.jupiter.api.Assertions.assertEquals(0, id("select count(*) from postulacion_proyecto where proyecto_id=?", proyBuscando));
+    }
+
+    @Test void proyectos_eliminarEnCurso_422() throws Exception {
+        delete(CLIENTE, "/api/v1/freelance/proyectos/{id}", proyEnCurso).andExpect(status().isUnprocessableEntity());
+    }
+
+    @Test void proyectos_eliminarAjeno_403() throws Exception {
+        Integer ajeno = id("select min(proyecto_id) from proyecto where cliente_id<>" + clienteId + " and estado='BUSCANDO_TALENTO'");
+        delete(CLIENTE, "/api/v1/freelance/proyectos/{id}", ajeno).andExpect(status().isForbidden());
+    }
+
     @Test void proyectos_asignarFreelancer() throws Exception {
         call(CLIENTE, put("/api/v1/freelance/proyectos/" + proyBuscando + "/asignar").param("employeeId", String.valueOf(freelancerEmp)))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.estado").value("EN_PROGRESO"));
