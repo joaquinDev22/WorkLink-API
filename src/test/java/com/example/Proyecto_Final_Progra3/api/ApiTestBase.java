@@ -34,12 +34,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 public abstract class ApiTestBase {
 
     // Cuentas del seed_demo.sql
-    protected static final String POSTULANTE = "demo_postulante";   // employee 296
-    protected static final String FREELANCER = "demo_freelancer";   // employee 316, perfil 762
-    protected static final String EMPRESA = "demo_empresa";         // empresa 148
-    protected static final String RECRUITER = "demo_recruiter";     // recruiter 148 (empresa 148)
-    protected static final String CLIENTE = "demo_cliente";         // cliente 150
-    protected static final String INSTRUCTOR = "ProfeBootcamp";     // instructor 1
+    protected static final String POSTULANTE = "demo_postulante";
+    protected static final String FREELANCER = "demo_freelancer";
+    protected static final String EMPRESA = "demo_empresa";
+    protected static final String RECRUITER = "demo_recruiter";     // recruiter de demo_empresa
+    protected static final String CLIENTE = "demo_cliente";
+    protected static final String INSTRUCTOR = "ProfeBootcamp";
 
     @Autowired protected MockMvc mvc;
     @Autowired protected JdbcTemplate jdbc;
@@ -98,7 +98,97 @@ public abstract class ApiTestBase {
         return new MockMultipartFile(campo, "cv.pdf", "application/pdf", "%PDF-1.4\n%test\n".getBytes());
     }
 
+    @Autowired private jakarta.persistence.EntityManager em;
+
+    /** El test comparte transacción con la app: al mezclar SQL directo y JPA hay que sincronizar Hibernate. */
+    protected void sincronizar() {
+        em.flush();
+        em.clear();
+    }
+
     protected Integer id(String sql, Object... args) {
         return jdbc.queryForObject(sql, Integer.class, args);
+    }
+
+    // ---------- IDs del escenario demo ----------
+    // Se buscan por usuario y por estado en cada test: no dependen de los IDs de una base en particular.
+    protected int postulanteEmp, freelancerEmp, freelancerPerfil, clienteId, clientePerfil,
+            empresaId, empresaPerfil, recruiterId, instructorId;
+    /** Proyecto de demo_cliente BUSCANDO_TALENTO con propuesta de demo_freelancer, y otro BUSCANDO_TALENTO distinto. */
+    protected int proyBuscando, proyBuscandoOtro;
+    /** Proyecto EN_PROGRESO de demo_cliente con demo_freelancer y todos los hitos PENDIENTE, sin pagos. */
+    protected int proyEnCurso, hitoPrimero, hitoUltimo;
+    /** Proyecto EN_PROGRESO de demo_cliente con demo_freelancer que ya tiene hitos pagados. */
+    protected int proyConPagos, hitoPagado;
+    /** Proyecto FINALIZADO de demo_cliente con demo_freelancer y calificaciones. */
+    protected int proyFinalizado;
+    /** Vacante vigente de demo_empresa con una postulación de demo_postulante sin entrevistas ni rechazo. */
+    protected int vacante, postulacion;
+
+    private int usuario(String sql, String usuario) {
+        return id(sql + " join perfil p on p.perfil_id=x.perfil_id where p.usuario=?", usuario);
+    }
+
+    @BeforeEach
+    void cargarIdsDemo() {
+        postulanteEmp = usuario("select x.employee_id from employee x", POSTULANTE);
+        freelancerEmp = usuario("select x.employee_id from employee x", FREELANCER);
+        freelancerPerfil = usuario("select x.perfil_id from employee x", FREELANCER);
+        clienteId = usuario("select x.cliente_particular_id from cliente_particular x", CLIENTE);
+        clientePerfil = usuario("select x.perfil_id from cliente_particular x", CLIENTE);
+        empresaId = usuario("select x.empresa_id from empresa x", EMPRESA);
+        empresaPerfil = usuario("select x.perfil_id from empresa x", EMPRESA);
+        recruiterId = usuario("select x.recruiter_id from recruiter x", RECRUITER);
+        instructorId = usuario("select x.instructor_id from instructor x", INSTRUCTOR);
+
+        proyBuscando = id("""
+                select min(p.proyecto_id) from proyecto p where p.cliente_id=? and p.estado='BUSCANDO_TALENTO'
+                and exists (select 1 from postulacion_proyecto pp where pp.proyecto_id=p.proyecto_id and pp.employee_id=?)""",
+                clienteId, freelancerEmp);
+        proyBuscandoOtro = id("select max(proyecto_id) from proyecto where cliente_id=? and estado='BUSCANDO_TALENTO' and proyecto_id<>?",
+                clienteId, proyBuscando);
+        proyEnCurso = id("""
+                select min(p.proyecto_id) from proyecto p where p.cliente_id=? and p.freelancer_asignado_id=? and p.estado='EN_PROGRESO'
+                and exists (select 1 from hito_proyecto h where h.proyecto_id=p.proyecto_id)
+                and not exists (select 1 from hito_proyecto h where h.proyecto_id=p.proyecto_id and h.estado<>'PENDIENTE')
+                and not exists (select 1 from pagos pg where pg.proyecto_id=p.proyecto_id)""", clienteId, freelancerEmp);
+        hitoPrimero = id("select min(hito_id) from hito_proyecto where proyecto_id=?", proyEnCurso);
+        hitoUltimo = id("select max(hito_id) from hito_proyecto where proyecto_id=?", proyEnCurso);
+        proyConPagos = id("""
+                select min(p.proyecto_id) from proyecto p where p.cliente_id=? and p.freelancer_asignado_id=? and p.estado='EN_PROGRESO'
+                and exists (select 1 from pagos pg where pg.proyecto_id=p.proyecto_id and pg.hito_id is not null)""", clienteId, freelancerEmp);
+        hitoPagado = id("select min(hito_id) from pagos where proyecto_id=? and hito_id is not null", proyConPagos);
+        proyFinalizado = id("""
+                select min(p.proyecto_id) from proyecto p where p.cliente_id=? and p.freelancer_asignado_id=? and p.estado='FINALIZADO'
+                and exists (select 1 from calificacion_proyecto c where c.proyecto_id=p.proyecto_id)""", clienteId, freelancerEmp);
+
+        postulacion = id("""
+                select min(pv.postulacion_id) from postulacion_vacante pv join vacante v on v.vacante_id=pv.vacante_id
+                where v.empresa_id=? and v.activa=1 and v.fecha_fin>curdate() and pv.postulante_id=?
+                and pv.estado_postulacion<>'RECHAZADO'
+                and not exists (select 1 from entrevista e where e.postulacion_id=pv.postulacion_id)""", empresaId, postulanteEmp);
+        vacante = id("select vacante_id from postulacion_vacante where postulacion_id=?", postulacion);
+    }
+
+    // ---------- Bootcamps: el seed no trae ninguno, cada test crea el suyo ----------
+    protected String bootcampJson(String titulo) {
+        return """
+                {"titulo":"%s","descripcion":"Bootcamp de prueba","inicio":"%s","fin":"%s",
+                 "modalidad":"VIRTUAL","tipo":"PARTICULAR","cupos":20,"instructor_id":%d,"empresa_id":%d,
+                 "precio":"50000","etiquetas":["java","spring"]}"""
+                .formatted(titulo, java.time.LocalDate.now().plusDays(10), java.time.LocalDate.now().plusDays(60), instructorId, empresaId);
+    }
+
+    protected Integer crearBootcamp() throws Exception {
+        postJson(INSTRUCTOR, "/api/v1/bootcamps/me", bootcampJson("Bootcamp Test"))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isCreated());
+        return id("select max(bootcamp_id) from bootcamp where instructor_id=?", instructorId);
+    }
+
+    /** Inscribe a demo_postulante en el bootcamp y devuelve el id de la inscripción. */
+    protected Integer inscribirPostulante(Integer bootcampId) throws Exception {
+        call(POSTULANTE, post("/api/v1/inscripciones/me/{b}", bootcampId))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isCreated());
+        return id("select max(inscripcion_id) from inscripcion_bootcamp where bootcamp_id=?", bootcampId);
     }
 }

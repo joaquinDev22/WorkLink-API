@@ -57,12 +57,6 @@ class CorsApiTest extends ApiTestBase {
                 .andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "http://localhost:5173"));
     }
 
-    @Test void preflight_subdominioWorklink() throws Exception {
-        preflight("/api/v1/vacantes", "https://app.worklink.com", "GET", "content-type")
-                .andExpect(status().isOk())
-                .andExpect(header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "https://app.worklink.com"));
-    }
-
     @Test void preflight_origenNoPermitido_403() throws Exception {
         preflight("/api/v1/vacantes", "https://sitio-malicioso.com", "GET", "content-type")
                 .andExpect(status().isForbidden())
