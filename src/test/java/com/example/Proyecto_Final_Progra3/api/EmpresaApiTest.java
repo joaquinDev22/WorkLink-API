@@ -176,6 +176,20 @@ class EmpresaApiTest extends ApiTestBase {
         org.junit.jupiter.api.Assertions.assertTrue(st == 200 || st == 204, "fue " + st);
     }
 
+    @Test void vacantes_eliminada_noApareceNiSeCuentaNiAdmitePostulaciones() throws Exception {
+        postJson(EMPRESA, "/api/v1/vacantes/me", vacanteJson("Dada de baja")).andExpect(status().isOk());
+        Integer nueva = id("select max(vacante_id) from vacante where empresa_id=?", empresaId);
+        delete(EMPRESA, "/api/v1/vacantes/{id}", nueva);
+        sincronizar();
+
+        get(EMPRESA, "/api/v1/vacantes/me").andExpect(jsonPath("$[?(@.vacanteId == " + nueva + ")]").isEmpty());
+        get(null, "/api/v1/vacantes").andExpect(jsonPath("$[?(@.vacanteId == " + nueva + ")]").isEmpty());
+        get(EMPRESA, "/api/v1/empresas/dashboard").andExpect(jsonPath("$.totalVacantes")
+                .value(jdbc.queryForObject("select count(*) from vacante where activa=1 and empresa_id=?", Integer.class, empresaId)));
+        call(POSTULANTE, multipart("/api/v1/vacantes/{v}/postulaciones/me", nueva).file(pdf("cv")).param("mensaje", "Tarde"))
+                .andExpect(status().isUnprocessableEntity());
+    }
+
     @Test void vacantes_actualizarAjena_403() throws Exception {
         Integer ajena = id("select min(vacante_id) from vacante where empresa_id<>?", empresaId);
         putJson(EMPRESA, "/api/v1/vacantes/{id}", vacanteJson("Hack"), ajena).andExpect(status().isForbidden());

@@ -143,7 +143,7 @@ public class EmpresaServiceImpl implements IEmpresaService {
     public DashboardStatsResponseDTO getDashboardStats(String username) {
         EmpresaEntity empresa = resolverEmpresaPorUsuario(username);
 
-        Long totalVacantes = vacanteRepository.countByEmpresa_Id(empresa.getId());
+        Long totalVacantes = vacanteRepository.countByEmpresa_IdAndActivaTrue(empresa.getId());
         Long totalPostulaciones = postulacionRepository.countByVacante_Empresa_Id(empresa.getId());
         Long entrevistasPendientes = entrevistaRepository.countPendientesByEmpresaId(empresa.getId());
         Long contrataciones = 0L;
