@@ -62,6 +62,9 @@ public class PostulacionVacanteServiceImpl implements IPostulacionVacanteService
     private PostulacionResponseDTO postularse(Integer vacanteId, Integer employeeId, String mensaje, MultipartFile cv) {
         VacanteEntity vacante = vacanteRepository.findById(vacanteId)
                 .orElseThrow(() -> new ResourceNotFoundException("Vacante no encontrada"));
+        if (!vacante.isActiva()) {
+            throw new BusinessRuleException("Esta vacante ya no recibe postulaciones");
+        }
 
         EmployeeEntity employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Empleado no encontrado"));

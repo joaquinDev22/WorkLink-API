@@ -160,7 +160,7 @@ class ContenidoApiTest extends ApiTestBase {
 
     @Test void empresa_dashboardCoincideConBase() throws Exception {
         get(EMPRESA, "/api/v1/empresas/dashboard").andExpect(status().isOk())
-                .andExpect(jsonPath("$.totalVacantes").value(count("select count(*) from vacante where empresa_id=" + empresaId)))
+                .andExpect(jsonPath("$.totalVacantes").value(count("select count(*) from vacante where activa=1 and empresa_id=" + empresaId)))
                 .andExpect(jsonPath("$.totalPostulaciones").value(count(
                         "select count(*) from postulacion_vacante pv join vacante v on v.vacante_id=pv.vacante_id where v.empresa_id=" + empresaId)))
                 .andExpect(jsonPath("$.entrevistasPendientes").isNumber())
@@ -181,7 +181,7 @@ class ContenidoApiTest extends ApiTestBase {
 
     @Test void empresa_misVacantes() throws Exception {
         get(EMPRESA, "/api/v1/vacantes/me").andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(count("select count(*) from vacante where empresa_id=" + empresaId)))
+                .andExpect(jsonPath("$.length()").value(count("select count(*) from vacante where activa=1 and empresa_id=" + empresaId)))
                 .andExpect(jsonPath("$[*].empresaId", everyItem(is(empresaId))));
     }
 

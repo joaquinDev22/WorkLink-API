@@ -123,7 +123,7 @@ public class VacanteServiceImpl implements IVacanteService {
             throw new ResourceNotFoundException("No se encontró una empresa asociada al usuario: " + username);
         }
         
-        return vacanteMapper.toDtoList(vacanteRepository.findByEmpresa_Id(empresa.getId()));
+        return vacanteMapper.toDtoList(vacanteRepository.findByEmpresa_IdAndActivaTrue(empresa.getId()));
     }
 
     private void validarPropiedadVacante(VacanteEntity vacante, String username) {
