@@ -101,6 +101,18 @@ public class PagosServiceImpl implements IPagosService {
             return;
         }
 
+        // Con notification_url Mercado Pago avisa también (o solo) la orden: se procesan sus pagos uno por uno
+        if ("merchant_order".equalsIgnoreCase(eventType)) {
+            try {
+                for (Long pagoId : mercadoPagoAdapter.consultarPagosDeOrden(Long.valueOf(paymentIdStr))) {
+                    procesarWebhook(null, null, "payment", String.valueOf(pagoId));
+                }
+            } catch (NumberFormatException e) {
+                log.warn("Webhook de Mercado Pago con id de orden no numérico: id={}", paymentIdStr);
+            }
+            return;
+        }
+
         if ("payment".equalsIgnoreCase(eventType)) {
             try {
                 Long paymentId = Long.valueOf(paymentIdStr);
