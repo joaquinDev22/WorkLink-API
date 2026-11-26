@@ -2,6 +2,7 @@ package com.example.Proyecto_Final_Progra3.service.freelance.freelanceImpl;
 
 import com.example.Proyecto_Final_Progra3.dto.responsedto.MercadoPagoPreferenceResponseDTO;
 import com.example.Proyecto_Final_Progra3.exceptions.domain.BusinessRuleException;
+import com.mercadopago.client.merchantorder.MerchantOrderClient;
 import com.mercadopago.client.payment.PaymentClient;
 import com.mercadopago.client.preference.PreferenceBackUrlsRequest;
 import com.mercadopago.client.preference.PreferenceClient;
@@ -9,6 +10,8 @@ import com.mercadopago.client.preference.PreferenceItemRequest;
 import com.mercadopago.client.preference.PreferenceRequest;
 import com.mercadopago.exceptions.MPApiException;
 import com.mercadopago.exceptions.MPException;
+import com.mercadopago.resources.merchantorder.MerchantOrder;
+import com.mercadopago.resources.merchantorder.MerchantOrderPayment;
 import com.mercadopago.resources.payment.Payment;
 import com.mercadopago.resources.preference.Preference;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Adaptador que encapsula todas las llamadas externas al SDK de Mercado Pago.
@@ -89,5 +93,20 @@ public class MercadoPagoAdapter {
             throw new BusinessRuleException("Fallo al verificar el estado del pago con Mercado Pago: " + mpException.getMessage());
         }
     }
-}
 
+    /** IDs de los pagos de una orden (avisos topic=merchant_order). */
+    public List<Long> consultarPagosDeOrden(Long merchantOrderId) {
+        try {
+            MerchantOrder orden = new MerchantOrderClient().get(merchantOrderId);
+            if (orden == null || orden.getPayments() == null) return List.of();
+            return orden.getPayments().stream().map(MerchantOrderPayment::getId).filter(Objects::nonNull).toList();
+        } catch (MPApiException apiException) {
+            log.error("Error al consultar orden en Mercado Pago: status={}, response={}",
+                    apiException.getStatusCode(), apiException.getApiResponse().getContent());
+            throw new BusinessRuleException("No se pudo verificar la orden en Mercado Pago: " + apiException.getMessage());
+        } catch (MPException mpException) {
+            log.error("Excepción al consultar orden en Mercado Pago: {}", mpException.getMessage());
+            throw new BusinessRuleException("Fallo al verificar la orden con Mercado Pago: " + mpException.getMessage());
+        }
+    }
+}
