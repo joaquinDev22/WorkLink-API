@@ -58,7 +58,7 @@ CREATE TABLE recruiter (
     email VARCHAR(100) UNIQUE NOT NULL,
     fecha_nacimiento DATE NULL,
     area VARCHAR(50) NULL,
-    empresa_id INT NOT NULL,
+    empresa_id INT NULL,  -- NULL hasta que una empresa lo suma
     perfil_id INT NOT NULL UNIQUE,
     fecha_vinculacion DATETIME NULL,
     vinculacion_vista BOOLEAN NOT NULL DEFAULT FALSE,
