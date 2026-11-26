@@ -50,14 +50,17 @@ public class RecruiterServiceImpl implements IRecruiterService {
                 .orElseThrow(() -> new ResourceNotFoundException("Recruiter no encontrado"));
     }
 
-    /** Cuenta RECRUITER registrada con ese email y todavía sin empresa. */
+    /**
+     * Cuenta RECRUITER registrada con ese email y todavía sin empresa.
+     * Puede tener ficha de recruiter (si ya completó su perfil), pero sin empresa asignada.
+     */
     private PerfilEntity obtenerCuentaRecruiterLibre(String email) {
         PerfilEntity perfil = perfilRepository.findByEmail(email)
                 .filter(p -> "RECRUITER".equalsIgnoreCase(p.getRol().getNombre()))
                 .orElseThrow(() -> new BusinessRuleException(
                         "No existe una cuenta de WorkLink con rol Recruiter y email " + email
                                 + ". El recruiter debe registrarse primero con ese email."));
-        if (recruiterRepository.findByPerfil(perfil).isPresent()) {
+        if (recruiterRepository.findByPerfil(perfil).filter(r -> r.getEmpresa() != null).isPresent()) {
             throw new BusinessRuleException("La cuenta " + email + " ya está asociada a una empresa");
         }
         return perfil;
@@ -69,23 +72,27 @@ public class RecruiterServiceImpl implements IRecruiterService {
         EmpresaEntity empresa = obtenerEmpresa(usernameEmpresa);
         String email = dto.email().trim().toLowerCase();
 
-        if (recruiterRepository.existsByEmail(email)) {
-            throw new BusinessRuleException("Ya existe un recruiter registrado con el email: " + email);
-        }
-
         // RF01 + RF11: el recruiter se registra solo y la empresa lo vincula únicamente por email.
         // Nombre y demás datos salen de su cuenta: la empresa no los carga.
         PerfilEntity perfil = obtenerCuentaRecruiterLibre(email);
 
-        RecruiterEntity recruiter = RecruiterEntity.builder()
-                .email(email)
-                .nombre(perfil.getUsuario())
-                .apellido("")
-                .empresa(empresa)
-                .perfil(perfil)
-                .fechaVinculacion(LocalDateTime.now())
-                .vinculacionVista(false)
-                .build();
+        // Si ya completó su perfil antes de que lo sumen, se reutiliza esa ficha (conserva nombre y apellido)
+        RecruiterEntity recruiter = recruiterRepository.findByPerfil(perfil).orElse(null);
+        if (recruiter == null) {
+            if (recruiterRepository.existsByEmail(email)) {
+                throw new BusinessRuleException("Ya existe un recruiter registrado con el email: " + email);
+            }
+            recruiter = RecruiterEntity.builder()
+                    .email(email)
+                    .nombre(perfil.getUsuario())
+                    .apellido("")
+                    .perfil(perfil)
+                    .build();
+        }
+        recruiter.setEmpresa(empresa);
+        recruiter.setFechaVinculacion(LocalDateTime.now());
+        recruiter.setVinculacionVista(false);
+        recruiter.setBajaSolicitadaEn(null);
 
         RecruiterEntity guardado = recruiterRepository.save(recruiter);
         publicar(guardado, RecruiterVinculacionEvent.Tipo.VINCULADO);
@@ -112,15 +119,24 @@ public class RecruiterServiceImpl implements IRecruiterService {
         if (email.equalsIgnoreCase(recruiter.getEmail())) {
             return recruiterMapper.toDto(recruiter);
         }
+        // Cambiar el email equivale a vincular otra cuenta: tiene que existir y estar libre
+        PerfilEntity perfil = obtenerCuentaRecruiterLibre(email);
+        // Si esa cuenta ya tenía ficha propia (sin empresa), se toma su nombre y se descarta esa ficha
+        RecruiterEntity fichaLibre = recruiterRepository.findByPerfil(perfil).orElse(null);
+        if (fichaLibre != null) {
+            recruiter.setNombre(fichaLibre.getNombre());
+            recruiter.setApellido(fichaLibre.getApellido());
+            recruiter.setFechaNacimiento(fichaLibre.getFechaNacimiento());
+            recruiterRepository.delete(fichaLibre);
+            recruiterRepository.flush();
+        } else {
+            recruiter.setNombre(perfil.getUsuario());
+        }
         if (recruiterRepository.existsByEmailAndRecruiterIdNot(email, recruiterId)) {
             throw new BusinessRuleException("El email ingresado ya pertenece a otro recruiter: " + email);
         }
-
-        // Cambiar el email equivale a vincular otra cuenta: tiene que existir y estar libre
-        PerfilEntity perfil = obtenerCuentaRecruiterLibre(email);
         recruiter.setEmail(email);
         recruiter.setPerfil(perfil);
-        recruiter.setNombre(perfil.getUsuario());
         recruiter.setFechaVinculacion(LocalDateTime.now());
         recruiter.setVinculacionVista(false);
         recruiter.setBajaSolicitadaEn(null);

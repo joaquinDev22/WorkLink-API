@@ -134,6 +134,24 @@ class EmpresaApiTest extends ApiTestBase {
         org.junit.jupiter.api.Assertions.assertTrue(st == 200 || st == 204, "fue " + st);
     }
 
+    @Test void recruiter_completaPerfilAntesDeQueLoSumen_yLaEmpresaLoSumaConSuNombre() throws Exception {
+        postJson(null, "/api/v1/auth/register", """
+                {"usuario":"sofi_test","email":"sofi.test@test.com","password":"Password123","rol":"RECRUITER"}""")
+                .andExpect(status().isCreated());
+        // Sin empresa todavía: antes la base lo rechazaba con 409 por empresa_id NOT NULL
+        putJson("sofi_test", "/api/v1/perfiles/updateProfile", """
+                {"nombre":"Sofía","apellido":"Herrera","pais":"Argentina","fechaNacimiento":"1996-05-14"}""")
+                .andExpect(status().isOk());
+        sincronizar();
+
+        postJson(EMPRESA, "/api/v1/empresas/recruiters", """
+                {"email":"sofi.test@test.com"}""").andExpect(status().isCreated());
+        sincronizar();
+        org.junit.jupiter.api.Assertions.assertEquals(1, id("""
+                select count(*) from recruiter r join perfil p on p.perfil_id=r.perfil_id
+                where p.usuario='sofi_test' and r.empresa_id=? and r.nombre='Sofía' and r.apellido='Herrera'""", empresaId));
+    }
+
     // ---------- Vacantes ----------
     private String vacanteJson(String puesto) {
         return """
