@@ -177,6 +177,9 @@ class FreelanceApiTest extends ApiTestBase {
         org.junit.jupiter.api.Assertions.assertTrue(st < 500, "fue " + st);
     }
 
+    // Corre fuera de la transacción del test (como en producción): así se detecta si el guardado
+    // queda dentro de una transacción de solo lectura. Por eso limpia a mano lo que crea.
+    @org.springframework.transaction.annotation.Transactional(propagation = org.springframework.transaction.annotation.Propagation.NOT_SUPPORTED)
     @Test void webhook_merchantOrder_registraElPagoAprobadoYHabilitaElHito() throws Exception {
         // Mercado Pago a veces avisa solo la orden (topic=merchant_order): hay que buscar sus pagos
         Integer hito = id("""
@@ -191,13 +194,17 @@ class FreelanceApiTest extends ApiTestBase {
         org.mockito.Mockito.when(mercadoPagoAdapter.consultarPagosDeOrden(46461453778L)).thenReturn(java.util.List.of(990001L));
         org.mockito.Mockito.when(mercadoPagoAdapter.consultarPago(990001L)).thenReturn(pago);
 
-        call(null, post("/api/v1/pagos/webhook").param("topic", "merchant_order").param("id", "46461453778"))
-                .andExpect(status().isOk());
-        sincronizar();
+        try {
+            call(null, post("/api/v1/pagos/webhook").param("topic", "merchant_order").param("id", "46461453778"))
+                    .andExpect(status().isOk());
 
-        org.junit.jupiter.api.Assertions.assertEquals(1, id("select count(*) from pagos where mp_payment_id='990001' and hito_id=?", hito));
-        org.junit.jupiter.api.Assertions.assertEquals("EN_PROGRESO",
-                jdbc.queryForObject("select estado from hito_proyecto where hito_id=?", String.class, hito));
+            org.junit.jupiter.api.Assertions.assertEquals(1, id("select count(*) from pagos where mp_payment_id='990001' and hito_id=?", hito));
+            org.junit.jupiter.api.Assertions.assertEquals("EN_PROGRESO",
+                    jdbc.queryForObject("select estado from hito_proyecto where hito_id=?", String.class, hito));
+        } finally {
+            jdbc.update("delete from pagos where mp_payment_id='990001'");
+            jdbc.update("update hito_proyecto set estado='PENDIENTE' where hito_id=?", hito);
+        }
     }
 
     // ---------- Calificaciones ----------

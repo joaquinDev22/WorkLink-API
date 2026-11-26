@@ -25,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -92,6 +93,9 @@ public class PagosServiceImpl implements IPagosService {
     }
 
     @Override
+    // Sin transacción: la clase es readOnly y guardarPagoConfirmado se uniría a esa transacción de solo lectura.
+    // Además consulta a Mercado Pago por HTTP, que no debe hacerse con una conexión de la base tomada.
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void procesarWebhook(String topic, String id, String type, String dataId) {
         String paymentIdStr = (dataId != null && !dataId.isBlank()) ? dataId : id;
         String eventType = (type != null && !type.isBlank()) ? type : topic;
